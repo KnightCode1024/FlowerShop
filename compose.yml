@@ -1,0 +1,58 @@
+services:
+  postgres:
+    image: postgres:18-alpine
+    container_name: postgres
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=${POSTGRES_NAME}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_NAME}" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend_flower_shop:
+    build: ./backend_flower_shop
+    container_name: backend
+    restart: always
+    # command: sh -c "alembic upgrade head && python main.py"
+    command: sh -c "python main.py"
+    env_file:
+      - ./backend_flower_shop/.env
+    volumes:
+      - ./backend_flower_shop/src:/backend_flower_shop
+      # - ./backend/certs:/certs:ro
+    working_dir: /backend_flower_shop
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      - POSTGRES_HOST=${POSTGRES_HOST}
+      - POSTGRES_PORT=${POSTGRES_PORT}
+
+  frontend_flower_shop:
+    build: ./frontend_flower_shop
+    container_name: frontend_flower_shop
+    restart: always
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend_flower_shop
+    environment:
+      - VITE_API_BASE_URL=http://backend_flower_shop:8000
+    volumes:
+      - ./frontend_flower_shop:/frontend_flower_shop
+      - /frontend_flower_shop/node_modules
+    command: npm run dev
+    env_file:
+      - ./frontend_flower_shop/.env
+
+volumes:
+  postgres-data:

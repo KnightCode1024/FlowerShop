@@ -2,6 +2,8 @@ services:
   postgres:
     image: postgres:18-alpine
     container_name: postgres
+    env_file:
+      - .env
     volumes:
       - postgres-data:/var/lib/postgresql/data
     ports:
@@ -15,13 +17,14 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+    networks:
+      - flower_shop_net
 
   backend_flower_shop:
     build: ./backend_flower_shop
-    container_name: backend
+    container_name: backend_flower_shop
     restart: always
-    # command: sh -c "alembic upgrade head && python main.py"
-    command: sh -c "python main.py"
+    command: sh -c "alembic upgrade head && python main.py"
     env_file:
       - ./backend_flower_shop/.env
     volumes:
@@ -36,6 +39,8 @@ services:
     environment:
       - POSTGRES_HOST=${POSTGRES_HOST}
       - POSTGRES_PORT=${POSTGRES_PORT}
+    networks:
+      - flower_shop_net
 
   frontend_flower_shop:
     build: ./frontend_flower_shop
@@ -53,6 +58,12 @@ services:
     command: npm run dev
     env_file:
       - ./frontend_flower_shop/.env
+    networks:
+      - flower_shop_net
+
+networks:
+  flower_shop_net:
+    driver: bridge
 
 volumes:
   postgres-data:

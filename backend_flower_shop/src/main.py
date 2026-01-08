@@ -2,8 +2,8 @@ import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-# from config import config
-from router import router
+from core.config import config
+from routers import product_router, category_router, dev_router
 
 
 app = FastAPI()
@@ -16,18 +16,21 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(router)
 
+routers = [
+    product_router,
+    category_router,
+    dev_router,
+]
 
-@app.get("/ping")
-async def pong():
-    return {"msg": "pong"}
+for router in routers:
+    app.include_router(router)
 
 
 if __name__ == "__main__":
     uvicorn.run(
         "main:app",
-        host="0.0.0.0",
-        port=8000,
+        host=config.app.HOST,
+        port=config.app.PORT,
         reload=True,
     )

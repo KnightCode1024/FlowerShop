@@ -1,4 +1,4 @@
-from database import async_session_maker
+from core.database import async_session_maker
 
 
 async def get_db_session():

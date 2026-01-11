@@ -4,10 +4,10 @@ from typing import List
 from pydantic import BaseModel, Field
 
 
-from schemas.product_image_schema import (
+from backend_flower_shop.src.schemas.product_image import (
     ProductImageResponse,
 )
-from schemas.category_schema import (
+from backend_flower_shop.src.schemas.category import (
     CategoryOneProductResponse,
 )
 

@@ -1,28 +1,23 @@
 from typing import List
-import json
+
 from decimal import Decimal
 
 from fastapi import (
     APIRouter,
     Depends,
-    HTTPException,
     UploadFile,
     File,
     Form,
-    status,
 )
 from sqlalchemy.ext.asyncio import AsyncSession
-from pydantic import ValidationError
 
-from core.dependencies.db import get_db_session
-from schemas.product_schema import (
-    ProductCreate,
+from backend_flower_shop.src.core.dependencies import get_db_session
+from backend_flower_shop.src.schemas.product import (
     ProductResponse,
     ProductsListResponse,
     ProductUpdateRequest,
 )
 
-from services import ProductService
 
 router = APIRouter(prefix="/products", tags=["Products"])
 
@@ -32,14 +27,7 @@ async def get_product(
     product_id: int,
     session: AsyncSession = Depends(get_db_session),
 ):
-    product_service = ProductService(session)
-    product = await product_service.get_product(product_id)
-    if not product:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Товар не найден",
-        )
-    return product
+    return
 
 
 @router.get("/", response_model=List[ProductsListResponse])
@@ -51,20 +39,7 @@ async def get_all_products(
     category_id: int = None,
     session: AsyncSession = Depends(get_db_session),
 ):
-    if min_price is not None and max_price is not None and max_price <= min_price:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Максимальная цена должна быть больше минимальной",
-        )
-
-    product_service = ProductService(session)
-    return await product_service.get_all_products(
-        offset,
-        limit,
-        min_price,
-        max_price,
-        category_id,
-    )
+    return
 
 
 @router.post("/")
@@ -76,25 +51,7 @@ async def create_product(
     images: List[UploadFile] = File([]),
     session: AsyncSession = Depends(get_db_session),
 ):
-    for i, img in enumerate(images):
-        print(f"Router, Image {i}: {img.filename}, size: {img.size}")
-
-    try:
-        product_dict = json.loads(product_data)
-        product_obj = ProductCreate(**product_dict)
-
-    except json.JSONDecodeError:
-        raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
-            detail="Некоректный JSON в product_data",
-        )
-    except ValidationError as e:
-        raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
-            detail=e,
-        )
-    product_service = ProductService(session)
-    return await product_service.create_product(product_obj, images)
+    return
 
 
 @router.patch("/{product_id}", response_model=ProductResponse)
@@ -104,16 +61,7 @@ async def update_product(
     images: List[UploadFile] = File([]),
     session: AsyncSession = Depends(get_db_session),
 ):
-    product_service = ProductService(session)
-    updated_product = await product_service.update_product(product_id, product_data, images)
-
-    if not updated_product:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Товар не найден",
-        )
-
-    return await product_service.get_product(product_id)
+    return
 
 
 @router.delete("/{product_id}")
@@ -121,5 +69,4 @@ async def delete_product(
     product_id: int,
     session: AsyncSession = Depends(get_db_session),
 ):
-    product_service = ProductService(session)
-    return await product_service.delete_product(product_id)
+    return

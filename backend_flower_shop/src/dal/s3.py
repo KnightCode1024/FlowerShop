@@ -8,7 +8,7 @@ from core.config import config
 from core.s3_client import S3Client
 
 
-class S3Service:
+class S3DAL:
     def __init__(self):
         self.s3_client = S3Client(
             access_key=config.s3.ACCESS_KEY,
@@ -46,25 +46,29 @@ class S3Service:
     ) -> List[str]:
         urls = []
         for image in images:
-            image_url = await self.upload_image(image, product_id)
+            image_url = await self.upload_image(
+                image,
+                product_id,
+            )
             urls.append(image_url)
 
         return urls
 
-    async def delete_image(self, image_url: str) -> bool:
+    async def delete_image(
+        self,
+        image_url: str,
+    ) -> bool:
         try:
-            url_parts = image_url.split('/')
+            url_parts = image_url.split("/")
             bucket_index = url_parts.index(self.s3_client.bucket_name)
-            s3_key = '/'.join(url_parts[bucket_index + 1:])
+            s3_key = "/".join(url_parts[bucket_index + 1 :])
 
             async with self.s3_client.get_client() as client:
                 await client.delete_object(
-                    Bucket=self.s3_client.bucket_name,
-                    Key=s3_key
+                    Bucket=self.s3_client.bucket_name, Key=s3_key
                 )
             return True
-        except Exception as e:
-            print(f"Error deleting image {image_url}: {e}")
+        except Exception:
             return False
 
     async def delete_images(self, image_urls: List[str]) -> int:

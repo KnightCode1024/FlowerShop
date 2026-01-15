@@ -8,7 +8,7 @@ from core.config import config
 from core.s3_client import S3Client
 
 
-class S3DAL:
+class S3Repository:
     def __init__(self):
         self.s3_client = S3Client(
             access_key=config.s3.ACCESS_KEY,

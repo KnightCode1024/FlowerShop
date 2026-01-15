@@ -1,72 +1,115 @@
 from typing import List
-
 from decimal import Decimal
 
-from fastapi import (
-    APIRouter,
-    Depends,
-    UploadFile,
-    File,
-    Form,
-)
-from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi import APIRouter, HTTPException, Query, UploadFile, File, status
+from dishka.integrations.fastapi import inject, FromDishka, DishkaRoute
 
-from backend_flower_shop.src.core.dependencies import get_db_session
-from backend_flower_shop.src.schemas.product import (
+from services.product import (
+    ProductsService,
+    ProductNotFoundError,
+    CategoryNotFoundError,
+)
+from schemas.product import (
     ProductResponse,
     ProductsListResponse,
-    ProductUpdateRequest,
+    CreateProductRequest,
+    UpdateProductRequest,
+    ProductFilterParams,
 )
 
 
-router = APIRouter(prefix="/products", tags=["Products"])
+router = APIRouter(
+    prefix="/products",
+    tags=["Products"],
+    route_class=DishkaRoute,
+)
 
 
 @router.get("/{product_id}", response_model=ProductResponse)
+@inject
 async def get_product(
+    service: FromDishka[ProductsService],
     product_id: int,
-    session: AsyncSession = Depends(get_db_session),
 ):
-    return
+    try:
+        return await service.get_product(product_id)
+    except ProductNotFoundError:
+        raise HTTPException(status_code=404, detail="Product not found")
 
 
 @router.get("/", response_model=List[ProductsListResponse])
-async def get_all_products(
-    offset: int = 0,
-    limit: int = 20,
-    min_price: Decimal = None,
-    max_price: Decimal = None,
-    category_id: int = None,
-    session: AsyncSession = Depends(get_db_session),
+@inject
+async def get_products(
+    service: FromDishka[ProductsService],
+    offset: int = Query(0, ge=0),
+    limit: int = Query(20, ge=1, le=100),
+    min_price: Decimal | None = Query(None, ge=0),
+    max_price: Decimal | None = Query(None, ge=0),
+    category_id: int | None = Query(None, gt=0),
+    in_stock: bool | None = Query(None),
 ):
-    return
+    filters = ProductFilterParams(
+        offset=offset,
+        limit=limit,
+        min_price=min_price,
+        max_price=max_price,
+        category_id=category_id,
+        in_stock=in_stock,
+    )
+
+    try:
+        return await service.get_products(filters)
+    except CategoryNotFoundError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e),
+        )
 
 
-@router.post("/")
+@router.post("/", response_model=ProductResponse)
+@inject
 async def create_product(
-    product_data: str = Form(
-        ...,
-        description="JSON строка с данными товара",
-    ),
+    service: FromDishka[ProductsService],
+    request: CreateProductRequest,
     images: List[UploadFile] = File([]),
-    session: AsyncSession = Depends(get_db_session),
 ):
-    return
+    try:
+        return await service.create_product(request, images)
+    except (CategoryNotFoundError, ValueError) as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e),
+        )
 
 
-@router.patch("/{product_id}", response_model=ProductResponse)
+@router.put("/{product_id}", response_model=ProductResponse)
+@inject
 async def update_product(
+    service: FromDishka[ProductsService],
     product_id: int,
-    product_data: ProductUpdateRequest,
+    request: UpdateProductRequest,
     images: List[UploadFile] = File([]),
-    session: AsyncSession = Depends(get_db_session),
 ):
-    return
+    try:
+        return await service.update_product(product_id, request, images)
+    except (ProductNotFoundError, CategoryNotFoundError, ValueError) as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e),
+        )
 
 
 @router.delete("/{product_id}")
+@inject
 async def delete_product(
+    service: FromDishka[ProductsService],
     product_id: int,
-    session: AsyncSession = Depends(get_db_session),
 ):
-    return
+    try:
+        await service.delete_product(product_id)
+        return {"message": "Product deleted successfully"}
+    except ProductNotFoundError:
+        raise HTTPException(
+            status_code=status.H404,
+            detail="Product not found",
+        )

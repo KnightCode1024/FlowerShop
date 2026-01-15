@@ -1,12 +1,23 @@
 import uvicorn
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from core.config import config
 from routers import product_router, category_router, dev_router
+from core.dependencies import init_dependencies
 
 
-app = FastAPI()
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    yield
+    container = getattr(app.state, "dishka_container", None)
+    if container is not None:
+        await container.close()
+
+
+app = FastAPI(lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
@@ -15,6 +26,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+init_dependencies(app)
 
 
 routers = [

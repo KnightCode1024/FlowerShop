@@ -1,129 +1,73 @@
 from decimal import Decimal
-from typing import List
+from typing import List, Optional
 
 from pydantic import BaseModel, Field
 
 
-from backend_flower_shop.src.schemas.product_image import (
-    ProductImageResponse,
-)
-from backend_flower_shop.src.schemas.category import (
-    CategoryOneProductResponse,
-)
-
-
-class ProductBase(BaseModel):
-    id: int = Field(
-        ...,
-        description="ID товара",
-    )
-    name: str = Field(
-        ...,
-        max_length=255,
-        description="Наименование товара",
-    )
-    description: str = Field(
-        ...,
-        max_length=255,
-        description="Описание товара",
-    )
-    price: Decimal = Field(
-        ...,
-        ge=0,
-        decimal_places=2,
-        description="Цена продукта",
-    )
-    in_stock: bool = Field(
-        True,
-        description="В наличии",
-    )
-    category_id: int = Field(
-        ...,
-        description="ID категории товара",
-    )
-
-    # @field_validator("price", mode="after")
-    # @classmethod
-    # def validate_price(cls, value):
-    #     if isinstance(value, str):
-    #         try:
-    #             value = Decimal(value)
-    #         except Exception:
-    #             raise ValueError("Некорректаная цена")
-
-    #     if value < 0:
-    #         raise ValidationError("Цена не может быть отрицательной")
-    #     if value.as_tuple().exponent < -2:
-    #         raise ValidationError(
-    #             "Цена должна быть не более 2 знаков после запятой",
-    #         )
+from schemas.product_image import ProductImageResponse
+from schemas.category import CategoryOneProductResponse
 
 
 class ProductCreate(BaseModel):
-    name: str = Field(
-        ...,
-        max_length=255,
-        description="Наименование товара",
-    )
-    description: str = Field(
-        ...,
-        max_length=255,
-        description="Описание товара",
-    )
-    price: Decimal = Field(
-        ...,
-        gt=0,
-        decimal_places=2,
-        description="Цена продукта",
-    )
-    in_stock: bool = Field(
-        True,
-        description="В наличии",
-    )
-    category_id: int = Field(
-        ...,
-        description="ID категории товара",
-    )
+    name: str = Field(..., max_length=255)
+    description: str | None = Field(None, max_length=255)
+    price: Decimal = Field(..., gt=0, decimal_places=2)
+    in_stock: bool = Field(True)
+    category_id: int = Field(...)
 
 
-class ProductUpdateRequest(BaseModel):
-    name: str = Field(
-        None,
-        max_length=255,
-        description="Наименование товара",
-    )
-    description: str = Field(
-        None,
-        max_length=255,
-        description="Описание товара",
-    )
-    price: Decimal = Field(
-        None,
-        gt=0,
-        decimal_places=2,
-        description="Цена продукта",
-    )
-    in_stock: bool = Field(
-        None,
-        description="В наличии",
-    )
-    category_id: int = Field(
-        None,
-        description="ID категории товара",
-    )
+class ProductUpdate(BaseModel):
+    name: Optional[str] = Field(None, max_length=255)
+    description: str | None = Field(None, max_length=255)
+    price: Decimal | None = Field(None, gt=0, decimal_places=2)
+    in_stock: bool | None = Field(None)
+    category_id: int | None = Field(None)
 
 
-class ProductResponse(ProductBase):
+class ProductFilterParams(BaseModel):
+    offset: int = Field(0, ge=0)
+    limit: int = Field(20, ge=1, le=100)
+    min_price: Decimal | None = Field(None, ge=0)
+    max_price: Decimal | None = Field(None, ge=0)
+    category_id: int | None = Field(None, gt=0)
+    in_stock: bool | None = Field(None)
+
+
+class CreateProductRequest(BaseModel):
+    name: str = Field(..., max_length=255)
+    description: str | None = Field(None, max_length=255)
+    price: Decimal = Field(..., gt=0, decimal_places=2)
+    in_stock: bool = Field(True)
+    category_id: int = Field(...)
+
+
+class UpdateProductRequest(BaseModel):
+    name: Optional[str] = Field(None, max_length=255)
+    description: str | None = Field(None, max_length=255)
+    price: Decimal | None = Field(None, gt=0, decimal_places=2)
+    in_stock: bool | None = Field(None)
+    category_id: int | None = Field(None)
+
+
+class ProductResponse(BaseModel):
+    id: int = Field(...)
+    name: str = Field(..., max_length=255)
+    description: str | None = Field(None, max_length=255)
+    price: Decimal = Field(..., ge=0, decimal_places=2)
+    in_stock: bool = Field(True)
+    category_id: int = Field(...)
+
     images: List[ProductImageResponse]
     category: CategoryOneProductResponse
 
 
-class ProductsListResponse(ProductBase):
-    main_image_url: str | None = Field(
-        None,
-        description="Главное фото товара",
-    )
-    category_name: str = Field(
-        ...,
-        description="Название категории",
-    )
+class ProductsListResponse(BaseModel):
+    id: int = Field(...)
+    name: str = Field(..., max_length=255)
+    description: str | None = Field(None, max_length=255)
+    price: Decimal = Field(..., ge=0, decimal_places=2)
+    in_stock: bool = Field(True)
+    category_id: int = Field(...)
+
+    main_image_url: Optional[str] = Field(None)
+    category_name: str = Field(...)

@@ -1,12 +1,13 @@
 from typing import List
 
-from fastapi import (
-    APIRouter,
-    Depends,
-)
-from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi import APIRouter, HTTPException, Query, status
+from dishka.integrations.fastapi import inject, FromDishka, DishkaRoute
 
-from core.dependencies import get_db_session
+from services.category import (
+    CategoriesService,
+    CategoryNotFoundError,
+    CategoryHasProductsError,
+)
 from schemas.category import (
     CategoryCreate,
     CategoryResponse,
@@ -16,46 +17,90 @@ from schemas.category import (
 )
 
 
-router = APIRouter(prefix="/categories", tags=["Categories"])
+router = APIRouter(
+    prefix="/categories",
+    tags=["Categories"],
+    route_class=DishkaRoute,
+)
 
 
 @router.get("/{category_id}", response_model=CategoryResponse)
+@inject
 async def get_category(
     category_id: int,
-    session: AsyncSession = Depends(get_db_session),
+    service: FromDishka[CategoriesService],
 ):
-    return
+    try:
+        return await service.get_category(category_id)
+    except CategoryNotFoundError:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Category not found",
+        )
 
 
 @router.get("/", response_model=List[CategoriesListResponse])
+@inject
 async def get_all_categories(
-    offset: int = 0,
-    limit: int = 20,
-    session: AsyncSession = Depends(get_db_session),
+    service: FromDishka[CategoriesService],
+    offset: int = Query(0, ge=0),
+    limit: int = Query(20, ge=1, le=100),
 ):
-    return
+    return await service.get_categories(offset=offset, limit=limit)
 
 
 @router.post("/", response_model=CategoryCreateResponse)
+@inject
 async def create_category(
     category_data: CategoryCreate,
-    session: AsyncSession = Depends(get_db_session),
+    service: FromDishka[CategoriesService],
 ):
-    return
+    try:
+        return await service.create_category(category_data)
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e),
+        )
 
 
-@router.patch("/{category_id}", response_model=CategoryResponse)
+@router.put("/{category_id}", response_model=CategoryResponse)
+@inject
 async def update_category(
     category_id: int,
     category_data: CategoryUpdate,
-    session: AsyncSession = Depends(get_db_session),
+    service: FromDishka[CategoriesService],
 ):
-    return
+    try:
+        return await service.update_category(category_id, category_data)
+    except CategoryNotFoundError:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Category not found",
+        )
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e),
+        )
 
 
 @router.delete("/{category_id}")
+@inject
 async def delete_category(
     category_id: int,
-    session: AsyncSession = Depends(get_db_session),
+    service: FromDishka[CategoriesService],
 ):
-    return
+    try:
+        await service.delete_category(category_id)
+        return {"message": "Category deleted successfully"}
+    except CategoryNotFoundError:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Category not found",
+        )
+    except CategoryHasProductsError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e),
+        )

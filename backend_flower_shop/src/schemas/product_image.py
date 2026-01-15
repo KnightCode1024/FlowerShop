@@ -1,27 +1,11 @@
-from typing import Optional
-
-# from decimal import Decimal
-# from datetime import datetime
-
 from pydantic import BaseModel, Field
 
 
 class ProductImageBase(BaseModel):
-    url: str = Field(
-        ...,
-        max_length=1000,
-        description="URL изображения",
-    )
+    url: str = Field(..., max_length=1000)
 
-    order: int = Field(
-        default=0,
-        ge=0,
-        description="Порядок изображения",
-    )
-    is_primary: bool = Field(
-        default=False,
-        description="Основное изображение",
-    )
+    order: int = Field(default=0, ge=0)
+    is_primary: bool = Field(default=False)
 
 
 class ProductImageResponse(ProductImageBase):
@@ -33,12 +17,5 @@ class ProductImageCreate(ProductImageBase):
 
 
 class ProductImageUpdate(BaseModel):
-    order: Optional[int] = Field(
-        None,
-        ge=0,
-        description="Порядок изображения",
-    )
-    is_primary: Optional[bool] = Field(
-        None,
-        description="Основное изображение",
-    )
+    order: int | None = Field(None, ge=0)
+    is_primary: bool | None = Field(None)

@@ -35,7 +35,7 @@ class Product(Base):
 
     category_id: Mapped[int] = mapped_column(
         ForeignKey(
-            "categorys.id",
+            "categories.id",
             ondelete="RESTRICT",
         ),
         nullable=False,

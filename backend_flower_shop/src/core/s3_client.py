@@ -26,16 +26,3 @@ class S3Client:
             **self.config,
         ) as client:
             yield client
-
-    # async def upload_file(
-    #     self,
-    #     file_path: str,
-    # ):
-    #     object_name = file_path.split("/")[-1]
-    #     async with self.get_client() as client:
-    #         with open(file_path, "rb") as file:
-    #             await client.put_object(
-    #                 Bucket=self.bucket_name,
-    #                 Key=object_name,
-    #                 Body=file,
-    #             )

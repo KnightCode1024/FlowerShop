@@ -7,6 +7,8 @@ from models import Base
 
 
 class Category(Base):
+    __tablename__ = "categories"
+
     name: Mapped[str] = mapped_column(
         String(255),
         nullable=False,

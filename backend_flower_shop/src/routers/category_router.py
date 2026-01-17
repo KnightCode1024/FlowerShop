@@ -1,7 +1,5 @@
-from typing import List
-
 from fastapi import APIRouter, HTTPException, Query, status
-from dishka.integrations.fastapi import inject, FromDishka, DishkaRoute
+from dishka.integrations.fastapi import FromDishka, DishkaRoute
 
 from services.category import (
     CategoriesService,
@@ -25,7 +23,6 @@ router = APIRouter(
 
 
 @router.get("/{category_id}", response_model=CategoryResponse)
-@inject
 async def get_category(
     category_id: int,
     service: FromDishka[CategoriesService],
@@ -39,8 +36,7 @@ async def get_category(
         )
 
 
-@router.get("/", response_model=List[CategoriesListResponse])
-@inject
+@router.get("/", response_model=list[CategoriesListResponse])
 async def get_all_categories(
     service: FromDishka[CategoriesService],
     offset: int = Query(0, ge=0),
@@ -50,7 +46,6 @@ async def get_all_categories(
 
 
 @router.post("/", response_model=CategoryCreateResponse)
-@inject
 async def create_category(
     category_data: CategoryCreate,
     service: FromDishka[CategoriesService],
@@ -65,7 +60,6 @@ async def create_category(
 
 
 @router.put("/{category_id}", response_model=CategoryResponse)
-@inject
 async def update_category(
     category_id: int,
     category_data: CategoryUpdate,
@@ -86,7 +80,6 @@ async def update_category(
 
 
 @router.delete("/{category_id}")
-@inject
 async def delete_category(
     category_id: int,
     service: FromDishka[CategoriesService],

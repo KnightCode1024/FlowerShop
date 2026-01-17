@@ -1,6 +1,5 @@
-from typing import List, Optional
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, and_
+from sqlalchemy import select, and_, delete
 from sqlalchemy.orm import joinedload
 
 from models import Product, ProductImage, Category
@@ -22,9 +21,16 @@ class ProductRepository:
         self.session.add(product)
         await self.session.flush()
         await self.session.refresh(product)
-        return await self._to_product_response(product)
+        query = (
+            select(Product)
+            .options(joinedload(Product.category), joinedload(Product.images))
+            .where(Product.id == product.id)
+        )
+        result = await self.session.execute(query)
+        product_with_relations = result.unique().scalar_one()
+        return await self._to_product_response(product_with_relations)
 
-    async def get_by_id(self, product_id: int) -> Optional[ProductResponse]:
+    async def get_by_id(self, product_id: int) -> ProductResponse | None:
         product = await self._get_product_with_relations(product_id)
         if not product:
             return None
@@ -33,7 +39,7 @@ class ProductRepository:
     async def get_filtered(
         self,
         filters: ProductFilterParams,
-    ) -> List[ProductsListResponse]:
+    ) -> list[ProductsListResponse]:
         conditions = []
 
         if filters.min_price is not None:
@@ -61,13 +67,14 @@ class ProductRepository:
         result = await self.session.execute(query)
         products = result.unique().scalars().all()
 
-        list_result: List[ProductsListResponse] = []
+        list_result: list[ProductsListResponse] = []
         for product in products:
             main_image_url = None
             images = getattr(product, "images", []) or []
             if images:
                 primary = next(
-                    (img for img in images if getattr(img, "is_primary", False)), images[0]
+                    (img for img in images if getattr(img, "is_primary", False)),
+                    images[0],
                 )
                 main_image_url = getattr(primary, "url", None)
 
@@ -94,7 +101,7 @@ class ProductRepository:
         self,
         product_id: int,
         data: ProductUpdate,
-    ) -> Optional[ProductResponse]:
+    ) -> ProductResponse | None:
         product = await self._get_product_with_relations(product_id)
         if not product:
             return None
@@ -108,19 +115,15 @@ class ProductRepository:
         await self.session.refresh(product)
         return await self._to_product_response(product)
 
-    async def delete(self, product_id: int) -> Optional[ProductResponse]:
-        product = await self._get_product_base(product_id)
-        if not product:
-            return None
-
-        resp = await self._to_product_response(product)
-        await self.session.delete(product)
-        return resp
+    async def delete(self, product_id: int) -> ProductResponse | None:
+        query = delete(Product).where(Product.id == product_id)
+        result = await self.session.execute(query)
+        return result.rowcount
 
     async def _get_product_with_relations(
         self,
         product_id: int,
-    ) -> Optional[Product]:
+    ) -> Product | None:
         query = (
             select(Product)
             .outerjoin(ProductImage, ProductImage.product_id == Product.id)
@@ -145,7 +148,7 @@ class ProductRepository:
         result = await self.session.execute(query)
         return result.scalar_one_or_none() is not None
 
-    async def _get_product_base(self, product_id: int) -> Optional[Product]:
+    async def _get_product_base(self, product_id: int) -> Product | None:
         query = select(Product).where(Product.id == product_id)
         result = await self.session.execute(query)
         return result.scalar_one_or_none()
@@ -163,7 +166,14 @@ class ProductRepository:
 
         category = getattr(product, "category", None)
         category_dict = (
-            {"id": getattr(category, "id", None), "name": getattr(category, "name", "")}
+            {
+                "id": getattr(category, "id", None),
+                "name": getattr(
+                    category,
+                    "name",
+                    "",
+                ),
+            }
             if category
             else None
         )

@@ -1,4 +1,3 @@
-from typing import List
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, delete
 
@@ -19,7 +18,7 @@ class ProductImageRepository:
         result = await self.session.execute(query)
         return result.scalar_one_or_none()
 
-    async def get_by_product_id(self, product_id: int) -> List[ProductImage]:
+    async def get_by_product_id(self, product_id: int) -> list[ProductImage]:
         query = (
             select(ProductImage)
             .where(ProductImage.product_id == product_id)

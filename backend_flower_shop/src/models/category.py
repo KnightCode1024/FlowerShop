@@ -1,5 +1,3 @@
-from typing import List
-
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import String
 
@@ -14,7 +12,7 @@ class Category(Base):
         nullable=False,
     )
 
-    products: Mapped[List["Product"]] = relationship(
+    products: Mapped[list["Product"]] = relationship(
         "Product",
         back_populates="category",
     )

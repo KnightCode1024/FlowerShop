@@ -1,4 +1,3 @@
-from typing import List
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from sqlalchemy.orm import joinedload
@@ -20,6 +19,7 @@ class CategoryRepository:
     ) -> Category:
         category = Category(**data.model_dump())
         self.session.add(category)
+        await self.session.flush()
         return category
 
     async def get_by_id(
@@ -41,7 +41,7 @@ class CategoryRepository:
         self,
         offset: int = 0,
         limit: int = 20,
-    ) -> List[Category]:
+    ) -> list[Category]:
         query = (
             select(Category)
             .outerjoin(Product, Product.category_id == Category.id)

@@ -1,8 +1,15 @@
-from typing import List
 from decimal import Decimal
 
-from fastapi import APIRouter, HTTPException, Query, UploadFile, File, status
-from dishka.integrations.fastapi import inject, FromDishka, DishkaRoute
+from fastapi import (
+    APIRouter,
+    HTTPException,
+    Query,
+    UploadFile,
+    File,
+    Form,
+    status,
+)
+from dishka.integrations.fastapi import FromDishka, DishkaRoute
 
 from services.product import (
     ProductsService,
@@ -26,7 +33,6 @@ router = APIRouter(
 
 
 @router.get("/{product_id}", response_model=ProductResponse)
-@inject
 async def get_product(
     service: FromDishka[ProductsService],
     product_id: int,
@@ -37,8 +43,7 @@ async def get_product(
         raise HTTPException(status_code=404, detail="Product not found")
 
 
-@router.get("/", response_model=List[ProductsListResponse])
-@inject
+@router.get("/", response_model=list[ProductsListResponse])
 async def get_products(
     service: FromDishka[ProductsService],
     offset: int = Query(0, ge=0),
@@ -67,13 +72,13 @@ async def get_products(
 
 
 @router.post("/", response_model=ProductResponse)
-@inject
 async def create_product(
     service: FromDishka[ProductsService],
-    request: CreateProductRequest,
-    images: List[UploadFile] = File([]),
+    product_data: str = Form(...),
+    images: list[UploadFile] = File([]),
 ):
     try:
+        request = CreateProductRequest.model_validate_json(product_data)
         return await service.create_product(request, images)
     except (CategoryNotFoundError, ValueError) as e:
         raise HTTPException(
@@ -83,14 +88,14 @@ async def create_product(
 
 
 @router.put("/{product_id}", response_model=ProductResponse)
-@inject
 async def update_product(
     service: FromDishka[ProductsService],
     product_id: int,
-    request: UpdateProductRequest,
-    images: List[UploadFile] = File([]),
+    product_data: str = Form(...),
+    images: list[UploadFile] = File([]),
 ):
     try:
+        request = UpdateProductRequest.model_validate_json(product_data)
         return await service.update_product(product_id, request, images)
     except (ProductNotFoundError, CategoryNotFoundError, ValueError) as e:
         raise HTTPException(
@@ -100,7 +105,6 @@ async def update_product(
 
 
 @router.delete("/{product_id}")
-@inject
 async def delete_product(
     service: FromDishka[ProductsService],
     product_id: int,

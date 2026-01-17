@@ -1,5 +1,4 @@
 from decimal import Decimal
-from typing import List
 
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import String, Numeric, Boolean, ForeignKey
@@ -25,7 +24,7 @@ class Product(Base):
         default=True,
     )
 
-    images: Mapped[List["ProductImage"]] = relationship(
+    images: Mapped[list["ProductImage"]] = relationship(
         "ProductImage",
         back_populates="product",
         cascade="all, delete-orphan",

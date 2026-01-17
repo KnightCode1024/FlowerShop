@@ -1,5 +1,4 @@
 from decimal import Decimal
-from typing import List, Optional
 
 from pydantic import BaseModel, Field
 
@@ -17,7 +16,7 @@ class ProductCreate(BaseModel):
 
 
 class ProductUpdate(BaseModel):
-    name: Optional[str] = Field(None, max_length=255)
+    name: str | None = Field(None, max_length=255)
     description: str | None = Field(None, max_length=255)
     price: Decimal | None = Field(None, gt=0, decimal_places=2)
     in_stock: bool | None = Field(None)
@@ -42,7 +41,7 @@ class CreateProductRequest(BaseModel):
 
 
 class UpdateProductRequest(BaseModel):
-    name: Optional[str] = Field(None, max_length=255)
+    name: str | None = Field(None, max_length=255)
     description: str | None = Field(None, max_length=255)
     price: Decimal | None = Field(None, gt=0, decimal_places=2)
     in_stock: bool | None = Field(None)
@@ -57,7 +56,7 @@ class ProductResponse(BaseModel):
     in_stock: bool = Field(True)
     category_id: int = Field(...)
 
-    images: List[ProductImageResponse]
+    images: list[ProductImageResponse]
     category: CategoryOneProductResponse
 
 
@@ -69,5 +68,5 @@ class ProductsListResponse(BaseModel):
     in_stock: bool = Field(True)
     category_id: int = Field(...)
 
-    main_image_url: Optional[str] = Field(None)
+    main_image_url: str | None = Field(None)
     category_name: str = Field(...)

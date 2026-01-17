@@ -1,6 +1,5 @@
 import uuid
 from pathlib import Path
-from typing import List
 
 from fastapi import UploadFile
 
@@ -41,9 +40,9 @@ class S3Repository:
 
     async def upload_images(
         self,
-        images: List[UploadFile],
+        images: list[UploadFile],
         product_id: int,
-    ) -> List[str]:
+    ) -> list[str]:
         urls = []
         for image in images:
             image_url = await self.upload_image(
@@ -61,7 +60,9 @@ class S3Repository:
         try:
             url_parts = image_url.split("/")
             bucket_index = url_parts.index(self.s3_client.bucket_name)
-            s3_key = "/".join(url_parts[bucket_index + 1 :])
+            s3_key = "/".join(
+                url_parts[bucket_index + 1:],
+            )
 
             async with self.s3_client.get_client() as client:
                 await client.delete_object(
@@ -71,7 +72,7 @@ class S3Repository:
         except Exception:
             return False
 
-    async def delete_images(self, image_urls: List[str]) -> int:
+    async def delete_images(self, image_urls: list[str]) -> int:
         deleted_count = 0
         for image_url in image_urls:
             if await self.delete_image(image_url):

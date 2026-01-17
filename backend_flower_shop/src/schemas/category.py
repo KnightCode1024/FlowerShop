@@ -1,5 +1,3 @@
-from typing import List
-
 from pydantic import BaseModel, Field
 
 
@@ -25,7 +23,7 @@ class CategoryUpdate(BaseModel):
 
 
 class CategoryResponse(CategoryBase):
-    products: List[CategoryProductResponse] = Field(default_factory=list)
+    products: list[CategoryProductResponse] = Field(default_factory=list)
 
 
 class CategoryCreateResponse(CategoryBase):

@@ -1,11 +1,11 @@
 from fastapi import UploadFile
 
 from core.uow import UnitOfWork
-from repositories.interfaces import (
-    ProductRepositoryInterface,
-    CategoryRepositoryInterface,
-    ProductImageRepositoryInterface,
-    S3RepositoryInterface,
+from repositories import (
+    ProductRepositoryI,
+    CategoryRepositoryI,
+    ProductImageRepositoryI,
+    S3RepositoryI,
 )
 
 from schemas.product import (
@@ -28,10 +28,10 @@ class ProductsService:
     def __init__(
         self,
         uow: UnitOfWork,
-        product_repository: ProductRepositoryInterface,
-        category_repository: CategoryRepositoryInterface,
-        image_repository: ProductImageRepositoryInterface,
-        s3_repository: S3RepositoryInterface,
+        product_repository: ProductRepositoryI,
+        category_repository: CategoryRepositoryI,
+        image_repository: ProductImageRepositoryI,
+        s3_repository: S3RepositoryI,
     ):
         self.uow = uow
         self.products = product_repository

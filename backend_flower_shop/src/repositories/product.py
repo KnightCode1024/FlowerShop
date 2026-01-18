@@ -1,3 +1,5 @@
+from typing import Protocol
+
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, and_, delete
 from sqlalchemy.orm import joinedload
@@ -12,7 +14,30 @@ from schemas.product import (
 )
 
 
-class ProductRepository:
+class ProductRepositoryI(Protocol):
+    async def create(self, data: ProductCreate) -> ProductResponse: ...
+
+    async def get_by_id(self, product_id: int) -> ProductResponse | None: ...
+
+    async def get_filtered(
+        self,
+        filters: ProductFilterParams,
+    ) -> list[ProductsListResponse]: ...
+
+    async def update(
+        self,
+        product_id: int,
+        data: ProductUpdate,
+    ) -> ProductResponse | None: ...
+
+    async def delete(self, product_id: int) -> int: ...
+
+    async def exists_by_name(
+        self, name: str, exclude_id: int | None = None
+    ) -> bool: ...
+
+
+class ProductRepository(ProductRepositoryI):
     def __init__(self, session: AsyncSession):
         self.session = session
 
@@ -73,7 +98,15 @@ class ProductRepository:
             images = getattr(product, "images", []) or []
             if images:
                 primary = next(
-                    (img for img in images if getattr(img, "is_primary", False)),
+                    (
+                        img
+                        for img in images
+                        if getattr(
+                            img,
+                            "is_primary",
+                            False,
+                        )
+                    ),
                     images[0],
                 )
                 main_image_url = getattr(primary, "url", None)

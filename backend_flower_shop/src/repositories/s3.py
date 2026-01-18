@@ -1,3 +1,4 @@
+from typing import Protocol
 import uuid
 from pathlib import Path
 
@@ -7,7 +8,13 @@ from core.config import config
 from core.s3_client import S3Client
 
 
-class S3Repository:
+class S3RepositoryI(Protocol):
+    async def upload_image(self, file: UploadFile) -> str: ...
+
+    async def delete_image(self, url: str) -> None: ...
+
+
+class S3Repository(S3RepositoryI):
     def __init__(self):
         self.s3_client = S3Client(
             access_key=config.s3.ACCESS_KEY,
@@ -61,7 +68,7 @@ class S3Repository:
             url_parts = image_url.split("/")
             bucket_index = url_parts.index(self.s3_client.bucket_name)
             s3_key = "/".join(
-                url_parts[bucket_index + 1:],
+                url_parts[bucket_index + 1 :],
             )
 
             async with self.s3_client.get_client() as client:

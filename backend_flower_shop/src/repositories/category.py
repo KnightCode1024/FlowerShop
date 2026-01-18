@@ -1,3 +1,5 @@
+from typing import Protocol
+
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from sqlalchemy.orm import joinedload
@@ -6,7 +8,23 @@ from models import Category, Product
 from schemas.category import CategoryCreate, CategoryUpdate
 
 
-class CategoryRepository:
+class CategoryRepositoryI(Protocol):
+    async def create(self, data: CategoryCreate): ...
+
+    async def get_by_id(self, category_id: int): ...
+
+    async def get_all(self, offset: int = 0, limit: int = 20) -> list: ...
+
+    async def update(self, category_id: int, data: CategoryUpdate): ...
+
+    async def delete(self, category_id: int): ...
+
+    async def exists_by_name(
+        self, name: str, exclude_id: int | None = None
+    ) -> bool: ...
+
+
+class CategoryRepository(CategoryRepositoryI):
     def __init__(
         self,
         session: AsyncSession,

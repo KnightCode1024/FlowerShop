@@ -1,9 +1,18 @@
-from repositories.category import CategoryRepository
-from repositories.product import ProductRepository
-from repositories.product_image import ProductImageRepository
+from repositories.category import CategoryRepository, CategoryRepositoryI
+from repositories.product import ProductRepository, ProductRepositoryI
+from repositories.product_image import (
+    ProductImageRepository,
+    ProductImageRepositoryI,
+)
+from repositories.s3 import S3Repository, S3RepositoryI
 
 __all__ = [
     "CategoryRepository",
+    "CategoryRepositoryI",
     "ProductRepository",
+    "ProductRepositoryI",
     "ProductImageRepository",
+    "ProductImageRepositoryI",
+    "S3Repository",
+    "S3RepositoryI",
 ]

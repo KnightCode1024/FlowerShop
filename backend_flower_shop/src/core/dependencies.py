@@ -7,15 +7,15 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from core.database import async_session_maker
 from core.config import AppConfig, config, S3Config, DatabaseConfig
 from core.s3_client import S3Client
-from repositories.product import ProductRepository
-from repositories.category import CategoryRepository
-from repositories.product_image import ProductImageRepository
-from repositories.s3 import S3Repository
-from repositories.interfaces import (
-    ProductRepositoryInterface,
-    CategoryRepositoryInterface,
-    ProductImageRepositoryInterface,
-    S3RepositoryInterface,
+from repositories import (
+    ProductRepository,
+    CategoryRepository,
+    ProductRepositoryI,
+    CategoryRepositoryI,
+    ProductImageRepositoryI,
+    S3RepositoryI,
+    ProductImageRepository,
+    S3Repository,
 )
 from services.product import ProductsService
 from services.category import CategoriesService
@@ -51,25 +51,25 @@ class RepositoryProvider(Provider):
     def get_product_repository(
         self,
         session: AsyncSession,
-    ) -> ProductRepositoryInterface:
+    ) -> ProductRepositoryI:
         return ProductRepository(session)
 
     @provide(scope=Scope.REQUEST)
     def get_category_repository(
         self,
         session: AsyncSession,
-    ) -> CategoryRepositoryInterface:
+    ) -> CategoryRepositoryI:
         return CategoryRepository(session)
 
     @provide(scope=Scope.REQUEST)
     def get_image_repository(
         self,
         session: AsyncSession,
-    ) -> ProductImageRepositoryInterface:
+    ) -> ProductImageRepositoryI:
         return ProductImageRepository(session)
 
     @provide(scope=Scope.REQUEST)
-    def get_s3_repository(self) -> S3RepositoryInterface:
+    def get_s3_repository(self) -> S3RepositoryI:
         return S3Repository()
 
     @provide(scope=Scope.REQUEST)
@@ -82,10 +82,10 @@ class ServiceProvider(Provider):
     def get_products_service(
         self,
         uow: UnitOfWork,
-        product_repository: ProductRepositoryInterface,
-        category_repository: CategoryRepositoryInterface,
-        image_repository: ProductImageRepositoryInterface,
-        s3_repository: S3RepositoryInterface,
+        product_repository: ProductRepositoryI,
+        category_repository: CategoryRepositoryI,
+        image_repository: ProductImageRepositoryI,
+        s3_repository: S3RepositoryI,
     ) -> ProductsService:
         return ProductsService(
             uow,
@@ -99,7 +99,7 @@ class ServiceProvider(Provider):
     def get_categories_service(
         self,
         uow: UnitOfWork,
-        category_repository: CategoryRepositoryInterface,
+        category_repository: CategoryRepositoryI,
     ) -> CategoriesService:
         return CategoriesService(uow, category_repository)
 

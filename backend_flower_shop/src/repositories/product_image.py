@@ -1,10 +1,20 @@
+from typing import Protocol
+
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, delete
 
 from models import ProductImage
 
 
-class ProductImageRepository:
+class ProductImageRepositoryI(Protocol):
+    async def create_for_product(
+        self, product_id: int, url: str, order: int, is_primary: bool
+    ): ...
+
+    async def delete_by_product_id(self, product_id: int): ...
+
+
+class ProductImageRepository(ProductImageRepositoryI):
     def __init__(self, session: AsyncSession):
         self.session = session
 

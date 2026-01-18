@@ -10,14 +10,14 @@ from core.exceptions import (
     CategoryHasProductsError,
     CategoryNameNotUniqueError,
 )
-from repositories.interfaces import CategoryRepositoryInterface
+from repositories import CategoryRepositoryI
 
 
 class CategoriesService:
     def __init__(
         self,
         uow: UnitOfWork,
-        category_repository: CategoryRepositoryInterface,
+        category_repository: CategoryRepositoryI,
     ):
         self.uow = uow
         self.categories = category_repository

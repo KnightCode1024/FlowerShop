@@ -70,7 +70,10 @@ class ProductsService:
 
             if images:
                 for i, image_file in enumerate(images):
-                    image_url = await self.s3.upload_image(image_file, product.id)
+                    image_url = await self.s3.upload_image(
+                        image_file,
+                        product.id,
+                    )
                     await self.images.create_for_product(
                         product_id=product.id,
                         url=image_url,
@@ -106,7 +109,10 @@ class ProductsService:
             images_to_create = new_images
             if images_to_create:
                 for i, image_file in enumerate(images_to_create):
-                    image_url = await self.s3.upload_image(image_file, product_id)
+                    image_url = await self.s3.upload_image(
+                        image_file,
+                        product_id,
+                    )
                     await self.images.create_for_product(
                         product_id=product_id,
                         url=image_url,

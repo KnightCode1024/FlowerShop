@@ -114,6 +114,6 @@ async def delete_product(
         return {"message": "Product deleted successfully"}
     except ProductNotFoundError:
         raise HTTPException(
-            status_code=status.H404,
+            status_code=status.HTTP_404_NOT_FOUND,
             detail="Product not found",
         )

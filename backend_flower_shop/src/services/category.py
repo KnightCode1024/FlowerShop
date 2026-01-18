@@ -14,7 +14,11 @@ from repositories.interfaces import CategoryRepositoryInterface
 
 
 class CategoriesService:
-    def __init__(self, uow: UnitOfWork, category_repository: CategoryRepositoryInterface):
+    def __init__(
+        self,
+        uow: UnitOfWork,
+        category_repository: CategoryRepositoryInterface,
+    ):
         self.uow = uow
         self.categories = category_repository
 
@@ -28,7 +32,10 @@ class CategoriesService:
             main_image = None
             imgs = p.images or []
             if imgs:
-                primary = next((img for img in imgs if img.is_primary), imgs[0])
+                primary = next(
+                    (img for img in imgs if img.is_primary),
+                    imgs[0],
+                )
                 main_image = primary.url
 
             products_list.append(

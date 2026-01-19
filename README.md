@@ -3,13 +3,14 @@
 Интернет магазин для продажи цветов
 
 ## Функционал
+- REST API
+    - CRUD операции на товаром
+    - CRUD операции над категорией товара
+    - JWT автоизация (регистрация, вход, обновление токена, профиль, все пользователи)
+- Frontend
+- ...
 
-- Управление категориями товаров
-- Управление товарами с изображениями
-- REST API для взаимодействия с фронтендом
-- Хранение изображений в S3-совместимом хранилище
-
-## Быстрый запуск
+## Запуск
 
 ### Предварительные требования
 
@@ -20,82 +21,68 @@
 ### 1. Клонирование репозитория
 
 ```bash
-git clone <repository-url>
+git clone git@github.com:KnightCode1024/FlowerShop.git
 cd FlowerShop
 ```
 
-### 2. Установка зависимостей бэкенда
+### 2. Настройка переменных окружения
 
-```bash
-cd backend_flower_shop
-pip install -e .
-pip install -r requirements-dev.txt
-```
-
-### 3. Настройка переменных окружения
-
-Создайте файл `.env` в директории `backend_flower_shop`:
+Создайте файл `.env` в дириктории  `backend_flower_shop`:
 
 ```env
-DATABASE_URL=postgresql+asyncpg://user:password@localhost:5432/flowershop
-SECRET_KEY=your-secret-key-here
-S3_ENDPOINT_URL=http://localhost:9000
-S3_ACCESS_KEY=minioadmin
-S3_SECRET_KEY=minioadmin
-S3_BUCKET_NAME=flowershop
+# Настройки БД
+POSTGRES_NAME=flower_shop_db
+POSTGRES_USER=flower_shop_user
+POSTGRES_PASSWORD=12345678
+POSTGRES_HOST=postgres
+POSTGRES_PORT=5432
+
+# Настройки приложения
+APP_HOST=0.0.0.0
+APP_PORT=8000
+APP_SECRET_KEY=secret_key
+
+# Настройки S3 хранилица
+S3_ENDPOINT=http://minio:9000
+S3_PUBLIC_ENDPOINT=http://localhost:9000
+S3_ACCESS_KEY=admin
+S3_SECRET_KEY=secret_key
+S3_BUCKET_NAME=flower-shop
+S3_REGION=us-east-1
 ```
 
-### 4. Запуск инфраструктуры
+### 3. Сборка и запуск через Docker
 
 ```bash
-# Из корневой директории проекта
-docker-compose up -d
+# Запуск и сборка
+docker-compose up --build -d
+# Повторный запуск
+docker-compose up --build -d
 ```
 
-### 5. Запуск миграций базы данных
+### 4. Тестирование приложения
+...
 
-```bash
-cd backend_flower_shop
-alembic upgrade head
-```
+## Архитектура приложения
 
-### 6. Запуск сервера
-
-```bash
-# Из директории backend_flower_shop
-python run.py
-# Или напрямую через uvicorn
-uvicorn src.main:app --reload
-```
-
-### 7. Запуск тестов
-
-```bash
-# Из директории backend_flower_shop
-pytest
-```
-
-## Структура проекта
-
-```
 FlowerShop/
-├── backend_flower_shop/          # Backend API
+├── backend_flower_shop/          # REST API
 │   ├── src/                      # Исходный код
 │   │   ├── core/                 # Ядро приложения
 │   │   ├── models/               # Модели базы данных
 │   │   ├── schemas/              # Pydantic схемы
 │   │   ├── services/             # Бизнес-логика
-│   │   ├── repositories/         # Репозитории данных
+│   │   ├── repositories/         # Работа с данными
 │   │   ├── routers/              # API маршруты
+│   │   ├── utils/                # Вспомогательные функии
 │   │   └── main.py               # Точка входа
 │   ├── tests/                    # Тесты
-│   ├── alembic/                  # Миграции БД
-│   └── setup.py                  # Конфигурация пакета
+│   └── alembic/                  # Миграции БД
 ├── frontend_flower_shop/         # Frontend React приложение
 ├── compose.yml                   # Docker Compose
-└── README.md                     # Эта документация
-```
+└── README.md                     # README
 
+## Ресурсы
 ## API Документация
 
 После запуска сервера документация API доступна по адресу:
@@ -106,32 +93,3 @@ http://127.0.0.1:8000/docs
 - http://127.0.0.1:5173 - фронтенд
 - http://127.0.0.1:8000/docs - документация API
 - http://127.0.0.1:9001 - консоль S3 хранилища (MinIO)
-
-## Разработка
-
-### Запуск тестов
-
-```bash
-cd backend_flower_shop
-pytest
-```
-
-### Покрытие кода тестами
-
-```bash
-pytest --cov=services --cov-report=html
-```
-
-### Форматирование кода
-
-```bash
-black src/
-isort src/
-```
-
-### Линтинг
-
-```bash
-flake8 src/
-mypy src/
-```

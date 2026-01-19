@@ -28,6 +28,19 @@ class DatabaseConfig(BaseSettings):
         )
 
 
+class AuthJWT(BaseSettings):
+    if Path("/certs").exists():
+        _certs_dir = Path("/certs")
+    else:
+        _certs_dir = BASE_DIR / "certs"
+
+    PRIVATE_KEY: Path = _certs_dir / "jwt-private.pem"
+    PUBLIC_KEY: Path = _certs_dir / "jwt-public.pem"
+    ALGORITM: str = "RS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24  # 15
+    REFRESH_TOKEN_EXPIRE_DAYS: int = 90  # 14
+
+
 class S3Config(BaseSettings):
     model_config = SettingsConfigDict(
         env_prefix="S3_",
@@ -70,6 +83,7 @@ class Config(BaseSettings):
     database: DatabaseConfig = DatabaseConfig()
     s3: S3Config = S3Config()
     app: AppConfig = AppConfig()
+    auth_jwt: AuthJWT = AuthJWT()
 
 
 config = Config()

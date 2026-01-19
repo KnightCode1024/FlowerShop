@@ -5,7 +5,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from core.config import config
-from routers import product_router, category_router, dev_router
+from routers import product_router, category_router, dev_router, user_router
 from core.dependencies import init_dependencies
 
 
@@ -35,6 +35,7 @@ routers = [
     product_router,
     category_router,
     dev_router,
+    user_router,
 ]
 
 for router in routers:

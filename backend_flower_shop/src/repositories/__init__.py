@@ -5,6 +5,7 @@ from repositories.product_image import (
     ProductImageRepositoryI,
 )
 from repositories.s3 import S3Repository, S3RepositoryI
+from repositories.user import UserRepository, UserRepositoryI
 
 __all__ = [
     "CategoryRepository",
@@ -15,4 +16,6 @@ __all__ = [
     "ProductImageRepositoryI",
     "S3Repository",
     "S3RepositoryI",
+    "UserRepository",
+    "UserRepositoryI",
 ]

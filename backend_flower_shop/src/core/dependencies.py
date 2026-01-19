@@ -3,6 +3,8 @@ from typing import AsyncGenerator
 from dishka import make_async_container, Provider, provide, Scope
 from dishka.integrations.fastapi import setup_dishka, FastapiProvider
 from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi.security import HTTPBearer
+from fastapi import Request, status, HTTPException
 
 from core.database import async_session_maker
 from core.config import AppConfig, config, S3Config, DatabaseConfig
@@ -16,10 +18,15 @@ from repositories import (
     S3RepositoryI,
     ProductImageRepository,
     S3Repository,
+    UserRepository,
+    UserRepositoryI,
 )
-from services.product import ProductsService
-from services.category import CategoriesService
+from services import ProductsService, CategoriesService, UserService
 from core.uow import UnitOfWork
+from schemas.user import UserResponse
+from utils.jwt import decode_jwt
+
+security = HTTPBearer()
 
 
 class ConfigProvider(Provider):
@@ -44,6 +51,53 @@ class DatabaseProvider(Provider):
             yield session
         finally:
             await session.close()
+
+
+class AuthProvider(Provider):
+    @provide(scope=Scope.REQUEST)
+    async def get_current_user(
+        self,
+        user_service: UserService,
+        request: Request,
+    ) -> UserResponse:
+        authorization = request.headers.get("Authorization")
+        if not authorization:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Authorization header missing",
+            )
+
+        try:
+            scheme, token = authorization.split()
+            if scheme.lower() != "bearer":
+                raise HTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    detail="Invalid authentication scheme",
+                )
+
+            print(f"Token: {token}")
+        except ValueError:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid authorization header",
+            )
+
+        decoded_token = decode_jwt(token)
+        user_id = int(decoded_token.get("sub"))
+
+        if user_id:
+            user = await user_service.get_user(user_id)
+            if not user:
+                raise HTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    detail="User not found",
+                )
+
+            return UserResponse(
+                id=user.id,
+                email=user.email,
+                username=user.username,
+            )
 
 
 class RepositoryProvider(Provider):
@@ -71,6 +125,10 @@ class RepositoryProvider(Provider):
     @provide(scope=Scope.REQUEST)
     def get_s3_repository(self) -> S3RepositoryI:
         return S3Repository()
+
+    @provide(scope=Scope.REQUEST)
+    def get_user_repository(self, session: AsyncSession) -> UserRepositoryI:
+        return UserRepository(session)
 
     @provide(scope=Scope.REQUEST)
     def get_unit_of_work(self, session: AsyncSession) -> UnitOfWork:
@@ -103,10 +161,18 @@ class ServiceProvider(Provider):
     ) -> CategoriesService:
         return CategoriesService(uow, category_repository)
 
+    @provide(scope=Scope.REQUEST)
+    def get_user_service(
+        self,
+        uow: UnitOfWork,
+        user_repository: UserRepositoryI,
+    ) -> UserService:
+        return UserService(uow, user_repository)
+
 
 class ClientProvider(Provider):
     @provide(scope=Scope.REQUEST)
-    def get_s3_client() -> S3Client:
+    def get_s3_client(self) -> S3Client:
         return S3Client()
 
 
@@ -115,7 +181,9 @@ container = make_async_container(
     RepositoryProvider(),
     ServiceProvider(),
     FastapiProvider(),
+    ClientProvider(),
     ConfigProvider(),
+    AuthProvider(),
 )
 
 

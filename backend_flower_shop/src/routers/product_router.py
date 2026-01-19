@@ -10,9 +10,8 @@ from fastapi import (
     status,
 )
 from dishka.integrations.fastapi import FromDishka, DishkaRoute
-
-from services.product import (
-    ProductsService,
+from services import ProductsService
+from core.exceptions import (
     ProductNotFoundError,
     CategoryNotFoundError,
 )

@@ -3,7 +3,6 @@ from typing import AsyncGenerator
 from dishka import make_async_container, Provider, provide, Scope
 from dishka.integrations.fastapi import setup_dishka, FastapiProvider
 from sqlalchemy.ext.asyncio import AsyncSession
-from fastapi.security import HTTPBearer
 from fastapi import Request, status, HTTPException
 
 from core.database import async_session_maker
@@ -25,8 +24,6 @@ from services import ProductsService, CategoriesService, UserService
 from core.uow import UnitOfWork
 from schemas.user import UserResponse
 from utils.jwt import decode_jwt
-
-security = HTTPBearer()
 
 
 class ConfigProvider(Provider):

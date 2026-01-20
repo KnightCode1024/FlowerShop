@@ -22,6 +22,7 @@ from schemas.product import (
     UpdateProductRequest,
     ProductFilterParams,
 )
+from schemas.user import UserResponse
 
 
 router = APIRouter(
@@ -35,6 +36,7 @@ router = APIRouter(
 async def get_product(
     service: FromDishka[ProductsService],
     product_id: int,
+    current_user: FromDishka[UserResponse],
 ):
     try:
         return await service.get_product(product_id)
@@ -45,6 +47,7 @@ async def get_product(
 @router.get("/", response_model=list[ProductsListResponse])
 async def get_products(
     service: FromDishka[ProductsService],
+    current_user: FromDishka[UserResponse],
     offset: int = Query(0, ge=0),
     limit: int = Query(20, ge=1, le=100),
     min_price: Decimal | None = Query(None, ge=0),
@@ -73,6 +76,7 @@ async def get_products(
 @router.post("/", response_model=ProductResponse)
 async def create_product(
     service: FromDishka[ProductsService],
+    current_user: FromDishka[UserResponse],
     product_data: str = Form(...),
     images: list[UploadFile] = File([]),
 ):
@@ -89,6 +93,7 @@ async def create_product(
 @router.put("/{product_id}", response_model=ProductResponse)
 async def update_product(
     service: FromDishka[ProductsService],
+    current_user: FromDishka[UserResponse],
     product_id: int,
     product_data: str = Form(...),
     images: list[UploadFile] = File([]),
@@ -106,6 +111,7 @@ async def update_product(
 @router.delete("/{product_id}")
 async def delete_product(
     service: FromDishka[ProductsService],
+    current_user: FromDishka[UserResponse],
     product_id: int,
 ):
     try:

@@ -6,6 +6,8 @@ services:
       - postgres-data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
+    env_file:
+      - .env
     environment:
       - POSTGRES_DB=${POSTGRES_NAME}
       - POSTGRES_USER=${POSTGRES_USER}
@@ -23,6 +25,8 @@ services:
     image: quay.io/minio/minio:latest
     container_name: minio
     entrypoint: ["/entrypoint-minio.sh"]
+    env_file:
+      - .env
     environment:
       - MINIO_ROOT_USER=${S3_ACCESS_KEY}
       - MINIO_ROOT_PASSWORD=${S3_SECRET_KEY}
@@ -50,7 +54,7 @@ services:
     restart: always
     entrypoint: ["/entrypoint-backend.sh"]
     env_file:
-      - ./backend_flower_shop/.env
+      - .env
     volumes:
       - ./backend_flower_shop/src:/backend_flower_shop
       - ./backend_flower_shop/scripts/entrypoint-backend.sh:/entrypoint-backend.sh
@@ -77,10 +81,10 @@ services:
     restart: always
     ports:
       - "5173:5173"
+    env_file:
+      - .env
     depends_on:
       - backend_flower_shop
-    # environment:
-    #   - VITE_API_BASE_URL=http://backend_flower_shop:8000
     volumes:
       - ./frontend_flower_shop:/frontend_flower_shop
       - /frontend_flower_shop/node_modules

@@ -23,6 +23,7 @@ router = APIRouter(
 async def register(
     user_data: UserCreate,
     service: FromDishka[UserService],
+    current_user: FromDishka[UserResponse],
 ):
     try:
         return await service.register_user(user_data)
@@ -37,6 +38,7 @@ async def register(
 async def login(
     user_data: UserLogin,
     service: FromDishka[UserService],
+    current_user: FromDishka[UserResponse],
 ):
     try:
         return await service.login_user(user_data)
@@ -58,6 +60,7 @@ async def get_profile(
 async def refresh_token(
     payload: RefreshToken,
     service: FromDishka[UserService],
+    current_user: FromDishka[UserResponse],
 ):
     try:
         return await service.refresh_token(payload)

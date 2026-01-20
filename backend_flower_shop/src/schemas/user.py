@@ -2,6 +2,8 @@ import re
 
 from pydantic import BaseModel, field_validator, Field
 
+from models import RoleEnum
+
 
 class UserEmail(BaseModel):
     email: str = Field(..., max_length=255)
@@ -33,13 +35,24 @@ class UserUpdate(UserBase):
     pass
 
 
+class UserRequest(BaseModel):
+    id: int = Field(...)
+
+
 class UserResponse(UserEmail):
     id: int = Field(...)
     username: str = Field(..., max_length=255)
+    role: RoleEnum | str = Field(..., max_length=255)
 
 
-class UserRequest(BaseModel):
-    id: int = Field(...)
+class AnonymousUserResponse(BaseModel):
+    id: int | None = Field(None)
+    username: str | None = Field(None, max_length=255)
+    role: RoleEnum = Field(default=RoleEnum.ANONYMOUS, max_length=255)
+    email: str | None = Field(None, max_length=255)
+
+    class Config:
+        pass
 
 
 class RefreshToken(BaseModel):

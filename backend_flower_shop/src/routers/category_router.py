@@ -13,6 +13,7 @@ from schemas.category import (
     CategoriesListResponse,
     CategoryUpdate,
 )
+from schemas.user import UserResponse
 
 
 router = APIRouter(
@@ -26,6 +27,7 @@ router = APIRouter(
 async def get_category(
     category_id: int,
     service: FromDishka[CategoriesService],
+    current_user: FromDishka[UserResponse],
 ):
     try:
         return await service.get_category(category_id)
@@ -49,6 +51,7 @@ async def get_all_categories(
 async def create_category(
     category_data: CategoryCreate,
     service: FromDishka[CategoriesService],
+    current_user: FromDishka[UserResponse],
 ):
     try:
         return await service.create_category(category_data)
@@ -64,6 +67,7 @@ async def update_category(
     category_id: int,
     category_data: CategoryUpdate,
     service: FromDishka[CategoriesService],
+    current_user: FromDishka[UserResponse],
 ):
     try:
         return await service.update_category(category_id, category_data)
@@ -83,6 +87,7 @@ async def update_category(
 async def delete_category(
     category_id: int,
     service: FromDishka[CategoriesService],
+    current_user: FromDishka[UserResponse],
 ):
     try:
         await service.delete_category(category_id)

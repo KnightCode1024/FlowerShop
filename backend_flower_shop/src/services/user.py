@@ -79,6 +79,7 @@ class UserService:
             id=updated.id,
             email=updated.email,
             username=updated.username,
+            role=updated.role,
         )
 
     async def get_user(self, user_id: int) -> UserResponse:
@@ -89,6 +90,7 @@ class UserService:
             id=user.id,
             email=user.email,
             username=user.username,
+            role=user.role,
         )
         return user_repsonse
 
@@ -134,6 +136,7 @@ class UserService:
                 id=user.id,
                 email=user.email,
                 username=user.username,
+                role=user.role,
             )
         except Exception as e:
             print(f"Token verification error: {e}")

@@ -24,24 +24,29 @@ from services import ProductsService, CategoriesService, UserService
 from core.uow import UnitOfWork
 from schemas.user import UserResponse
 from utils.jwt import decode_jwt
+from models import RoleEnum
 
 
 class ConfigProvider(Provider):
-    @provide(scope=Scope.APP)
+    scope = Scope.APP
+
+    @provide
     def get_config(self) -> AppConfig:
         return config
 
-    @provide(scope=Scope.APP)
+    @provide
     def get_s3_config(self) -> S3Config:
         return config.s3
 
-    @provide(scope=Scope.APP)
+    @provide
     def get_database_config(self) -> DatabaseConfig:
         return config.database
 
 
 class DatabaseProvider(Provider):
-    @provide(scope=Scope.REQUEST)
+    scope = Scope.REQUEST
+
+    @provide
     async def get_db_session(self) -> AsyncGenerator[AsyncSession, None]:
         session = async_session_maker()
         try:
@@ -51,7 +56,9 @@ class DatabaseProvider(Provider):
 
 
 class AuthProvider(Provider):
-    @provide(scope=Scope.REQUEST)
+    scope = Scope.REQUEST
+
+    @provide
     async def get_current_user(
         self,
         user_service: UserService,
@@ -59,9 +66,15 @@ class AuthProvider(Provider):
     ) -> UserResponse:
         authorization = request.headers.get("Authorization")
         if not authorization:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Authorization header missing",
+            # raise HTTPException(
+            #     status_code=status.HTTP_401_UNAUTHORIZED,
+            #     detail="Authorization header missing",
+            # )
+            return UserResponse(
+                id=0,
+                email=f"{None}@{None}.{None}",
+                username=f"{None}",
+                role=RoleEnum.ANONYMOUS,
             )
 
         try:
@@ -72,7 +85,6 @@ class AuthProvider(Provider):
                     detail="Invalid authentication scheme",
                 )
 
-            print(f"Token: {token}")
         except ValueError:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
@@ -94,46 +106,51 @@ class AuthProvider(Provider):
                 id=user.id,
                 email=user.email,
                 username=user.username,
+                role=user.role,
             )
 
 
 class RepositoryProvider(Provider):
-    @provide(scope=Scope.REQUEST)
+    scope = Scope.REQUEST
+
+    @provide
     def get_product_repository(
         self,
         session: AsyncSession,
     ) -> ProductRepositoryI:
         return ProductRepository(session)
 
-    @provide(scope=Scope.REQUEST)
+    @provide
     def get_category_repository(
         self,
         session: AsyncSession,
     ) -> CategoryRepositoryI:
         return CategoryRepository(session)
 
-    @provide(scope=Scope.REQUEST)
+    @provide
     def get_image_repository(
         self,
         session: AsyncSession,
     ) -> ProductImageRepositoryI:
         return ProductImageRepository(session)
 
-    @provide(scope=Scope.REQUEST)
+    @provide
     def get_s3_repository(self) -> S3RepositoryI:
         return S3Repository()
 
-    @provide(scope=Scope.REQUEST)
+    @provide
     def get_user_repository(self, session: AsyncSession) -> UserRepositoryI:
         return UserRepository(session)
 
-    @provide(scope=Scope.REQUEST)
+    @provide
     def get_unit_of_work(self, session: AsyncSession) -> UnitOfWork:
         return UnitOfWork(session)
 
 
 class ServiceProvider(Provider):
-    @provide(scope=Scope.REQUEST)
+    scope = Scope.REQUEST
+
+    @provide
     def get_products_service(
         self,
         uow: UnitOfWork,
@@ -150,7 +167,7 @@ class ServiceProvider(Provider):
             s3_repository,
         )
 
-    @provide(scope=Scope.REQUEST)
+    @provide
     def get_categories_service(
         self,
         uow: UnitOfWork,
@@ -158,7 +175,7 @@ class ServiceProvider(Provider):
     ) -> CategoriesService:
         return CategoriesService(uow, category_repository)
 
-    @provide(scope=Scope.REQUEST)
+    @provide
     def get_user_service(
         self,
         uow: UnitOfWork,
@@ -168,7 +185,9 @@ class ServiceProvider(Provider):
 
 
 class ClientProvider(Provider):
-    @provide(scope=Scope.REQUEST)
+    scope = Scope.REQUEST
+
+    @provide
     def get_s3_client(self) -> S3Client:
         return S3Client()
 

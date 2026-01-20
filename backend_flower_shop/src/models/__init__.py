@@ -2,7 +2,7 @@ from models.base import Base
 from models.category import Category
 from models.product import Product
 from models.product_image import ProductImage
-from models.user import User
+from models.user import User, RoleEnum
 
 __all__ = [
     "Base",
@@ -10,4 +10,5 @@ __all__ = [
     "Product",
     "ProductImage",
     "User",
+    "RoleEnum",
 ]

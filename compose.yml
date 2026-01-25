@@ -59,10 +59,8 @@ services:
       - ./backend_flower_shop/src:/backend_flower_shop
       - ./backend_flower_shop/scripts/entrypoint-backend.sh:/entrypoint-backend.sh
       - ./backend_flower_shop/certs:/certs:ro
-
       - ./backend_flower_shop/alembic:/backend_flower_shop/alembic
       - ./backend_flower_shop/alembic.ini:/backend_flower_shop/alembic.ini
-
     working_dir: /backend_flower_shop
     ports:
       - "8000:8000"

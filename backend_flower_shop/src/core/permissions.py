@@ -1,8 +1,8 @@
 from functools import wraps
-from typing import Callable, Any
+from typing import Callable
 
 from models import RoleEnum
-from schemas.user import UserResponse, AnonymousUserResponse
+from schemas.user import UserResponse
 
 from fastapi import HTTPException, status
 

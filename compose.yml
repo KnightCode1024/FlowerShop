@@ -1,7 +1,6 @@
 services:
   postgres:
     image: postgres:18-alpine
-    container_name: postgres
     volumes:
       - postgres-data:/var/lib/postgresql/data
     ports:
@@ -20,10 +19,8 @@ services:
     networks:
       - flower_shop_net
 
-
   minio:
     image: quay.io/minio/minio:latest
-    container_name: minio
     entrypoint: ["/entrypoint-minio.sh"]
     env_file:
       - .env
@@ -38,8 +35,8 @@ services:
       - "9001:9001"  # Web Console
     volumes:
       - minio-data:/data
-      - ./backend_flower_shop/scripts/init-minio.sh:/init-minio.sh
-      - ./backend_flower_shop/scripts/entrypoint-minio.sh:/entrypoint-minio.sh
+      - ./backend/scripts/init-minio.sh:/init-minio.sh
+      - ./backend/scripts/entrypoint-minio.sh:/entrypoint-minio.sh
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
       interval: 30s
@@ -48,20 +45,19 @@ services:
     networks:
       - flower_shop_net
 
-  backend_flower_shop:
-    build: ./backend_flower_shop
-    container_name: backend_flower_shop
+  backend:
+    build: ./backend/src
     restart: always
     entrypoint: ["/entrypoint-backend.sh"]
     env_file:
       - .env
     volumes:
-      - ./backend_flower_shop/src:/backend_flower_shop
-      - ./backend_flower_shop/scripts/entrypoint-backend.sh:/entrypoint-backend.sh
-      - ./backend_flower_shop/certs:/certs:ro
-      - ./backend_flower_shop/alembic:/backend_flower_shop/alembic
-      - ./backend_flower_shop/alembic.ini:/backend_flower_shop/alembic.ini
-    working_dir: /backend_flower_shop
+      - ./backend/src:/backend
+      - ./backend/scripts/entrypoint-backend.sh:/entrypoint-backend.sh
+      - ./backend/certs:/backend/certs:ro
+      - ./backend/alembic:/backend/alembic
+      - ./backend/alembic.ini:/backend/alembic.ini
+    working_dir: /backend
     ports:
       - "8000:8000"
     depends_on:
@@ -77,23 +73,21 @@ services:
     networks:
       - flower_shop_net
 
-  frontend_flower_shop:
-    build: ./frontend_flower_shop
-    container_name: frontend_flower_shop
+  frontend:
+    build: ./frontend
     restart: always
     ports:
       - "5173:5173"
     env_file:
       - .env
     depends_on:
-      - backend_flower_shop
+      - backend
     volumes:
-      - ./frontend_flower_shop:/frontend_flower_shop
-      - /frontend_flower_shop/node_modules
+      - ./frontend:/frontend
+      - /frontend/node_modules
     command: npm run dev
     networks:
       - flower_shop_net
-
 
 networks:
   flower_shop_net:

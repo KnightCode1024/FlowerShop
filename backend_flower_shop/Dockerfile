@@ -5,8 +5,5 @@ ENV PYTHONUNBUFFERED=1
 
 RUN pip install --upgrade pip
 WORKDIR /backend_flower_shop
-COPY requirements.txt .
-RUN pip install -r requirements.txt
-
-COPY . .
-RUN chmod +x scripts/*.sh
+COPY requirements.txt /backend_flower_shop/
+RUN pip install --no-cache-dir -r /backend_flower_shop/requirements.txt

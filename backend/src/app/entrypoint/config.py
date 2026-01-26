@@ -29,8 +29,8 @@ class DatabaseConfig(BaseSettings):
 
 
 class AuthJWT(BaseSettings):
-    if Path("/certs").exists():
-        _certs_dir = Path("/certs")
+    if Path("/backend/certs").exists():
+        _certs_dir = Path("/backend/certs")
     else:
         _certs_dir = BASE_DIR / "certs"
 

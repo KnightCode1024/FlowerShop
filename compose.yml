@@ -52,11 +52,9 @@ services:
     env_file:
       - .env
     volumes:
-      - ./backend/src:/backend
-      - ./backend/scripts/entrypoint-backend.sh:/entrypoint-backend.sh
-      - ./backend/certs:/backend/certs:ro
-      - ./backend/alembic:/backend/alembic
-      - ./backend/alembic.ini:/backend/alembic.ini
+     - ./backend:/backend
+     - ./backend/scripts/entrypoint-backend.sh:/entrypoint-backend.sh
+     - ./backend/certs:/backend/certs:ro
     working_dir: /backend
     ports:
       - "8000:8000"

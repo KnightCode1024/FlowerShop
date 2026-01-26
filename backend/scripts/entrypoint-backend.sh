@@ -3,13 +3,13 @@ set -e
 
 echo "Starting backend initialization..."
 
-# Выполняем миграции
-# echo "Running database migrations..."
-# alembic -c /backend/alembic.ini upgrade head
+# Set PYTHONPATH for both migrations and application
+export PYTHONPATH=src
 
-#  && uvicorn src.main:app --host 0.0.0.0 --port 8000
+# Выполняем миграции
+echo "Running database migrations..."
+alembic upgrade head
 
 # Запускаем приложение
 echo "Starting FastAPI application..."
-export PYTHONPATH=src
-exec uvicorn app.run:make_app --factory  --host 0.0.0.0 --port 8000 --reload
+exec uvicorn src.app.run:make_app --factory  --host 0.0.0.0 --port 8000 --reload

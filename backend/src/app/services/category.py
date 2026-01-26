@@ -5,6 +5,7 @@ from app.schemas.category import (
     CategoryResponse,
     CategoriesListResponse,
 )
+from app.schemas.user import UserResponse
 from app.core.exceptions import (
     CategoryNotFoundError,
     CategoryHasProductsError,
@@ -76,7 +77,10 @@ class CategoriesService:
             )
         return result
 
-    async def create_category(self, data: CategoryCreate) -> CategoryResponse:
+    async def create_category(
+        self,
+        data: CategoryCreate,
+    ) -> CategoryResponse:
         await self._validate_category_name_unique(data.name)
 
         async with self.uow:

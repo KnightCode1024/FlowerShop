@@ -27,7 +27,6 @@ router = APIRouter(
 async def get_category(
     category_id: int,
     service: FromDishka[CategoriesService],
-    current_user: FromDishka[UserResponse],
 ):
     try:
         return await service.get_category(category_id)

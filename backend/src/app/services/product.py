@@ -1,4 +1,4 @@
-from fastapi import UploadFile
+from fastapi import UploadFile, HTTPException, status
 
 from app.core.uow import UnitOfWork
 from app.repositories import (
@@ -17,11 +17,13 @@ from app.schemas.product import (
     CreateProductRequest,
     UpdateProductRequest,
 )
+from app.schemas.user import UserResponse
 from app.core.exceptions import (
     ProductNotFoundError,
     CategoryNotFoundError,
     ProductNameNotUniqueError,
 )
+from app.models import RoleEnum
 
 
 class ProductsService:
@@ -58,9 +60,16 @@ class ProductsService:
 
     async def create_product(
         self,
+        user: UserResponse,
         request: CreateProductRequest,
         images: list[UploadFile] | None = None,
     ) -> ProductResponse:
+        if user.role not in [RoleEnum.ADMIN, RoleEnum.EMPLOYEE]:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You don't have access rights.",
+            )
+
         await self._validate_category_exists(request.category_id)
         await self._validate_product_name_unique(request.name)
 

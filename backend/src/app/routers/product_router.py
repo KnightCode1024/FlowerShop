@@ -37,7 +37,6 @@ router = APIRouter(
 async def get_product(
     service: FromDishka[ProductsService],
     product_id: int,
-    current_user: FromDishka[UserResponse],
 ):
     try:
         return await service.get_product(product_id)
@@ -48,7 +47,6 @@ async def get_product(
 @router.get("/", response_model=list[ProductsListResponse])
 async def get_products(
     service: FromDishka[ProductsService],
-    current_user: FromDishka[UserResponse],
     offset: int = Query(0, ge=0),
     limit: int = Query(20, ge=1, le=100),
     min_price: Decimal | None = Query(None, ge=0),
@@ -83,7 +81,7 @@ async def create_product(
 ):
     try:
         request = CreateProductRequest.model_validate_json(product_data)
-        return await service.create_product(request, images)
+        return await service.create_product(current_user, request, images)
     except (CategoryNotFoundError, ValueError) as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,

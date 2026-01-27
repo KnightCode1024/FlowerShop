@@ -19,7 +19,7 @@ router = APIRouter(
 )
 
 
-@router.post("/register", response_model=TokenPair)
+@router.post("/register", response_model=UserResponse)
 async def register(
     user_data: UserCreate,
     service: FromDishka[UserService],

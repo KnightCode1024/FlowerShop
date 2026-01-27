@@ -41,11 +41,7 @@ class UserService:
                 password=hashed_password,
             )
             user = await self.user_repository.create(user_create_data)
-            tokens = TokenPair(
-                access_token=create_access_token({"sub": str(user.id)}),
-                refresh_token=create_refresh_token({"sub": str(user.id)}),
-            )
-            return tokens
+            return user
 
     async def login_user(self, user_data: UserLogin) -> TokenPair:
         user = await self.user_repository.get_user_by_email(user_data.email)

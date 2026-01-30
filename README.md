@@ -1,5 +1,5 @@
 # FlowerShop
-Fullstack приложение интернет магазина цветов
+Fullstack приложение интернет магазина цветов (FastAPI + React)
 
 - [Функционал](#функционал)
 - [Технологии](#технологии)
@@ -15,6 +15,7 @@ Fullstack приложение интернет магазина цветов
 - Frontend
 
 ## Технологии
+### Бэкенд
 - `FastAPI` (HTTP фреймворк, роутинг)
 - `Pydantic` (схемы валидации)
 - `Dishka` (Внедрение зависимостей)
@@ -23,20 +24,45 @@ Fullstack приложение интернет магазина цветов
 - `Alembic` (Миграции БД)
 - `MinIO` (S3 хранилище для храния фото товаров)
 - `Pytest` (Тестирование приложения)
+### Фронтенд
+Пока фронтенд ещё не реализован.
+ - `React`
 
 ## Запуск
 ### Предварительные требования
 - Git
 - Docker и Docker Compose
 
-### 1. Клонирование репозитория
+### 1) Клонирование репозитория
 ```bash
 git clone git@github.com:KnightCode1024/FlowerShop.git
 cd FlowerShop
 ```
 
-### 2. Настройка переменных окружения
-Создайте файл `.env` в дириктории  `backend_flower_shop`. Для создания секретноко ключа, можно использовать скрипт `backend_flower_shop\src\utils\security.py`.
+### 2) Создание сертификатов для jwt
+
+```bash
+# Перейти в папку бекенда
+cd backend
+
+# Создание папки для ключей
+mkdir certs
+
+# Переходим в папку для ключей
+cd certs
+
+# Генерация RSA приватного ключа
+openssl genrsa -out jwt-private.pem 2048
+
+# Генерация публичного ключа
+openssl rsa -in jwt-private.pem -outform PEM -pubout -out jwt-public.pem
+```
+
+
+### 3) Настройка переменных окружения
+Создайте файл `.env` в дириктории  `backend`. Для создания секретноко ключа, можно использовать скрипт `backend_flower_shop\src\utils\security.py`.
+
+Вам может понадобится секретный ключ, для этого есть скрипт `secuirity.py` в папке `backend/src/app/secuirity.py`. Запустите скрипт для генерации секретного ключа.
 
 ```env
 # Настройки БД
@@ -60,7 +86,7 @@ S3_BUCKET_NAME=flower-shop
 S3_REGION=us-east-1
 ```
 
-### 3. Сборка и запуск через Docker
+### 4) Сборка и запуск через Docker
 ```bash
 # Запуск и сборка
 docker-compose up --build -d
@@ -68,28 +94,27 @@ docker-compose up --build -d
 docker-compose up --build -d
 ```
 
-### 4. Тестирование приложения
+### 5) Создание пользователей
+Для создания пользователей через консоль используйте скрипт (доступны все роли):
+
+```bash
+# Переход в docker контейнер бекенда
+docker-compose exec backend sh
+# Интерактивный режим
+PYTHONPATH=src python src/app/create_user.py
+# Режим с аргументами
+PYTHONPATH=src python src/app/create_user.py --email admin@example.com --username admin --role admin --password MySecurePass123!
+# Показать справку
+PYTHONPATH=src python src/app/create_user.py --help
+```
+
+
+### 6) Тестирование приложения
 ...
 ## Архитектура
-```
-FlowerShop/
-├── backend_flower_shop/          # REST API
-│   ├── src/                      # Исходный код
-│   │   ├── core/                 # Ядро приложения
-│   │   ├── models/               # Модели базы данных
-│   │   ├── schemas/              # Pydantic схемы
-│   │   ├── services/             # Бизнес-логика
-│   │   ├── repositories/         # Работа с данными
-│   │   ├── routers/              # API маршруты
-│   │   ├── utils/                # Вспомогательные функии
-│   │   └── main.py               # Точка входа
-│   ├── tests/                    # Тесты
-│   └── alembic/                  # Миграции БД
-├── frontend_flower_shop/         # Frontend React приложение
-├── compose.yml                   # Docker Compose
-└── README.md                     # README
-```
+...
+
 ## Ресурсы
 - http://127.0.0.1:5173 - `фронтенд`
 - http://127.0.0.1:8000/docs - `документация API`
-- http://127.0.0.1:9001 - `консоль S3 хранилища (MinIO)`
+- http://127.0.0.1:9001 - `Веб консоль S3 хранилища (MinIO)`

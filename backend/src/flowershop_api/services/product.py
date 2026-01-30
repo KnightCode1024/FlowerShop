@@ -24,6 +24,7 @@ from flowershop_api.core.exceptions import (
     ProductNameNotUniqueError,
 )
 from flowershop_api.models import RoleEnum
+from flowershop_api.core.permissions import require_roles
 
 
 class ProductsService:
@@ -58,6 +59,7 @@ class ProductsService:
         products = await self.products.get_filtered(filters)
         return products
 
+    @require_roles([RoleEnum.ADMIN, RoleEnum.EMPLOYEE])
     async def create_product(
         self,
         user: UserResponse,
@@ -92,9 +94,11 @@ class ProductsService:
 
         return product
 
+    @require_roles([RoleEnum.ADMIN, RoleEnum.EMPLOYEE])
     async def update_product(
         self,
         product_id: int,
+        user: UserResponse,
         request: UpdateProductRequest,
         new_images: list[UploadFile] | None = None,
     ) -> ProductResponse:
@@ -131,7 +135,12 @@ class ProductsService:
 
         return product
 
-    async def delete_product(self, product_id: int) -> None:
+    @require_roles([RoleEnum.ADMIN, RoleEnum.EMPLOYEE])
+    async def delete_product(
+        self,
+        product_id: int,
+        user: UserResponse,
+    ) -> None:
         async with self.uow:
             deleted = await self.products.delete(product_id)
             if not deleted:

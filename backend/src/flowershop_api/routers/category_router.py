@@ -53,7 +53,7 @@ async def create_category(
     current_user: FromDishka[UserResponse],
 ):
     try:
-        return await service.create_category(category_data)
+        return await service.create_category(category_data, current_user)
     except ValueError as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -69,7 +69,11 @@ async def update_category(
     current_user: FromDishka[UserResponse],
 ):
     try:
-        return await service.update_category(category_id, category_data)
+        return await service.update_category(
+            category_id,
+            category_data,
+            current_user,
+        )
     except CategoryNotFoundError:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -89,7 +93,10 @@ async def delete_category(
     current_user: FromDishka[UserResponse],
 ):
     try:
-        await service.delete_category(category_id)
+        await service.delete_category(
+            category_id,
+            current_user,
+        )
         return {"message": "Category deleted successfully"}
     except CategoryNotFoundError:
         raise HTTPException(

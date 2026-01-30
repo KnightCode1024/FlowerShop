@@ -99,7 +99,12 @@ async def update_product(
 ):
     try:
         request = UpdateProductRequest.model_validate_json(product_data)
-        return await service.update_product(product_id, request, images)
+        return await service.update_product(
+            product_id,
+            current_user,
+            request,
+            images,
+        )
     except (ProductNotFoundError, CategoryNotFoundError, ValueError) as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -114,7 +119,7 @@ async def delete_product(
     product_id: int,
 ):
     try:
-        await service.delete_product(product_id)
+        await service.delete_product(product_id, current_user)
         return {"message": "Product deleted successfully"}
     except ProductNotFoundError:
         raise HTTPException(

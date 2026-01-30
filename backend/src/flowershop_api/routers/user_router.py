@@ -58,7 +58,6 @@ async def get_profile(
 async def refresh_token(
     payload: RefreshToken,
     service: FromDishka[UserService],
-    current_user: FromDishka[UserResponse],
 ):
     try:
         return await service.refresh_token(payload)
@@ -81,7 +80,11 @@ async def update_profile(
     current_user: FromDishka[UserResponse],
 ):
     try:
-        return await service.update_user(current_user.id, user_data)
+        return await service.update_user(
+            current_user.id,
+            user_data,
+            current_user,
+        )
     except LookupError as e:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -100,7 +103,7 @@ async def get_all_users(
     current_user: FromDishka[UserResponse],
 ):
     try:
-        return await service.get_all_users()
+        return await service.get_all_users(current_user)
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -115,7 +118,7 @@ async def get_user_by_id(
     current_user: FromDishka[UserResponse],
 ):
     try:
-        return await service.get_user(user_id)
+        return await service.get_user(user_id, current_user)
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,

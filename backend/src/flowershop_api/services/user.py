@@ -17,6 +17,7 @@ from flowershop_api.schemas.user import (
     UserLogin,
 )
 from flowershop_api.models import RoleEnum
+from flowershop_api.core.permissions import require_roles
 
 
 class UserService:
@@ -71,10 +72,12 @@ class UserService:
         )
         return tokens
 
+    @require_roles([RoleEnum.ADMIN])
     async def update_user(
         self,
         user_id: int,
         user_update: UserUpdate,
+        user: UserResponse,
     ) -> UserResponse:
         update_data = user_update.model_dump(exclude_unset=True)
         if "password" in update_data and update_data["password"]:
@@ -93,7 +96,12 @@ class UserService:
             role=updated.role,
         )
 
-    async def get_user(self, user_id: int) -> UserResponse:
+    @require_roles([RoleEnum.ADMIN, RoleEnum.EMPLOYEE])
+    async def get_user(
+        self,
+        user_id: int,
+        current_user,
+    ) -> UserResponse:
         user = await self.user_repository.get(user_id)
         if not user:
             raise ValueError("User not found")
@@ -105,7 +113,13 @@ class UserService:
         )
         return user_repsonse
 
-    async def get_all_users(self, offset: int = 0, limit: int = 20):
+    @require_roles([RoleEnum.ADMIN])
+    async def get_all_users(
+        self,
+        user: UserResponse,
+        offset: int = 0,
+        limit: int = 20,
+    ):
         users = await self.user_repository.get_all(offset, limit)
         if not users:
             raise ValueError("Not a single user was found")

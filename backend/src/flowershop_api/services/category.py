@@ -5,12 +5,15 @@ from flowershop_api.schemas.category import (
     CategoryResponse,
     CategoriesListResponse,
 )
+from flowershop_api.schemas.user import UserResponse
 from flowershop_api.core.exceptions import (
     CategoryNotFoundError,
     CategoryHasProductsError,
     CategoryNameNotUniqueError,
 )
 from flowershop_api.repositories import CategoryRepositoryI
+from flowershop_api.models.user import RoleEnum
+from flowershop_api.core.permissions import require_roles
 
 
 class CategoriesService:
@@ -76,9 +79,11 @@ class CategoriesService:
             )
         return result
 
+    @require_roles([RoleEnum.ADMIN, RoleEnum.EMPLOYEE])
     async def create_category(
         self,
         data: CategoryCreate,
+        user: UserResponse,
     ) -> CategoryResponse:
         await self._validate_category_name_unique(data.name)
 
@@ -93,8 +98,12 @@ class CategoriesService:
             }
         )
 
+    @require_roles([RoleEnum.ADMIN, RoleEnum.EMPLOYEE])
     async def update_category(
-        self, category_id: int, data: CategoryUpdate
+        self,
+        category_id: int,
+        data: CategoryUpdate,
+        user: UserResponse,
     ) -> CategoryResponse:
         existing_category = await self.categories.get_by_id(category_id)
         if not existing_category:
@@ -117,7 +126,12 @@ class CategoriesService:
             }
         )
 
-    async def delete_category(self, category_id: int) -> None:
+    @require_roles([RoleEnum.ADMIN, RoleEnum.EMPLOYEE])
+    async def delete_category(
+        self,
+        category_id: int,
+        user: UserResponse,
+    ) -> None:
         async with self.uow:
             category = await self.categories.get_by_id(category_id)
             if not category:

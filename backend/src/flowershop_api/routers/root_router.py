@@ -1,11 +1,7 @@
 from fastapi import APIRouter
 
-from flowershop_api.routers import (
-    dev_router,
-    product_router,
-    user_router,
-    category_router,
-)
+from flowershop_api.routers import (category_router, dev_router,
+                                    product_router, user_router)
 
 root_router = APIRouter(prefix="/api", tags=["API"])
 

@@ -1,30 +1,18 @@
 from decimal import Decimal
 
-from fastapi import (
-    APIRouter,
-    HTTPException,
-    Query,
-    UploadFile,
-    File,
-    Form,
-    status,
-)
-from dishka.integrations.fastapi import FromDishka, DishkaRoute
+from dishka.integrations.fastapi import DishkaRoute, FromDishka
+from fastapi import (APIRouter, File, Form, HTTPException, Query, UploadFile,
+                     status)
 
-from flowershop_api.services import ProductsService
-from flowershop_api.core.exceptions import (
-    ProductNotFoundError,
-    CategoryNotFoundError,
-)
-from flowershop_api.schemas.product import (
-    ProductResponse,
-    ProductsListResponse,
-    CreateProductRequest,
-    UpdateProductRequest,
-    ProductFilterParams,
-)
+from flowershop_api.core.exceptions import (CategoryNotFoundError,
+                                            ProductNotFoundError)
+from flowershop_api.schemas.product import (CreateProductRequest,
+                                            ProductFilterParams,
+                                            ProductResponse,
+                                            ProductsListResponse,
+                                            UpdateProductRequest)
 from flowershop_api.schemas.user import UserResponse
-
+from flowershop_api.services import ProductsService
 
 router = APIRouter(
     prefix="/products",

@@ -1,18 +1,12 @@
-from dishka import Provider, provide, Scope
+from dishka import Provider, Scope, provide
 
-from flowershop_api.repositories import (
-    ProductRepositoryI,
-    CategoryRepositoryI,
-    ProductImageRepositoryI,
-    S3RepositoryI,
-    UserRepositoryI,
-)
-from flowershop_api.services import (
-    ProductsService,
-    CategoriesService,
-    UserService,
-)
 from flowershop_api.core.uow import UnitOfWork
+from flowershop_api.repositories import (CategoryRepositoryI,
+                                         ProductImageRepositoryI,
+                                         ProductRepositoryI, S3RepositoryI,
+                                         UserRepositoryI)
+from flowershop_api.services import (CategoriesService, ProductsService,
+                                     UserService)
 
 
 class ServiceProvider(Provider):

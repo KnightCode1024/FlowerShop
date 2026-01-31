@@ -1,7 +1,7 @@
 from typing import Protocol
 
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
 from flowershop_api.models import Category, Product

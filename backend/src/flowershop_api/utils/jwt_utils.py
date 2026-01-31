@@ -1,7 +1,7 @@
-from datetime import timedelta, datetime, timezone
+from datetime import datetime, timedelta, timezone
 
-import jwt
 import bcrypt
+import jwt
 
 from flowershop_api.entrypoint.config import config
 

@@ -1,19 +1,18 @@
-import sys
+import argparse
 import asyncio
 import getpass
-import argparse
 import os
-
-from flowershop_api.services import UserService
-from flowershop_api.schemas.user import UserCreateConsole
-from flowershop_api.models import RoleEnum
-from flowershop_api.entrypoint.ioc.integrations.console_integration import (
-    inject,
-)
-from flowershop_api.entrypoint.setup import create_async_container
-from flowershop_api.entrypoint.ioc.registry import get_providers
+import sys
 
 from dishka import FromDishka
+
+from flowershop_api.entrypoint.ioc.integrations.console_integration import \
+    inject
+from flowershop_api.entrypoint.ioc.registry import get_providers
+from flowershop_api.entrypoint.setup import create_async_container
+from flowershop_api.models import RoleEnum
+from flowershop_api.schemas.user import UserCreateConsole
+from flowershop_api.services import UserService
 
 os.environ.setdefault("PYTHONIOENCODING", "utf-8")
 sys.stdout.reconfigure(encoding="utf-8")

@@ -1,7 +1,7 @@
 from typing import Protocol
 
+from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, delete
 
 from flowershop_api.models import ProductImage
 

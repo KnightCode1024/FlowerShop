@@ -1,10 +1,10 @@
 from typing import Protocol
 
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from flowershop_api.schemas.user import UserCreate, UserUpdate
 from flowershop_api.models import User
+from flowershop_api.schemas.user import UserCreate, UserUpdate
 
 
 class UserRepositoryI(Protocol):

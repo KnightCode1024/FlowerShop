@@ -1,7 +1,8 @@
 from enum import Enum
 
+from sqlalchemy import Enum as SQLEnum
+from sqlalchemy import String
 from sqlalchemy.orm import Mapped, mapped_column
-from sqlalchemy import String, Enum as SQLEnum
 
 from flowershop_api.models import Base
 

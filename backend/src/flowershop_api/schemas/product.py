@@ -2,9 +2,8 @@ from decimal import Decimal
 
 from pydantic import BaseModel, Field
 
-
-from flowershop_api.schemas.product_image import ProductImageResponse
 from flowershop_api.schemas.category import CategoryOneProductResponse
+from flowershop_api.schemas.product_image import ProductImageResponse
 
 
 class ProductCreate(BaseModel):

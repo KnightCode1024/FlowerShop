@@ -1,11 +1,11 @@
-from typing import Protocol
 import uuid
 from pathlib import Path
+from typing import Protocol
 
 from fastapi import UploadFile
 
-from flowershop_api.entrypoint.config import config
 from flowershop_api.core.s3_client import S3Client
+from flowershop_api.entrypoint.config import config
 
 
 class S3RepositoryI(Protocol):
@@ -68,7 +68,7 @@ class S3Repository(S3RepositoryI):
             url_parts = image_url.split("/")
             bucket_index = url_parts.index(self.s3_client.bucket_name)
             s3_key = "/".join(
-                url_parts[(bucket_index + 1):],
+                url_parts[(bucket_index + 1) :],
             )
 
             async with self.s3_client.get_client() as client:

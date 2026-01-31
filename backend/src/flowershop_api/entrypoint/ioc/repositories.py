@@ -1,19 +1,14 @@
-from dishka import Provider, provide, Scope
+from dishka import Provider, Scope, provide
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from flowershop_api.repositories import (
-    CategoryRepository,
-    CategoryRepositoryI,
-    ProductImageRepository,
-    ProductImageRepositoryI,
-    ProductRepository,
-    ProductRepositoryI,
-    S3Repository,
-    S3RepositoryI,
-    UserRepository,
-    UserRepositoryI,
-)
 from flowershop_api.core.uow import UnitOfWork
+from flowershop_api.repositories import (CategoryRepository,
+                                         CategoryRepositoryI,
+                                         ProductImageRepository,
+                                         ProductImageRepositoryI,
+                                         ProductRepository, ProductRepositoryI,
+                                         S3Repository, S3RepositoryI,
+                                         UserRepository, UserRepositoryI)
 
 
 class RepositoryProvider(Provider):

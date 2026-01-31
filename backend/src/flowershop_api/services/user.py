@@ -1,23 +1,13 @@
-from flowershop_api.core.uow import UnitOfWork
-from flowershop_api.repositories import UserRepositoryI
-from flowershop_api.utils.jwt_utils import (
-    validate_password,
-    hash_password,
-    create_access_token,
-    create_refresh_token,
-    decode_jwt,
-)
-from flowershop_api.schemas.user import (
-    TokenPair,
-    RefreshToken,
-    UserCreate,
-    UserCreateConsole,
-    UserResponse,
-    UserUpdate,
-    UserLogin,
-)
-from flowershop_api.models import RoleEnum
 from flowershop_api.core.permissions import require_roles
+from flowershop_api.core.uow import UnitOfWork
+from flowershop_api.models import RoleEnum
+from flowershop_api.repositories import UserRepositoryI
+from flowershop_api.schemas.user import (RefreshToken, TokenPair, UserCreate,
+                                         UserCreateConsole, UserLogin,
+                                         UserResponse, UserUpdate)
+from flowershop_api.utils.jwt_utils import (create_access_token,
+                                            create_refresh_token, decode_jwt,
+                                            hash_password, validate_password)
 
 
 class UserService:
@@ -206,6 +196,7 @@ class UserService:
 
     def _validate_password(self, password: str, role: "RoleEnum") -> None:
         import re
+
         from flowershop_api.models import RoleEnum
 
         if role in [RoleEnum.ADMIN, RoleEnum.EMPLOYEE]:

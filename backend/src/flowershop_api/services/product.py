@@ -1,30 +1,21 @@
-from fastapi import UploadFile, HTTPException, status
+from fastapi import HTTPException, UploadFile, status
 
-from flowershop_api.core.uow import UnitOfWork
-from flowershop_api.repositories import (
-    ProductRepositoryI,
-    CategoryRepositoryI,
-    ProductImageRepositoryI,
-    S3RepositoryI,
-)
-
-from flowershop_api.schemas.product import (
-    ProductCreate,
-    ProductUpdate,
-    ProductResponse,
-    ProductsListResponse,
-    ProductFilterParams,
-    CreateProductRequest,
-    UpdateProductRequest,
-)
-from flowershop_api.schemas.user import UserResponse
-from flowershop_api.core.exceptions import (
-    ProductNotFoundError,
-    CategoryNotFoundError,
-    ProductNameNotUniqueError,
-)
-from flowershop_api.models import RoleEnum
+from flowershop_api.core.exceptions import (CategoryNotFoundError,
+                                            ProductNameNotUniqueError,
+                                            ProductNotFoundError)
 from flowershop_api.core.permissions import require_roles
+from flowershop_api.core.uow import UnitOfWork
+from flowershop_api.models import RoleEnum
+from flowershop_api.repositories import (CategoryRepositoryI,
+                                         ProductImageRepositoryI,
+                                         ProductRepositoryI, S3RepositoryI)
+from flowershop_api.schemas.product import (CreateProductRequest,
+                                            ProductCreate, ProductFilterParams,
+                                            ProductResponse,
+                                            ProductsListResponse,
+                                            ProductUpdate,
+                                            UpdateProductRequest)
+from flowershop_api.schemas.user import UserResponse
 
 
 class ProductsService:

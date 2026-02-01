@@ -4,7 +4,7 @@ from pydantic import BaseModel, Field
 class CategoryProductResponse(BaseModel):
     id: int = Field(...)
     name: str = Field(...)
-    price: float = Field(...)
+    price: float = Field(..., ge=0)
     in_stock: bool = Field(True)
     main_image_url: str | None = Field(None)
 
@@ -35,4 +35,4 @@ class CategoryOneProductResponse(CategoryBase):
 
 
 class CategoriesListResponse(CategoryBase):
-    products_count: int = Field(0)
+    products_count: int = Field(0, ge=0)

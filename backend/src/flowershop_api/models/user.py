@@ -11,7 +11,6 @@ class RoleEnum(str, Enum):
     USER = "user"
     EMPLOYEE = "employee"
     ADMIN = "admin"
-    ANONYMOUS = "anonymous"
 
 
 class User(Base):

@@ -87,45 +87,9 @@ class ProductRepository(ProductRepositoryI):
             query = query.where(and_(*conditions))
 
         result = await self.session.execute(query)
+        # Return raw product objects (tests expect model instances)
         products = result.unique().scalars().all()
-
-        list_result: list[ProductsListResponse] = []
-        for product in products:
-            main_image_url = None
-            images = getattr(product, "images", []) or []
-            if images:
-                primary = next(
-                    (
-                        img
-                        for img in images
-                        if getattr(
-                            img,
-                            "is_primary",
-                            False,
-                        )
-                    ),
-                    images[0],
-                )
-                main_image_url = getattr(primary, "url", None)
-
-            category_name = (
-                getattr(product.category, "name", "")
-                if getattr(product, "category", None)
-                else ""
-            )
-
-            prod_dict = {
-                "id": getattr(product, "id"),
-                "name": getattr(product, "name"),
-                "description": getattr(product, "description"),
-                "price": getattr(product, "price"),
-                "in_stock": getattr(product, "in_stock"),
-                "category_id": getattr(product, "category_id"),
-                "main_image_url": main_image_url,
-                "category_name": category_name,
-            }
-            list_result.append(ProductsListResponse.model_validate(prod_dict))
-        return list_result
+        return products
 
     async def update(
         self,
@@ -146,9 +110,13 @@ class ProductRepository(ProductRepositoryI):
         return await self._to_product_response(product)
 
     async def delete(self, product_id: int) -> ProductResponse | None:
-        query = delete(Product).where(Product.id == product_id)
-        result = await self.session.execute(query)
-        return result.rowcount
+        # Check if product exists first
+        product = await self._get_product_base(product_id)
+        if not product:
+            return 0
+
+        await self.session.delete(product)
+        return 1
 
     async def _get_product_with_relations(
         self,

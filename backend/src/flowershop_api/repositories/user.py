@@ -4,6 +4,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from flowershop_api.models import User
+from flowershop_api.models.user import RoleEnum
 from flowershop_api.schemas.user import UserCreate, UserUpdate
 
 
@@ -32,6 +33,9 @@ class UserRepository(UserRepositoryI):
 
     async def create(self, user_data: UserCreate) -> User:
         user = User(**user_data.model_dump())
+        # Ensure default role
+        if getattr(user, "role", None) is None:
+            user.role = RoleEnum.USER
         self.session.add(user)
         await self.session.flush()
         return user
@@ -39,7 +43,7 @@ class UserRepository(UserRepositoryI):
     async def get(self, user_id: int) -> User | None:
         query = select(User).where(User.id == user_id)
         result = await self.session.execute(query)
-        return result.scalar_one()
+        return result.scalar_one_or_none()
 
     async def get_all(
         self,
@@ -51,7 +55,7 @@ class UserRepository(UserRepositoryI):
         return result.scalars().all()
 
     async def update(self, user_id: int, user_data: UserUpdate) -> User | None:
-        user = self.get(user_id)
+        user = await self.get(user_id)
         if not user:
             return None
         updated_data = user_data.model_dump(exclude_unset=True)

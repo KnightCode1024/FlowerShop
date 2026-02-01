@@ -10,7 +10,7 @@ class UserEmail(BaseModel):
 
     @field_validator("email", mode="after")
     @classmethod
-    def is_valid_email(cls, value: int) -> int:
+    def validate_email(cls, value) -> str:
         email_validate_pattern = r"^\S+@\S+\.\S+$"
         if not re.match(email_validate_pattern, value):
             raise ValueError(f"{value} is not correct email")
@@ -19,7 +19,7 @@ class UserEmail(BaseModel):
 
 class UserBase(UserEmail):
     username: str = Field(..., max_length=30)
-    password: str = Field(..., max_length=64)
+    password: str = Field(..., max_length=36)
 
 
 class UserCreate(UserBase):
@@ -29,22 +29,16 @@ class UserCreate(UserBase):
 class UserCreateConsole(UserBase):
     role: RoleEnum
 
-    @field_validator("role", mode="after")
-    @classmethod
-    def validate_role_for_console(cls, value: str) -> str:
-        valid_roles = [RoleEnum.USER, RoleEnum.EMPLOYEE, RoleEnum.ADMIN]
-        if value not in valid_roles:
-            raise ValueError(f"Role must be one of: {', '.join(valid_roles)}")
-        return value
-
 
 class UserLogin(BaseModel):
     email: str = Field(..., max_length=64)
-    password: str = Field(..., max_length=64)
+    password: str = Field(..., max_length=36)
 
 
-class UserUpdate(UserBase):
-    pass
+class UserUpdate(BaseModel):
+    username: str | None = Field(None, max_length=30)
+    email: str | None = Field(None, max_length=255)
+    password: str | None = Field(None, max_length=36)
 
 
 class UserRequest(BaseModel):

@@ -110,7 +110,12 @@ PYTHONPATH=src python src/app/create_user.py --help
 
 
 ### 6) Тестирование приложения
-...
+```bash
+cd backend
+# Запуск тестов в одном потоке
+pytest
+```
+
 ## Архитектура
 ...
 

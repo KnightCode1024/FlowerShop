@@ -9,10 +9,18 @@ from src.flowershop_api.repositories import (CategoryRepository,
                                          ProductRepository, ProductRepositoryI,
                                          S3Repository, S3RepositoryI,
                                          UserRepository, UserRepositoryI)
+from src.flowershop_api.repositories.order import IOrderRepositories, OrderRepositories
 
 
 class RepositoryProvider(Provider):
     scope = Scope.REQUEST
+
+
+    @provide
+    def get_order_repository(self,
+                             session: AsyncSession) -> IOrderRepositories:
+        return OrderRepositories(session)
+
 
     @provide
     def get_product_repository(

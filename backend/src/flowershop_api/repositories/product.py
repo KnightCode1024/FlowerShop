@@ -4,8 +4,8 @@ from sqlalchemy import and_, delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
-from flowershop_api.models import Category, Product, ProductImage
-from flowershop_api.schemas.product import (ProductCreate, ProductFilterParams,
+from src.flowershop_api.models import Category, Product, ProductImage
+from src.flowershop_api.schemas.product import (ProductCreate, ProductFilterParams,
                                             ProductResponse,
                                             ProductsListResponse,
                                             ProductUpdate)

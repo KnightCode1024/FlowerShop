@@ -4,8 +4,8 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
-from flowershop_api.models import Category, Product
-from flowershop_api.schemas.category import CategoryCreate, CategoryUpdate
+from src.flowershop_api.models import Category, Product
+from src.flowershop_api.schemas.category import CategoryCreate, CategoryUpdate
 
 
 class CategoryRepositoryI(Protocol):

@@ -2,7 +2,7 @@ from functools import wraps
 
 from fastapi import HTTPException, status
 
-from flowershop_api.models import RoleEnum
+from src.flowershop_api.models import RoleEnum
 
 
 def require_roles(allowed_roles: list[RoleEnum]):

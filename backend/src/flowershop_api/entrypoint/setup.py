@@ -3,7 +3,7 @@ from typing import Iterable
 from dishka import Provider, make_async_container
 from fastapi import APIRouter, FastAPI
 
-from flowershop_api.entrypoint.config import Config, create_config
+from src.flowershop_api.entrypoint.config import Config, create_config
 
 
 def create_app() -> FastAPI:

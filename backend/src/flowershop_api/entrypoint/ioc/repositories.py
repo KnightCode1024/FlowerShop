@@ -1,8 +1,8 @@
 from dishka import Provider, Scope, provide
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from flowershop_api.core.uow import UnitOfWork
-from flowershop_api.repositories import (CategoryRepository,
+from src.flowershop_api.core.uow import UnitOfWork
+from src.flowershop_api.repositories import (CategoryRepository,
                                          CategoryRepositoryI,
                                          ProductImageRepository,
                                          ProductImageRepositoryI,

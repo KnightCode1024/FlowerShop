@@ -3,7 +3,7 @@ from datetime import datetime, timedelta, timezone
 import bcrypt
 import jwt
 
-from flowershop_api.entrypoint.config import config
+from src.flowershop_api.entrypoint.config import config
 
 
 def encode_jwt(

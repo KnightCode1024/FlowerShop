@@ -4,7 +4,7 @@ from dishka import Provider, Scope, provide
 from sqlalchemy.ext.asyncio import (AsyncSession, async_sessionmaker,
                                     create_async_engine)
 
-from flowershop_api.entrypoint.config import create_config
+from src.flowershop_api.entrypoint.config import create_config
 
 
 class DatabaseProvider(Provider):

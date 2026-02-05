@@ -19,7 +19,7 @@ class CategoryCreate(BaseModel):
 
 
 class CategoryUpdate(BaseModel):
-    name: str = Field(..., max_length=255)
+    name: str | None = Field(None, max_length=255)
 
 
 class CategoryResponse(CategoryBase):

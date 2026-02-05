@@ -62,6 +62,7 @@ python-multipart==0.0.21
 pytokens==0.4.1
 six==1.17.0
 SQLAlchemy==2.0.45
+aiosqlite==0.22.1
 starlette==0.50.0
 termcolor==3.3.0
 typing-inspection==0.4.2

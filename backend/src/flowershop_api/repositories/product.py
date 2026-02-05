@@ -109,7 +109,7 @@ class ProductRepository(ProductRepositoryI):
         await self.session.refresh(product)
         return await self._to_product_response(product)
 
-    async def delete(self, product_id: int) -> ProductResponse | None:
+    async def delete(self, product_id: int) -> int:
         # Check if product exists first
         product = await self._get_product_base(product_id)
         if not product:

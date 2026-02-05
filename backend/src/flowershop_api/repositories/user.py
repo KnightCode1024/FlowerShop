@@ -33,7 +33,6 @@ class UserRepository(UserRepositoryI):
 
     async def create(self, user_data: UserCreate) -> User:
         user = User(**user_data.model_dump())
-        # Ensure default role
         if getattr(user, "role", None) is None:
             user.role = RoleEnum.USER
         self.session.add(user)

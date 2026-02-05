@@ -200,7 +200,7 @@ class UserService:
         from flowershop_api.models import RoleEnum
 
         if role in [RoleEnum.ADMIN, RoleEnum.EMPLOYEE]:
-            if len(password) < 12:
+            if len(password) > 12:
                 raise ValueError(
                     "Password must be at least 12",
                     "characters long for admin/employee roles",

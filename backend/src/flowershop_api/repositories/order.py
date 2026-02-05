@@ -1,5 +1,6 @@
 from typing import Protocol
 
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.flowershop_api.schemas.order import OrderCreate, Order, OrderUpdate
@@ -25,9 +26,7 @@ class IOrderRepositories(Protocol):
         pass
 
 
-
 class OrderRepositories(IOrderRepositories):
-
 
     def __init__(self, session: AsyncSession):
         self.session = session
@@ -36,6 +35,9 @@ class OrderRepositories(IOrderRepositories):
         obj = Order(**order_data.model_dump())
 
         try:
-
+            await self.session.flush()
         except IntegrityError:
             raise
+
+        await self.session.refresh(obj)
+        return obj

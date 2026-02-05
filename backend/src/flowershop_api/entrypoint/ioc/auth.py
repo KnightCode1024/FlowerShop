@@ -2,9 +2,9 @@ from dishka import Provider, Scope, provide
 from fastapi import HTTPException, Request, status
 from jwt import InvalidTokenError
 
-from flowershop_api.schemas.user import UserResponse
-from flowershop_api.services.user import UserService
-from flowershop_api.utils.jwt_utils import decode_jwt
+from src.flowershop_api.schemas.user import UserResponse
+from src.flowershop_api.services.user import UserService
+from src.flowershop_api.utils.jwt_utils import decode_jwt
 
 
 class AuthProvider(Provider):

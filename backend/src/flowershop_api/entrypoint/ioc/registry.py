@@ -3,7 +3,7 @@ from typing import Iterable
 from dishka import Provider
 from dishka.integrations.fastapi import FastapiProvider
 
-from flowershop_api.entrypoint.ioc import (AuthProvider, DatabaseProvider,
+from src.flowershop_api.entrypoint.ioc import (AuthProvider, DatabaseProvider,
                                            RepositoryProvider, ServiceProvider)
 
 

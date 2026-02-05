@@ -2,7 +2,7 @@ import re
 
 from pydantic import BaseModel, Field, field_validator
 
-from flowershop_api.models import RoleEnum
+from src.flowershop_api.models import RoleEnum
 
 
 class UserEmail(BaseModel):

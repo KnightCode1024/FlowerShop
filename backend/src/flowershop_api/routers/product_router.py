@@ -4,15 +4,15 @@ from dishka.integrations.fastapi import DishkaRoute, FromDishka
 from fastapi import (APIRouter, File, Form, HTTPException, Query, UploadFile,
                      status)
 
-from flowershop_api.core.exceptions import (CategoryNotFoundError,
+from src.flowershop_api.core.exceptions import (CategoryNotFoundError,
                                             ProductNotFoundError)
-from flowershop_api.schemas.product import (CreateProductRequest,
+from src.flowershop_api.schemas.product import (CreateProductRequest,
                                             ProductFilterParams,
                                             ProductResponse,
                                             ProductsListResponse,
                                             UpdateProductRequest)
-from flowershop_api.schemas.user import UserResponse
-from flowershop_api.services import ProductsService
+from src.flowershop_api.schemas.user import UserResponse
+from src.flowershop_api.services import ProductsService
 
 router = APIRouter(
     prefix="/products",

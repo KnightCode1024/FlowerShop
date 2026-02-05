@@ -4,8 +4,8 @@ from typing import Protocol
 
 from fastapi import UploadFile
 
-from flowershop_api.core.s3_client import S3Client
-from flowershop_api.entrypoint.config import config
+from src.flowershop_api.core.s3_client import S3Client
+from src.flowershop_api.entrypoint.config import config
 
 
 class S3RepositoryI(Protocol):

@@ -3,7 +3,7 @@ from decimal import Decimal
 from sqlalchemy import Boolean, ForeignKey, Numeric, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from flowershop_api.models import Base
+from src.flowershop_api.models import Base
 
 
 class Product(Base):

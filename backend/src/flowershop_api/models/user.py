@@ -4,7 +4,7 @@ from sqlalchemy import Enum as SQLEnum
 from sqlalchemy import String
 from sqlalchemy.orm import Mapped, mapped_column
 
-from flowershop_api.models import Base
+from src.flowershop_api.models import Base
 
 
 class RoleEnum(str, Enum):

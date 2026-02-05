@@ -1,9 +1,9 @@
 from dishka.integrations.fastapi import DishkaRoute, FromDishka
 from fastapi import APIRouter, HTTPException, status
 
-from flowershop_api.schemas.user import (RefreshToken, TokenPair, UserCreate,
+from src.flowershop_api.schemas.user import (RefreshToken, TokenPair, UserCreate,
                                          UserLogin, UserResponse, UserUpdate)
-from flowershop_api.services import UserService
+from src.flowershop_api.services import UserService
 
 router = APIRouter(
     prefix="/users",

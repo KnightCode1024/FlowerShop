@@ -3,7 +3,7 @@ from typing import Protocol
 from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from flowershop_api.models import ProductImage
+from src.flowershop_api.models import ProductImage
 
 
 class ProductImageRepositoryI(Protocol):

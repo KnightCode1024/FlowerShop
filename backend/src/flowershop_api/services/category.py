@@ -1,14 +1,14 @@
-from flowershop_api.core.exceptions import (CategoryHasProductsError,
+from src.flowershop_api.core.exceptions import (CategoryHasProductsError,
                                             CategoryNameNotUniqueError,
                                             CategoryNotFoundError)
-from flowershop_api.core.permissions import require_roles
-from flowershop_api.core.uow import UnitOfWork
-from flowershop_api.models.user import RoleEnum
-from flowershop_api.repositories import CategoryRepositoryI
-from flowershop_api.schemas.category import (CategoriesListResponse,
+from src.flowershop_api.core.permissions import require_roles
+from src.flowershop_api.core.uow import UnitOfWork
+from src.flowershop_api.models.user import RoleEnum
+from src.flowershop_api.repositories import CategoryRepositoryI
+from src.flowershop_api.schemas.category import (CategoriesListResponse,
                                              CategoryCreate, CategoryResponse,
                                              CategoryUpdate)
-from flowershop_api.schemas.user import UserResponse
+from src.flowershop_api.schemas.user import UserResponse
 
 
 class CategoriesService:

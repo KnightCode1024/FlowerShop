@@ -161,7 +161,7 @@ class UserService:
         self, user_data: UserCreateConsole
     ) -> UserResponse:
         try:
-            from flowershop_api.models import RoleEnum
+            from src.flowershop_api.models import RoleEnum
 
             user_role = RoleEnum(user_data.role.lower())
         except ValueError:
@@ -197,7 +197,7 @@ class UserService:
     def _validate_password(self, password: str, role: "RoleEnum") -> None:
         import re
 
-        from flowershop_api.models import RoleEnum
+        from src.flowershop_api.models import RoleEnum
 
         if role in [RoleEnum.ADMIN, RoleEnum.EMPLOYEE]:
             if len(password) > 12:

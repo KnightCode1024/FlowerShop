@@ -6,13 +6,13 @@ import sys
 
 from dishka import FromDishka
 
-from flowershop_api.entrypoint.ioc.integrations.console_integration import \
+from src.flowershop_api.entrypoint.ioc.integrations.console_integration import \
     inject
-from flowershop_api.entrypoint.ioc.registry import get_providers
-from flowershop_api.entrypoint.setup import create_async_container
-from flowershop_api.models import RoleEnum
-from flowershop_api.schemas.user import UserCreateConsole
-from flowershop_api.services import UserService
+from src.flowershop_api.entrypoint.ioc.registry import get_providers
+from src.flowershop_api.entrypoint.setup import create_async_container
+from src.flowershop_api.models import RoleEnum
+from src.flowershop_api.schemas.user import UserCreateConsole
+from src.flowershop_api.services import UserService
 
 os.environ.setdefault("PYTHONIOENCODING", "utf-8")
 sys.stdout.reconfigure(encoding="utf-8")

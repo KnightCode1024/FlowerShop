@@ -17,8 +17,10 @@ class RepositoryProvider(Provider):
 
 
     @provide
-    def get_order_repository(self,
-                             session: AsyncSession) -> IOrderRepositories:
+    def get_order_repository(
+            self,
+            session: AsyncSession
+    ) -> IOrderRepositories:
         return OrderRepositories(session)
 
 

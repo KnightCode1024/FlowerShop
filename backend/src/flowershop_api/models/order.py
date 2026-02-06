@@ -30,15 +30,14 @@ class OrderProduct(Base):
 class Order(Base):
     __tablename__ = "orders"
 
-    order_products: Mapped[list["OrderProduct"]] = mapped_column(
+    order_products: Mapped[list["OrderProduct"]] = relationship(
         "OrderProduct",
         back_populates="order",
-        use_list=True,
         lazy="joinedload",
         cascade="all, delete-orphan"
     )
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
-    user: Mapped["User"] = relationship("User", back_populates="orders", nullable=False)
+    user: Mapped["User"] = relationship("User", back_populates="orders")
 
     status: Mapped[OrderStatus] = mapped_column(Enum(), default=OrderStatus.IN_CART)
     amount: Mapped[float] = mapped_column(Float(), default=0.00)

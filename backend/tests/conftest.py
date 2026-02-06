@@ -1,7 +1,6 @@
 from unittest.mock import MagicMock
 
-import pytest
-from sqlalchemy import create_engine
+import pytestfrom sqlalchemy import create_engine
 from sqlalchemy.ext.asyncio import (
     AsyncSession,
     async_sessionmaker,

@@ -1,5 +1,4 @@
-import pytest
-from decimal import Decimal
+import pytestfrom decimal import Decimal
 
 from src.flowershop_api.schemas.product import (
     ProductUpdate,

@@ -1,5 +1,4 @@
 import pytest
-
 from src.flowershop_api.schemas.category import CategoryUpdate
 from src.flowershop_api.models import Category
 

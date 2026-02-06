@@ -1,5 +1,4 @@
-import pytest
-from types import SimpleNamespace
+import pytestfrom types import SimpleNamespace
 
 from src.flowershop_api.repositories.s3 import S3Repository
 from src.flowershop_api.entrypoint.config import config

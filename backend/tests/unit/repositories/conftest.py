@@ -1,5 +1,4 @@
-import pytest
-from decimal import Decimal
+import pytestfrom decimal import Decimal
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.flowershop_api.repositories.user import UserRepository

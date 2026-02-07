@@ -10,6 +10,8 @@ from entrypoint.ioc import (
     RepositoryProvider,
     ServiceProvider,
     ConfigProvider,
+    RateLimiterProvider,
+    RedisProvider,
 )
 
 
@@ -21,4 +23,6 @@ def get_providers() -> Iterable[Provider]:
         RepositoryProvider(),
         FastapiProvider(),
         ConfigProvider(),
+        RedisProvider(),
+        RateLimiterProvider(),
     )

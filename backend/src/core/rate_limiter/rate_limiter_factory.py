@@ -7,6 +7,7 @@ def rate_limit(
     endpoint: str,
     max_requests: int,
     window_seconds: int,
+    policy: str = None,
 ):
     def decorator(func):
         @wraps(func)

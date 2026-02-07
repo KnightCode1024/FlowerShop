@@ -23,9 +23,9 @@ class RateLimiter:
 
         async with self._redis.pipeline() as pipe:
             await pipe.zremrangebyscore(
-                key,
-                0,
-                window_start_ms,
+                name=key,
+                min=0,
+                max=window_start_ms,
             )
             await pipe.zcard(key)
             await pipe.zadd(key, {current_request: current_ms})
@@ -35,7 +35,7 @@ class RateLimiter:
 
         _, current_count, _, _ = res
 
-        if current_count > max_requests:
+        if current_count >= max_requests:
             return True
 
         return False

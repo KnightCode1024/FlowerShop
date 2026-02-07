@@ -60,9 +60,9 @@ openssl rsa -in jwt-private.pem -outform PEM -pubout -out jwt-public.pem
 
 
 ### 3) Настройка переменных окружения
-Создайте файл `.env` в дириктории  `backend`. Для создания секретноко ключа, можно использовать скрипт `backend_flower_shop\src\utils\security.py`.
+Создайте файл `.env` в дириктории  `backend`.
 
-Вам может понадобится секретный ключ, для этого есть скрипт `secuirity.py` в папке `backend/src/app/secuirity.py`. Запустите скрипт для генерации секретного ключа.
+Вам может понадобится секретный ключ, для этого есть скрипт `secuirity.py` в папке `backend/srcripts/secuirity.py`. Запустите скрипт для генерации секретного ключа.
 
 ```env
 # Настройки БД
@@ -89,8 +89,6 @@ S3_REGION=us-east-1
 ### 4) Сборка и запуск через Docker
 ```bash
 # Запуск и сборка
-docker-compose up --build -d
-# Повторный запуск
 docker-compose up --build -d
 ```
 

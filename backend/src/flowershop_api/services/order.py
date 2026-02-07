@@ -20,13 +20,10 @@ class OrdersService:
             self,
             user: UserResponse,
             request: OrderCreateRequest,
-    ) -> OrderResponse:
+    ):
         async with self.uow:
             order_data = OrderCreate(user_id=user.id, **request.model_dump())
             order = await self.orders.add(order_data)
 
-            order_product_data = OrderProductCreate(order_id=order.id, order_product=order.order_products)
-            order_products = await self.orders.add_order_products(order_product_data)
-
-        return order_products
+        return order
 

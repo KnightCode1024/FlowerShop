@@ -33,10 +33,10 @@ class OrderResponse(BaseModel):
 
 
 class OrderProductCreate(BaseModel):
-    order_id: int
+    user_id: int
     order_product: CartItem
 
 
 class OrderProductResponse(BaseModel):
-    order_id: int
+    user_id: int
     order_products: list[CartItem]

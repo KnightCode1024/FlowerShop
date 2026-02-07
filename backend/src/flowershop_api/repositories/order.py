@@ -14,9 +14,6 @@ class IOrderRepositories(Protocol):
     async def add(self, order_data: OrderCreate) -> Order:
         pass
 
-    async def add_order_products(self, order_data: OrderProductCreate) -> Order:
-        pass
-
     async def update(self, order_data: OrderUpdate) -> Order:
         pass
 
@@ -40,6 +37,18 @@ class OrderRepositories(IOrderRepositories):
 
     async def add(self, order_data: OrderCreate) -> Order:
         obj: Order = Order(**order_data.model_dump(exclude={"order_products"}))
+
+
+        for i in order_data.order_products:
+            obj.order_products.append(OrderProduct(order_id=obj.id,
+                                                   product_id=i.product_id,
+                                                   quantity=i.quantity,
+                                                   price=i.price))
+
+        obj.amount = round(float(sum(
+            [i.quantity * i.price for i in obj.order_products]
+        )), 2)
+
         self.session.add(obj)
 
         try:
@@ -47,14 +56,14 @@ class OrderRepositories(IOrderRepositories):
         except IntegrityError:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
-                detail="Order already exists"
+                detail=f"Product in order {obj.id} already exists"
             )
-
         return obj
 
-    async def add_order_products(self, order_data: OrderProductCreate):
+    async def add_order_products(self, order_data: OrderProductCreate) -> Order:
         obj = OrderProduct(order_id=order_data.order_id,
                            **order_data.model_dump())
+
         self.session.add(obj)
 
         try:

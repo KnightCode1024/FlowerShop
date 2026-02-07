@@ -2,6 +2,7 @@ import pytest
 from decimal import Decimal
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.flowershop_api.repositories.order import OrderRepositories
 from src.flowershop_api.repositories.user import UserRepository
 from src.flowershop_api.repositories.category import CategoryRepository
 from src.flowershop_api.repositories.product import ProductRepository
@@ -18,18 +19,23 @@ async def session(async_session_maker):
 
 
 @pytest.fixture
-async def user_repository(session: AsyncSession):
+def user_repository(session: AsyncSession):
     return UserRepository(session=session)
 
 
 @pytest.fixture
-async def category_repository(session: AsyncSession):
+def category_repository(session: AsyncSession):
     return CategoryRepository(session=session)
 
 
 @pytest.fixture
-async def product_repository(session: AsyncSession):
+def product_repository(session: AsyncSession):
     return ProductRepository(session=session)
+
+
+@pytest.fixture
+def order_repository(session: AsyncSession):
+    return OrderRepositories(session=session)
 
 
 @pytest.fixture
@@ -103,7 +109,7 @@ async def created_category(category_repository, test_category1):
 
 @pytest.fixture
 async def multiple_categories(
-    category_repository, test_category1, test_category2, test_category3
+        category_repository, test_category1, test_category2, test_category3
 ):
     await category_repository.create(test_category1)
     await category_repository.create(test_category2)
@@ -166,7 +172,7 @@ async def created_product(product_repository, test_product1):
 
 @pytest.fixture
 async def multiple_products(
-    product_repository, test_product1, test_product2, test_product3
+        product_repository, test_product1, test_product2, test_product3
 ):
     await product_repository.create(test_product1)
     await product_repository.create(test_product2)

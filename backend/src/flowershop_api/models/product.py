@@ -1,6 +1,6 @@
 from decimal import Decimal
 
-from sqlalchemy import Boolean, ForeignKey, Numeric, String
+from sqlalchemy import Boolean, ForeignKey, Numeric, String, Integer
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.flowershop_api.models import Base
@@ -44,3 +44,4 @@ class Product(Base):
         "Category",
         back_populates="products",
     )
+    quantity: Mapped[int] = mapped_column(Integer(), default=1)

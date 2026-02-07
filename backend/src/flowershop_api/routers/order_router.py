@@ -24,7 +24,6 @@ async def add_order(request_data: OrderCreateRequest,
 async def patch_order():
     pass
 
-
 @router.delete("/{id}")
 async def delete_order():
     pass

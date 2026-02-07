@@ -1,3 +1,4 @@
+import asyncio
 from unittest.mock import MagicMock
 
 import pytest
@@ -17,6 +18,8 @@ from dishka import (
 
 from src.flowershop_api.models import Base, User, Category, Product, ProductImage, RoleEnum
 from src.flowershop_api.entrypoint.config import Config
+
+
 
 
 @pytest.fixture(scope="session")

@@ -1,19 +1,22 @@
-from enum import Enum
+from enum import Enum, StrEnum
 
-from sqlalchemy import Enum as SQLEnum
+from sqlalchemy import Enum
 from sqlalchemy import String
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.flowershop_api.models import Base
+from src.flowershop_api.models.order import *
 
 
-class RoleEnum(str, Enum):
+class RoleEnum(StrEnum):
     USER = "user"
     EMPLOYEE = "employee"
     ADMIN = "admin"
 
 
 class User(Base):
+    __tablename__ = "users"
+
     username: Mapped[str] = mapped_column(
         String(255),
         nullable=False,
@@ -29,11 +32,13 @@ class User(Base):
     )
 
     role: Mapped[RoleEnum] = mapped_column(
-        SQLEnum(
-            RoleEnum,
-            name="roleenum",
-            values_callable=lambda enum: [e.value for e in enum],
-        ),
+        Enum(RoleEnum),
         default=RoleEnum.USER,
         nullable=False,
+    )
+
+    orders: Mapped[list["Order"]] = relationship(
+        back_populates="user",
+        uselist=True,
+        cascade="all, delete-orphan"
     )

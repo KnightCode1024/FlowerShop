@@ -99,11 +99,11 @@ docker-compose up --build -d
 # Переход в docker контейнер бекенда
 docker-compose exec backend sh
 # Интерактивный режим
-PYTHONPATH=src python src/app/create_user.py
+python src/create_user.pysrc
 # Режим с аргументами
-PYTHONPATH=src python src/app/create_user.py --email admin@example.com --username admin --role admin --password MySecurePass123!
+python src/create_user.py --email admin@example.com --username admin --role admin --password MySecurePass123!
 # Показать справку
-PYTHONPATH=src python src/app/create_user.py --help
+python src/create_user.py --help
 ```
 
 

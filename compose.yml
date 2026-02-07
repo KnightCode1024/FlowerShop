@@ -40,6 +40,25 @@ services:
     networks:
       - flower_shop_net
 
+  redis:
+    image: redis:8-alpine
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - flower_shop_net
+
+  redis_gui:
+    image: redis/redisinsight
+    ports:
+      - "5540:5540"
+    networks:
+      - flower_shop_net
+
   backend:
     build: ./backend
     restart: always
@@ -61,6 +80,8 @@ services:
       - S3_ENDPOINT=${S3_ENDPOINT}
       - S3_PUBLIC_ENDPOINT=${S3_PUBLIC_ENDPOINT}
       - S3_REGION=${S3_REGION}
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
     ports:
       - "8000:8000"
     depends_on:
@@ -97,3 +118,4 @@ networks:
 volumes:
   postgres-data:
   minio-data:
+  redis-data:

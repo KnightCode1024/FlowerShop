@@ -9,15 +9,8 @@ from entrypoint.ioc import (
     DatabaseProvider,
     RepositoryProvider,
     ServiceProvider,
+    ConfigProvider,
 )
-
-from entrypoint.ioc import (
-    AuthProvider,
-    DatabaseProvider,
-    RepositoryProvider,
-    ServiceProvider,
-    )
-
 
 
 def get_providers() -> Iterable[Provider]:
@@ -27,4 +20,5 @@ def get_providers() -> Iterable[Provider]:
         ServiceProvider(),
         RepositoryProvider(),
         FastapiProvider(),
+        ConfigProvider(),
     )

@@ -4,7 +4,7 @@ from typing import Protocol
 
 from fastapi import UploadFile
 
-from core.s3_client import S3Client
+from clients.s3_client import S3Client
 from entrypoint.config import config
 
 

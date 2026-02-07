@@ -1,12 +1,13 @@
-import pytestfrom decimal import Decimal
+import pytest
+from decimal import Decimal
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.flowershop_api.repositories.user import UserRepository
-from src.flowershop_api.repositories.category import CategoryRepository
-from src.flowershop_api.repositories.product import ProductRepository
-from src.flowershop_api.schemas.user import UserCreate, UserUpdate
-from src.flowershop_api.schemas.category import CategoryCreate, CategoryUpdate
-from src.flowershop_api.schemas.product import ProductCreate, ProductUpdate
+from src.repositories.user import UserRepository
+from src.repositories.category import CategoryRepository
+from src.repositories.product import ProductRepository
+from src.schemas.user import UserCreate, UserUpdate
+from src.schemas.category import CategoryCreate, CategoryUpdate
+from src.schemas.product import ProductCreate, ProductUpdate
 
 
 @pytest.fixture

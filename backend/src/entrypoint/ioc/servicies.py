@@ -1,12 +1,14 @@
 from dishka import Provider, Scope, provide
 
-from  core.uow import UnitOfWork
-from repositories import (CategoryRepositoryI,
-                                         ProductImageRepositoryI,
-                                         ProductRepositoryI, S3RepositoryI,
-                                         UserRepositoryI)
-from services import (CategoriesService, ProductsService,
-                                     UserService)
+from core.uow import UnitOfWork
+from repositories import (
+    CategoryRepositoryI,
+    ProductImageRepositoryI,
+    ProductRepositoryI,
+    S3RepositoryI,
+    UserRepositoryI,
+)
+from services import CategoriesService, ProductsService, UserService
 
 
 class ServiceProvider(Provider):

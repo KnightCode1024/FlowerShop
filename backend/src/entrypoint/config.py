@@ -59,6 +59,18 @@ class S3Config(BaseSettings):
         return self.PUBLIC_ENDPOINT
 
 
+class RedisConfig(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_prefix="REDIS_",
+        env_file=ENV_PATH,
+        env_file_encoding="utf-8",
+        extra="ignore",
+    )
+
+    PORT: int
+    HOST: str
+
+
 class Config(BaseSettings):
     model_config = SettingsConfigDict(
         env_file=ENV_PATH,
@@ -69,6 +81,7 @@ class Config(BaseSettings):
     database: DatabaseConfig = DatabaseConfig()
     s3: S3Config = S3Config()
     auth_jwt: AuthJWT = AuthJWT()
+    redis: RedisConfig = RedisConfig()
 
 
 def create_config() -> Config:

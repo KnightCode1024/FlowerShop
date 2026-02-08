@@ -1,5 +1,5 @@
 from dishka.integrations.fastapi import DishkaRoute, FromDishka
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, status, Request
 
 from schemas.user import (
     RefreshToken,
@@ -8,8 +8,9 @@ from schemas.user import (
     UserLogin,
     UserResponse,
     UserUpdate,
-    )
+)
 from services import UserService
+from core.rate_limiter import rate_limit, Strategy, RateLimiter
 
 router = APIRouter(
     prefix="/users",
@@ -23,6 +24,7 @@ async def register(
     user_data: UserCreate,
     service: FromDishka[UserService],
 ):
+    # register endpoint
     try:
         return await service.register_user(user_data)
     except ValueError as e:
@@ -47,7 +49,10 @@ async def login(
 
 
 @router.get("/me", response_model=UserResponse)
+@rate_limit(strategy=Strategy.USER, policy="3/s;10/m;100/h")
 async def get_profile(
+    request: Request,
+    rate_limiter: FromDishka[RateLimiter],
     current_user: FromDishka[UserResponse],
 ):
     return current_user

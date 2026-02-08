@@ -32,11 +32,6 @@ class UserService:
         self.user_repository = user_repository
 
     async def register_user(self, user_data: UserCreate) -> UserResponse:
-        if user_data.role != "user":
-            raise ValueError(
-                "Registration via API is only allowed for user role",
-            )
-
         self._validate_password(user_data.password, RoleEnum.USER)
 
         existing_user = await self.user_repository.get_user_by_email(
@@ -51,7 +46,6 @@ class UserService:
                 email=user_data.email,
                 username=user_data.username,
                 password=hashed_password,
-                role=user_data.role,
             )
             user = await self.user_repository.create(user_create_data)
             return UserResponse(
@@ -114,6 +108,10 @@ class UserService:
             role=user.role,
         )
         return user_repsonse
+
+    async def get_user_by_id(self, user_id: int):
+        user = await self.user_repository.get(user_id)
+        return user
 
     @require_roles([RoleEnum.ADMIN])
     async def get_all_users(

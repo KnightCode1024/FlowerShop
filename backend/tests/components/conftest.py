@@ -14,8 +14,9 @@ from src.flowershop_api.schemas.product import ProductCreate, ProductUpdate, Pro
 @pytest.fixture
 async def session(async_session_maker):
     async with async_session_maker() as session:
-        async with session.begin():
-            yield session
+        yield session
+
+        await session.rollback()
 
 
 @pytest.fixture

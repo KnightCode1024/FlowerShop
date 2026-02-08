@@ -13,15 +13,20 @@ class OrderCreateRequest(BaseModel):
     order_products: list[CartItem]
 
 
-class OrderCreate(BaseModel):
-    user_id: int
+class OrderUpdateRequest(BaseModel):
+    order_id: int
     order_products: list[CartItem]
 
 
 class OrderUpdate(BaseModel):
     id: int
+    user_id: int
     status: OrderStatus | None = None
-    amount: float | None = None
+    order_products: list[CartItem] | None = None
+
+
+class OrderCreate(BaseModel):
+    user_id: int
     order_products: list[CartItem]
 
 

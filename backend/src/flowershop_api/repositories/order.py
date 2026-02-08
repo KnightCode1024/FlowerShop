@@ -1,9 +1,10 @@
 from typing import Protocol
 
 from fastapi import HTTPException
-from sqlalchemy import select, desc, insert
+from sqlalchemy import select, desc, insert, update, outerjoin
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import joinedload, selectinload
 
 from src.flowershop_api.models.order import Order, OrderProduct
 from src.flowershop_api.schemas.order import OrderCreate, OrderUpdate, CartItem, OrderProductCreate
@@ -20,7 +21,7 @@ class IOrderRepositories(Protocol):
     async def get_all(self) -> list[Order]:
         pass
 
-    async def get(self, id: int) -> Order:
+    async def get(self, id: int, user_id: int) -> Order:
         pass
 
     async def delete(self, id: int) -> None:
@@ -37,18 +38,6 @@ class OrderRepositories(IOrderRepositories):
 
     async def add(self, order_data: OrderCreate) -> Order:
         obj: Order = Order(**order_data.model_dump(exclude={"order_products"}))
-
-
-        for i in order_data.order_products:
-            obj.order_products.append(OrderProduct(order_id=obj.id,
-                                                   product_id=i.product_id,
-                                                   quantity=i.quantity,
-                                                   price=i.price))
-
-        obj.amount = round(float(sum(
-            [i.quantity * i.price for i in obj.order_products]
-        )), 2)
-
         self.session.add(obj)
 
         try:
@@ -58,43 +47,35 @@ class OrderRepositories(IOrderRepositories):
                 status_code=status.HTTP_409_CONFLICT,
                 detail=f"Product in order {obj.id} already exists"
             )
+
+        await self._update_products(obj, order_data.order_products)
+
+        await self.session.refresh(obj)
+
+        print(obj)
+
         return obj
 
-    async def add_order_products(self, order_data: OrderProductCreate) -> Order:
-        obj = OrderProduct(order_id=order_data.order_id,
-                           **order_data.model_dump())
-
-        self.session.add(obj)
-
-        try:
-            await self.session.flush()
-        except IntegrityError:
-            raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Already exists product in order")
-
-        stmt_order = (
-            select(Order).where(Order.id == order_data.order_id)
-            .outerjoin(OrderProduct, OrderProduct.order_id == order_data.order_id)
-        )
-
-        result = await self.session.execute(stmt_order)
-        result = result.scalar_one_or_none()
-
-        return result
-
-    async def get(self, id: int) -> Order:
-        obj: Order | None = await self.session.get(Order, id)
+    async def get(self, id: int, user_id: int) -> Order:
+        stmt = select(Order).where(Order.id == id, Order.user_id == user_id)
+        result = await self.session.execute(stmt)
+        obj: Order | None = result.scalar_one_or_none()
         if not obj:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Order not found")
 
         return obj
 
     async def update(self, order_data: OrderUpdate) -> Order:
-        obj = await self.get(order_data.id)
+        obj = await self.get(order_data.id, order_data.user_id)
 
-        for name, value in order_data.model_dump(exclude_none=True).items():
+        if order_data.order_products:
+            await self._update_products(obj, order_data.order_products)
+
+        for name, value in order_data.model_dump(exclude_none=True, exclude={"order_products"}).items():
             setattr(obj, name, value)
 
         await self.session.flush()
+
         return obj
 
     async def get_all(self) -> list[Order]:
@@ -110,3 +91,28 @@ class OrderRepositories(IOrderRepositories):
         await self.session.delete(order)
         await self.session.flush()
         return None
+
+    async def _update_products(self, order: Order, order_products: list[CartItem]) -> Order:
+        order.order_products.clear()
+
+        print(order)
+
+        if order.id is None:
+            await self.session.flush()
+
+        for o_prod in order_products:
+            op = OrderProduct(order_id=order.id,
+                              product_id=o_prod.product_id,
+                              quantity=o_prod.quantity,
+                              price=o_prod.price)
+            order.order_products.append(op)
+            self.session.add(op)
+
+
+        order.amount = round(float(sum(
+            [i.quantity * i.price for i in order.order_products]
+        )), 2)
+
+        await self.session.flush()
+
+        return order

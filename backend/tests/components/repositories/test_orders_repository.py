@@ -1,7 +1,10 @@
+import random
+
 import pytest
+from fastapi import HTTPException
 
 from src.flowershop_api.models import User
-from src.flowershop_api.schemas.order import OrderCreate, CartItem
+from src.flowershop_api.schemas.order import OrderCreate, CartItem, OrderUpdate
 from src.flowershop_api.schemas.product import ProductFilterParams
 
 
@@ -22,6 +25,8 @@ async def test_add_order_one(session, created_user, created_product, order_repos
     assert order.user_id == created_user.id
     assert len(order_create_data.order_products) == len(order.order_products)
     assert order_create_data.order_products[0].product_id == order.order_products[0].product_id
+
+    return order
 
 
 @pytest.mark.asyncio
@@ -51,6 +56,52 @@ async def test_error_add_order_many_max_quantity(session, created_user: User, mu
             quantity=i.quantity + 1,
             price=i.price
         ) for i in products
+    ])
+
+    order = await order_repository.add(order_create_data)
+
+    assert order.user_id == created_user.id
+    assert len(order_create_data.order_products) == len(order.order_products)
+    assert order_create_data.order_products[0].product_id == order.order_products[0].product_id
+
+
+@pytest.mark.asyncio
+async def test_update_order_already_exists(session, created_user, created_product, product_repository, order_repository):
+    order = await test_add_order_one(session, created_user, created_product, order_repository)
+
+    order_create_data = OrderUpdate(id=order.id, user_id=created_user.id, order_products=[
+        CartItem(
+            product_id=created_product.id,
+            quantity=random.randint(1, 10),
+            price=created_product.price
+        )
+    ])
+
+    with pytest.raises(HTTPException) as exp:
+        order = await order_repository.add(order_create_data)
+        assert exp.value == "Product in order 1 already exists"
+
+
+
+
+@pytest.mark.asyncio
+async def test_update_order_success_one(session, created_user, created_multiply_products, product_repository, order_repository):
+    order_create_data = OrderCreate(user_id=created_user.id, order_products=[
+        CartItem(
+            product_id=created_multiply_products[0].id,
+            quantity=created_multiply_products[0].quantity + 1,
+            price=created_multiply_products[0].price
+        )
+    ])
+
+    order = await order_repository.add(order_create_data)
+
+    order_create_data = OrderUpdate(id=order.id, user_id=created_user.id, order_products=[
+        CartItem(
+            product_id=created_multiply_products[1].id,
+            quantity=random.randint(1, 10),
+            price=created_multiply_products[1].price
+        )
     ])
 
     order = await order_repository.add(order_create_data)

@@ -5,7 +5,7 @@ from src.flowershop_api.core.permissions import require_roles
 from src.flowershop_api.core.uow import UnitOfWork
 from src.flowershop_api.models import RoleEnum
 from src.flowershop_api.repositories.order import IOrderRepositories
-from src.flowershop_api.schemas.order import OrderCreate, OrderResponse, OrderCreateRequest, OrderProductCreate
+from src.flowershop_api.schemas.order import OrderCreate, OrderResponse, OrderCreateRequest, OrderProductCreate, OrderUpdateRequest, OrderUpdate
 from src.flowershop_api.schemas.product import CreateProductRequest
 from src.flowershop_api.schemas.user import UserResponse
 
@@ -16,14 +16,22 @@ class OrdersService:
         self.orders = order_repository
 
     @require_roles([RoleEnum.ADMIN, RoleEnum.USER])
-    async def create_order(
-            self,
-            user: UserResponse,
-            request: OrderCreateRequest,
-    ):
+    async def create_order(self, user: UserResponse, request: OrderCreateRequest):
+        order_data = OrderCreate(user_id=user.id, **request.model_dump())
+
         async with self.uow:
-            order_data = OrderCreate(user_id=user.id, **request.model_dump())
             order = await self.orders.add(order_data)
 
         return order
 
+
+    @require_roles([RoleEnum.ADMIN, RoleEnum.USER])
+    async def update_order(self, user: UserResponse, request: OrderUpdateRequest):
+        order_data = OrderUpdate(id=request.order_id,
+                                 user_id=user.id,
+                                 **request.model_dump(exclude_none=True))
+
+        async with self.uow:
+            order = await self.orders.update(order_data)
+
+        return order

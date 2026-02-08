@@ -8,14 +8,14 @@ from src.flowershop_api.repositories.category import CategoryRepository
 from src.flowershop_api.repositories.product import ProductRepository
 from src.flowershop_api.schemas.user import UserCreate, UserUpdate
 from src.flowershop_api.schemas.category import CategoryCreate, CategoryUpdate
-from src.flowershop_api.schemas.product import ProductCreate, ProductUpdate
+from src.flowershop_api.schemas.product import ProductCreate, ProductUpdate, ProductResponse
 
 
 @pytest.fixture
 async def session(async_session_maker):
     async with async_session_maker() as session:
-        yield session
-        await session.rollback()
+        async with session.begin():
+            yield session
 
 
 @pytest.fixture
@@ -168,6 +168,20 @@ def product_update_data():
 @pytest.fixture
 async def created_product(product_repository, test_product1):
     return await product_repository.create(test_product1)
+
+
+@pytest.fixture
+async def created_product_2(product_repository, test_product2):
+    return await product_repository.create(test_product2)
+
+
+@pytest.fixture
+async def created_multiply_products(product_repository, test_product1, test_product2, test_product3) -> list[ProductResponse]:
+    return [
+        await product_repository.create(test_product1),
+        await product_repository.create(test_product2),
+        await product_repository.create(test_product3)
+    ]
 
 
 @pytest.fixture

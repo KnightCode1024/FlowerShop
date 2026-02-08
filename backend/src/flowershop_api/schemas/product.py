@@ -54,7 +54,7 @@ class ProductResponse(BaseModel):
     price: Decimal = Field(..., ge=0, decimal_places=2)
     in_stock: bool = Field(True)
     category_id: int = Field(...)
-
+    quantity: int = Field(...)
     images: list[ProductImageResponse]
     category: CategoryOneProductResponse
 

@@ -6,9 +6,9 @@ from sqlalchemy.orm import joinedload
 
 from src.flowershop_api.models import Category, Product, ProductImage
 from src.flowershop_api.schemas.product import (ProductCreate, ProductFilterParams,
-                                            ProductResponse,
-                                            ProductsListResponse,
-                                            ProductUpdate)
+                                                ProductResponse,
+                                                ProductsListResponse,
+                                                ProductUpdate)
 
 
 class ProductRepositoryI(Protocol):
@@ -17,20 +17,20 @@ class ProductRepositoryI(Protocol):
     async def get_by_id(self, product_id: int) -> ProductResponse | None: ...
 
     async def get_filtered(
-        self,
-        filters: ProductFilterParams,
+            self,
+            filters: ProductFilterParams,
     ) -> list[ProductsListResponse]: ...
 
     async def update(
-        self,
-        product_id: int,
-        data: ProductUpdate,
+            self,
+            product_id: int,
+            data: ProductUpdate,
     ) -> ProductResponse | None: ...
 
     async def delete(self, product_id: int) -> int: ...
 
     async def exists_by_name(
-        self, name: str, exclude_id: int | None = None
+            self, name: str, exclude_id: int | None = None
     ) -> bool: ...
 
 
@@ -59,8 +59,8 @@ class ProductRepository(ProductRepositoryI):
         return await self._to_product_response(product)
 
     async def get_filtered(
-        self,
-        filters: ProductFilterParams,
+            self,
+            filters: ProductFilterParams,
     ) -> list[ProductsListResponse]:
         conditions = []
 
@@ -92,9 +92,9 @@ class ProductRepository(ProductRepositoryI):
         return products
 
     async def update(
-        self,
-        product_id: int,
-        data: ProductUpdate,
+            self,
+            product_id: int,
+            data: ProductUpdate,
     ) -> ProductResponse | None:
         product = await self._get_product_with_relations(product_id)
         if not product:
@@ -119,8 +119,8 @@ class ProductRepository(ProductRepositoryI):
         return 1
 
     async def _get_product_with_relations(
-        self,
-        product_id: int,
+            self,
+            product_id: int,
     ) -> Product | None:
         query = (
             select(Product)
@@ -135,9 +135,9 @@ class ProductRepository(ProductRepositoryI):
         return result.unique().scalar_one_or_none()
 
     async def exists_by_name(
-        self,
-        name: str,
-        exclude_id: int | None = None,
+            self,
+            name: str,
+            exclude_id: int | None = None,
     ) -> bool:
         query = select(Product).where(Product.name == name)
         if exclude_id is not None:
@@ -185,5 +185,6 @@ class ProductRepository(ProductRepositoryI):
             "category_id": getattr(product, "category_id"),
             "images": images_list,
             "category": category_dict,
+            "quantity": getattr(product, "quantity")
         }
         return ProductResponse.model_validate(prod_dict)

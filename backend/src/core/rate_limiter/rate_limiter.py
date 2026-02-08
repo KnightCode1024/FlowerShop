@@ -10,32 +10,47 @@ class RateLimiter:
 
     async def is_limited(
         self,
-        ip_address: str,
+        identifier: str,
         endpoint: str,
-        max_requests: int,
-        window_seconds: int,
+        windows: list[tuple[int, int]],
     ) -> bool:
-        key = f"rate_limiter:{endpoint}:{ip_address}"
+        """
+        windows is a list of (max_requests, window_seconds).
+        This method runs a single Redis pipeline:
+          - remove entries older than the largest window
+          - zcount for each window (counts before adding current request)
+          - zadd current request
+          - expire key
+        Returns True if any window is already at
+        or above its max (i.e. limited).
+        """
+        key = f"rate_limiter:{endpoint}:{identifier}"
 
         current_ms = time() * 1000
-        window_start_ms = current_ms - window_seconds * 1000
-        current_request = f"{time() * 1000}--{random.randint(0, 100_000)}"
+        current_request = f"{current_ms}--{random.randint(0, 100_000)}"
+
+        max_window_seconds = max(ws for (_, ws) in windows)
+        oldest_window_start_ms = current_ms - max_window_seconds * 1000
 
         async with self._redis.pipeline() as pipe:
             await pipe.zremrangebyscore(
                 name=key,
                 min=0,
-                max=window_start_ms,
+                max=oldest_window_start_ms,
             )
-            await pipe.zcard(key)
+
+            for _, ws in windows:
+                window_start_ms = current_ms - ws * 1000
+                await pipe.zcount(key, window_start_ms, "+inf")
+
             await pipe.zadd(key, {current_request: current_ms})
-            await pipe.expire(key, window_seconds)
+            await pipe.expire(key, max_window_seconds)
 
             res = await pipe.execute()
 
-        _, current_count, _, _ = res
-
-        if current_count >= max_requests:
-            return True
+        counts = res[1: 1 + len(windows)]
+        for (max_requests, _), count in zip(windows, counts):
+            if count >= max_requests:
+                return True
 
         return False

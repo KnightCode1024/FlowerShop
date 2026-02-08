@@ -12,6 +12,7 @@ Fullstack приложение интернет магазина цветов (F
     - CRUD операции на товаром
     - CRUD операции над категорией товара
     - JWT автоизация (регистрация, вход, обновление токена, профиль, все пользователи)
+    - Ограничитель запросов
 - Frontend
 
 ## Технологии
@@ -23,7 +24,12 @@ Fullstack приложение интернет магазина цветов (F
 - `SQLalchemy` (ORM для работы с БД)
 - `Alembic` (Миграции БД)
 - `MinIO` (S3 хранилище для храния фото товаров)
+- `Redis` (Кеш для ограничителя запроов, брокер для TaskIQ)
+- `TaskIQ` (Асинхронные задачи)
 - `Pytest` (Тестирование приложения)
+- `Black` (Форматирование кода)
+- `Flake8` (Линтер кода)
+- `Isort` (Сортировка импортов)
 ### Фронтенд
 Пока фронтенд ещё не реализован.
  - `React`
@@ -32,6 +38,8 @@ Fullstack приложение интернет магазина цветов (F
 ### Предварительные требования
 - Git
 - Docker и Docker Compose
+- Python 3.14+ (для локальной разработки)
+- pip - менеджер пакетов Python (предустановлен)
 
 ### 1) Клонирование репозитория
 ```bash
@@ -89,13 +97,42 @@ REDIS_PORT=6379
 REDIS_PORT=redis
 ```
 
-### 4) Сборка и запуск через Docker
+### 4) Локальная разработка (альтернатива Docker)
+```bash
+# Переход в папку бекенда
+cd backend
+
+# Создание виртуального окружения
+python -m venv venv
+
+# Активация виртуального окружения
+# Linux/Mac
+source venv/bin/activate
+# Windows
+venv\Scripts\activate
+
+# Установка зависимостей
+pip install -r requirements/prod.txt
+pip install -r requirements/dev.txt  # для инструментов разработки
+pip install -r requirements/test.txt # для тестирования
+
+# Запуск приложения
+python src/run.py
+
+# Запуск с hot-reload для разработки
+uvicorn run:make_app --factory --host 0.0.0.0 --port 8000 --reload
+
+# Запуск миграций БД
+alembic upgrade head
+```
+
+### 5) Сборка и запуск через Docker
 ```bash
 # Запуск и сборка
 docker-compose up --build -d
 ```
 
-### 5) Создание пользователей
+### 6) Создание пользователей
 Для создания пользователей через консоль используйте скрипт (доступны все роли):
 
 ```bash
@@ -109,11 +146,29 @@ python src/create_user.py --email admin@example.com --username admin --role admi
 python src/create_user.py --help
 ```
 
-
-### 6) Тестирование приложения
+### 7) Линтинг и форматирование кода
 ```bash
 cd backend
-# Запуск тестов в одном потоке
+# Убедитесь, что установлены dev зависимости
+pip install -r requirements/dev.txt
+# Форматирование кода (black)
+black src/
+# Проверка стиля кода (flake8)
+flake8 src/
+# Сортировка импортов (isort)
+isort src/
+# Создание новой миграции (автоматически отформатируется)
+alembic revision --autogenerate -m "Add feature"
+```
+
+### 8) Тестирование приложения
+```bash
+cd backend
+
+# Убедитесь, что установлены test зависимости
+pip install -r requirements/test.txt
+
+# Запуск тестов
 pytest
 ```
 

@@ -5,10 +5,9 @@ ENV PYTHONUNBUFFERED=1
 
 RUN pip install --upgrade pip
 WORKDIR /backend
-COPY requirements.txt .
-RUN pip install -r requirements.txt
+COPY requirements/ ./requirements/
+RUN pip install -r requirements/prod.txt
 
-# Copy application source and scripts relative to build context (./backend)
 COPY src /backend/src
 COPY scripts /backend/scripts
 RUN chmod +x /backend/scripts/*.sh

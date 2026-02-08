@@ -1,14 +1,17 @@
 from typing import Protocol
 
-from sqlalchemy import and_, delete, select
+from sqlalchemy import and_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
 from models import Category, Product, ProductImage
-from schemas.product import (ProductCreate, ProductFilterParams,
-                                            ProductResponse,
-                                            ProductsListResponse,
-                                            ProductUpdate)
+from schemas.product import (
+    ProductCreate,
+    ProductFilterParams,
+    ProductResponse,
+    ProductsListResponse,
+    ProductUpdate,
+)
 
 
 class ProductRepositoryI(Protocol):
@@ -177,12 +180,12 @@ class ProductRepository(ProductRepositoryI):
         )
 
         prod_dict = {
-            "id": getattr(product, "id"),
-            "name": getattr(product, "name"),
-            "description": getattr(product, "description"),
-            "price": getattr(product, "price"),
-            "in_stock": getattr(product, "in_stock"),
-            "category_id": getattr(product, "category_id"),
+            "id": product.id,
+            "name": product.name,
+            "description": product.description,
+            "price": product.price,
+            "in_stock": product.in_stock,
+            "category_id": product.category_id,
             "images": images_list,
             "category": category_dict,
         }

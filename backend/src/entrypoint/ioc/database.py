@@ -1,4 +1,4 @@
-from typing import AsyncGenerator
+from collections.abc import AsyncGenerator
 
 from dishka import Provider, Scope, provide
 from sqlalchemy.ext.asyncio import (
@@ -14,7 +14,7 @@ class DatabaseProvider(Provider):
     scope = Scope.REQUEST
 
     @provide
-    async def get_db_session(self) -> AsyncGenerator[AsyncSession, None]:
+    async def get_db_session(self) -> AsyncGenerator[AsyncSession]:
         config = create_config()
         engine = create_async_engine(
             url=config.database.get_db_url(),

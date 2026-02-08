@@ -31,19 +31,19 @@ class AuthProvider(Provider):
                     detail="Invalid authentication scheme",
                 )
 
-        except ValueError:
+        except ValueError as err:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid authorization header",
-            )
+            ) from err
 
         try:
             decoded_token = decode_jwt(token)
-        except InvalidTokenError:
+        except InvalidTokenError as err:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid token",
-            )
+            ) from err
         user_id = int(decoded_token.get("sub"))
 
         if user_id:

@@ -5,13 +5,15 @@ from schemas.category import (
     CategoriesListResponse,
     CategoryCreate,
     CategoryCreateResponse,
-    CategoryResponse, CategoryUpdate)
+    CategoryResponse,
+    CategoryUpdate,
+)
 from schemas.user import UserResponse
 from services.category import (
     CategoriesService,
     CategoryHasProductsError,
     CategoryNotFoundError,
-    )
+)
 
 router = APIRouter(
     prefix="/categories",
@@ -27,11 +29,11 @@ async def get_category(
 ):
     try:
         return await service.get_category(category_id)
-    except CategoryNotFoundError:
+    except CategoryNotFoundError as err:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Category not found",
-        )
+        ) from err
 
 
 @router.get("/", response_model=list[CategoriesListResponse])

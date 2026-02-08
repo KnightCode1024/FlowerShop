@@ -47,7 +47,7 @@ class AuthProvider(Provider):
         user_id = int(decoded_token.get("sub"))
 
         if user_id:
-            user = await user_service.get_user(user_id)
+            user = await user_service.get_user_by_id(user_id)
             if not user:
                 raise HTTPException(
                     status_code=status.HTTP_401_UNAUTHORIZED,

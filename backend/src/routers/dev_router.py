@@ -1,9 +1,15 @@
-from dishka.integrations.fastapi import DishkaRoute
-from fastapi import APIRouter
+from dishka.integrations.fastapi import DishkaRoute, FromDishka
+from fastapi import APIRouter, Request
+
+from core.rate_limiter import rate_limit, RateLimiter, Strategy
 
 router = APIRouter(prefix="", tags=["Dev Tools"], route_class=DishkaRoute)
 
 
 @router.get("/ping")
-async def pong():
+@rate_limit(strategy=Strategy.IP, policy="1/s;2/m;3/h")
+async def pong(
+    request: Request,
+    rate_limiter: FromDishka[RateLimiter],
+):
     return {"msg": "pong"}

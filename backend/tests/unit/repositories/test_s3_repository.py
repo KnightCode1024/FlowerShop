@@ -1,7 +1,8 @@
-import pytestfrom types import SimpleNamespace
+import pytest
+from types import SimpleNamespace
 
-from src.flowershop_api.repositories.s3 import S3Repository
-from src.flowershop_api.entrypoint.config import config
+from src.repositories.s3 import S3Repository
+from src.entrypoint.config import config
 
 
 class DummyClient:
@@ -48,7 +49,9 @@ async def test_upload_image_should_call_put_and_return_url():
     repo = S3Repository()
     # override s3_client with dummy
     dummy_client = DummyClient()
-    repo.s3_client = SimpleNamespace(bucket_name="test-bucket", get_client=lambda: DummyClientCtx(dummy_client))
+    repo.s3_client = SimpleNamespace(
+        bucket_name="test-bucket", get_client=lambda: DummyClientCtx(dummy_client)
+    )
 
     # set predictable config
     config.s3.PUBLIC_ENDPOINT = "http://public.example"
@@ -68,14 +71,18 @@ async def test_upload_image_should_call_put_and_return_url():
     assert dummy_client._last_put["Bucket"] == "test-bucket"
     assert dummy_client._last_put["ContentType"] == "image/png"
     assert dummy_client._last_put["Body"] == b"PNGDATA"
-    assert "Key" in dummy_client._last_put and dummy_client._last_put["Key"].startswith("products/42/")
+    assert "Key" in dummy_client._last_put and dummy_client._last_put["Key"].startswith(
+        "products/42/"
+    )
 
 
 @pytest.mark.asyncio
 async def test_upload_images_multiple_files_return_list_of_urls():
     repo = S3Repository()
     dummy_client = DummyClient()
-    repo.s3_client = SimpleNamespace(bucket_name="bucket", get_client=lambda: DummyClientCtx(dummy_client))
+    repo.s3_client = SimpleNamespace(
+        bucket_name="bucket", get_client=lambda: DummyClientCtx(dummy_client)
+    )
 
     config.s3.PUBLIC_ENDPOINT = "http://public"
     config.s3.BUCKET_NAME = "bucket"
@@ -99,7 +106,9 @@ async def test_delete_image_success_and_failure():
     repo = S3Repository()
     # success case
     success_client = DummyClient()
-    repo.s3_client = SimpleNamespace(bucket_name="bucket-1", get_client=lambda: DummyClientCtx(success_client))
+    repo.s3_client = SimpleNamespace(
+        bucket_name="bucket-1", get_client=lambda: DummyClientCtx(success_client)
+    )
     img_url = f"http://public/bucket-1/products/9/somekey.png"
     res = await repo.delete_image(img_url)
     assert res is True
@@ -108,7 +117,9 @@ async def test_delete_image_success_and_failure():
 
     # failure case - client raises
     fail_client = DummyClient(raise_on_delete=True)
-    repo.s3_client = SimpleNamespace(bucket_name="bucket-1", get_client=lambda: DummyClientCtx(fail_client))
+    repo.s3_client = SimpleNamespace(
+        bucket_name="bucket-1", get_client=lambda: DummyClientCtx(fail_client)
+    )
     res2 = await repo.delete_image(img_url)
     assert res2 is False
 
@@ -118,7 +129,9 @@ async def test_delete_images_counts_deleted_items():
     repo = S3Repository()
     # one will succeed, one will fail (invalid url)
     client = DummyClient()
-    repo.s3_client = SimpleNamespace(bucket_name="bucket-x", get_client=lambda: DummyClientCtx(client))
+    repo.s3_client = SimpleNamespace(
+        bucket_name="bucket-x", get_client=lambda: DummyClientCtx(client)
+    )
     urls = [
         f"http://public/bucket-x/products/1/k1.png",
         f"http://public/bucket-x/products/2/k2.png",

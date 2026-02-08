@@ -1,7 +1,8 @@
-import pytestfrom sqlalchemy.exc import IntegrityError
+import pytest
+from sqlalchemy.exc import IntegrityError
 
-from src.flowershop_api.schemas.user import UserCreate, UserUpdate
-from src.flowershop_api.models import RoleEnum, User
+from src.schemas.user import UserCreate, UserUpdate
+from src.models import RoleEnum, User
 
 
 class TestUserRepository:

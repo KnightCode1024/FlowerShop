@@ -3,6 +3,7 @@ aiohappyeyeballs==2.6.1
 aiohttp==3.13.3
 aioitertools==0.13.0
 aiosignal==1.4.0
+aiosqlite==0.22.1
 alembic==1.17.2
 annotated-doc==0.0.4
 annotated-types==0.7.0
@@ -60,9 +61,9 @@ python-dateutil==2.9.0.post0
 python-dotenv==1.2.1
 python-multipart==0.0.21
 pytokens==0.4.1
+redis==7.1.0
 six==1.17.0
 SQLAlchemy==2.0.45
-aiosqlite==0.22.1
 starlette==0.50.0
 termcolor==3.3.0
 typing-inspection==0.4.2

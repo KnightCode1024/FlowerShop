@@ -1,5 +1,5 @@
 import pytest
-from src.flowershop_api.repositories.product_image import ProductImageRepository
+from src.repositories.product_image import ProductImageRepository
 
 
 @pytest.mark.asyncio
@@ -7,7 +7,10 @@ async def test_create_and_get_by_id(session, created_product):
     repo = ProductImageRepository(session=session)
 
     created = await repo.create_for_product(
-        product_id=created_product.id, url="http://example/1.png", order=0, is_primary=True
+        product_id=created_product.id,
+        url="http://example/1.png",
+        order=0,
+        is_primary=True,
     )
     await session.flush()
 
@@ -38,10 +41,17 @@ async def test_get_by_product_id_returns_ordered(session, created_product):
 async def test_update_success_and_non_existing(session, created_product):
     repo = ProductImageRepository(session=session)
 
-    created = await repo.create_for_product(created_product.id, url="old.png", order=0)
+    created = await repo.create_for_product(
+        created_product.id,
+        url="old.png",
+        order=0,
+    )
     await session.flush()
 
-    updated = await repo.update(created.id, {"url": "new.png", "is_primary": True})
+    updated = await repo.update(
+        created.id,
+        {"url": "new.png", "is_primary": True},
+    )
     assert updated is not None
     assert updated.url == "new.png"
     assert updated.is_primary is True
@@ -54,7 +64,9 @@ async def test_update_success_and_non_existing(session, created_product):
 async def test_delete_and_delete_non_existing(session, created_product):
     repo = ProductImageRepository(session=session)
 
-    created = await repo.create_for_product(created_product.id, url="todelete.png", order=0)
+    created = await repo.create_for_product(
+        created_product.id, url="todelete.png", order=0
+    )
     await session.flush()
 
     res = await repo.delete(created.id)

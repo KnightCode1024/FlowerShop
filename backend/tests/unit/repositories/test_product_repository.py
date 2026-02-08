@@ -1,11 +1,12 @@
-import pytestfrom decimal import Decimal
+import pytest
+from decimal import Decimal
 
-from src.flowershop_api.schemas.product import (
+from src.schemas.product import (
     ProductUpdate,
     ProductFilterParams,
 )
-from src.flowershop_api.schemas.category import CategoryCreate
-from src.flowershop_api.models import Product
+from src.schemas.category import CategoryCreate
+from src.models import Product
 
 
 class TestProductRepository:

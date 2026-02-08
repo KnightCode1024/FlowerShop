@@ -1,3 +1,5 @@
+import re
+
 from core.permissions import require_roles
 from core.uow import UnitOfWork
 from models import RoleEnum
@@ -10,14 +12,14 @@ from schemas.user import (
     UserLogin,
     UserResponse,
     UserUpdate,
-    )
+)
 from utils.jwt_utils import (
     create_access_token,
     create_refresh_token,
     decode_jwt,
     hash_password,
     validate_password,
-    )
+)
 
 
 class UserService:
@@ -30,11 +32,6 @@ class UserService:
         self.user_repository = user_repository
 
     async def register_user(self, user_data: UserCreate) -> UserResponse:
-        if user_data.role != "user":
-            raise ValueError(
-                "Registration via API is only allowed for user role",
-            )
-
         self._validate_password(user_data.password, RoleEnum.USER)
 
         existing_user = await self.user_repository.get_user_by_email(
@@ -49,7 +46,6 @@ class UserService:
                 email=user_data.email,
                 username=user_data.username,
                 password=hashed_password,
-                role=user_data.role,
             )
             user = await self.user_repository.create(user_create_data)
             return UserResponse(
@@ -113,6 +109,10 @@ class UserService:
         )
         return user_repsonse
 
+    async def get_user_by_id(self, user_id: int):
+        user = await self.user_repository.get(user_id)
+        return user
+
     @require_roles([RoleEnum.ADMIN])
     async def get_all_users(
         self,
@@ -171,8 +171,6 @@ class UserService:
         self, user_data: UserCreateConsole
     ) -> UserResponse:
         try:
-            from flowershop_api.models import RoleEnum
-
             user_role = RoleEnum(user_data.role.lower())
         except ValueError:
             raise ValueError(
@@ -205,15 +203,11 @@ class UserService:
             )
 
     def _validate_password(self, password: str, role: "RoleEnum") -> None:
-        import re
-
-        from flowershop_api.models import RoleEnum
 
         if role in [RoleEnum.ADMIN, RoleEnum.EMPLOYEE]:
-            if len(password) > 12:
+            if len(password) < 12:
                 raise ValueError(
-                    "Password must be at least 12",
-                    "characters long for admin/employee roles",
+                    "Password must be at least 12 characters long for admin/employee roles"
                 )
 
             if not re.search(r"[A-Z]", password):

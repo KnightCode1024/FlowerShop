@@ -92,9 +92,13 @@ def get_user_input(
     if hide_input:
         value = getpass.getpass(prompt)
     else:
-        value = input(prompt).strip()
-        if isinstance(value, str):
-            value = value.encode("utf-8").decode("utf-8")
+        try:
+            sys.stdout.write(prompt)
+            sys.stdout.flush()
+            raw = sys.stdin.buffer.readline()
+            value = raw.decode("utf-8", errors="replace").strip()
+        except Exception:
+            value = input(prompt).strip()
 
     return value if value else (default or "")
 

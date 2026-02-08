@@ -84,6 +84,9 @@ S3_ACCESS_KEY=admin
 S3_SECRET_KEY=secret_key
 S3_BUCKET_NAME=flower-shop
 S3_REGION=us-east-1
+
+REDIS_PORT=6379
+REDIS_PORT=redis
 ```
 
 ### 4) Сборка и запуск через Docker

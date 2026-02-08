@@ -1,6 +1,7 @@
 from unittest.mock import MagicMock
 
-import pytestfrom sqlalchemy import create_engine
+import pytest
+from sqlalchemy import create_engine
 from sqlalchemy.ext.asyncio import (
     AsyncSession,
     async_sessionmaker,
@@ -14,8 +15,15 @@ from dishka import (
     make_async_container,
 )
 
-from src.flowershop_api.models import Base, User, Category, Product, ProductImage, RoleEnum
-from src.flowershop_api.entrypoint.config import Config
+from src.models import (
+    Base,
+    # User,
+    # Category,
+    # Product,
+    # ProductImage,
+    # RoleEnum,
+)
+from src.entrypoint.config import Config
 
 
 @pytest.fixture(scope="session")
@@ -25,8 +33,9 @@ def postgres_url():
 
 @pytest.fixture(scope="session")
 def sync_engine():
-    from src.flowershop_api.models import Base
-    from sqlalchemy import create_engine
+    # from src.models import Base
+
+    # from sqlalchemy import create_engine
 
     engine = create_engine(
         "sqlite:///:memory:",
@@ -54,7 +63,9 @@ async def async_engine(postgres_url):
 
 
 @pytest.fixture(scope="session")
-async def async_session_maker(async_engine) -> async_sessionmaker[AsyncSession]:
+async def async_session_maker(
+    async_engine,
+) -> async_sessionmaker[AsyncSession]:
     return async_sessionmaker(
         bind=async_engine,
         autoflush=False,

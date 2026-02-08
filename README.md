@@ -27,8 +27,9 @@ Fullstack приложение интернет магазина цветов (F
 - `Redis` (Кеш для ограничителя запроов, брокер для TaskIQ)
 - `TaskIQ` (Асинхронные задачи)
 - `Pytest` (Тестирование приложения)
-- `UV` (Управление зависимостями)
-- `Ruff` (Линтер и форматировщик кода)
+- `Black` (Форматирование кода)
+- `Flake8` (Линтер кода)
+- `Isort` (Сортировка импортов)
 ### Фронтенд
 Пока фронтенд ещё не реализован.
  - `React`
@@ -38,8 +39,7 @@ Fullstack приложение интернет магазина цветов (F
 - Git
 - Docker и Docker Compose
 - Python 3.14+ (для локальной разработки)
-- UV - менеджер пакетов
-- Ruff - линтер и форматировщик кода (автоматически устанавливается через UV)
+- pip - менеджер пакетов Python (предустановлен)
 
 ### 1) Клонирование репозитория
 ```bash
@@ -102,23 +102,28 @@ REDIS_PORT=redis
 # Переход в папку бекенда
 cd backend
 
-# Установка всех зависимостей
-uv sync
+# Создание виртуального окружения
+python -m venv venv
 
-# Запуск приложения через UV (рекомендуемый способ)
-uv run python src/run.py
-
-# Или через прямой запуск (нужно активировать виртуальное окружение)
+# Активация виртуального окружения
 # Linux/Mac
-source .venv/bin/activate
+source venv/bin/activate
 # Windows
-.venv/Scripts/activate
+venv\Scripts\activate
+
+# Установка зависимостей
+pip install -r requirements/prod.txt
+pip install -r requirements/dev.txt  # для инструментов разработки
+pip install -r requirements/test.txt # для тестирования
+
+# Запуск приложения
+python src/run.py
 
 # Запуск с hot-reload для разработки
-uv run uvicorn run:make_app --factory --host 0.0.0.0 --port 8000 --reload
+uvicorn run:make_app --factory --host 0.0.0.0 --port 8000 --reload
 
 # Запуск миграций БД
-uv run alembic upgrade head
+alembic upgrade head
 ```
 
 ### 5) Сборка и запуск через Docker
@@ -141,58 +146,30 @@ python src/create_user.py --email admin@example.com --username admin --role admi
 python src/create_user.py --help
 ```
 
-
-### 7) Работа с зависимостями через UV
+### 7) Линтинг и форматирование кода
 ```bash
 cd backend
-
-# Установка всех зависимостей (runtime + dev)
-uv sync
-
-# Установка только runtime зависимостей (для production)
-uv sync --no-dev
-
-# Добавление новой зависимости
-uv add package-name
-
-# Добавление dev зависимости
-uv add --dev package-name
-
-# Обновление всех зависимостей
-uv lock --upgrade
-
-# Проверка на уязвимости в зависимостях
-uv run pip-audit
-```
-
-### 8) Линтинг и форматирование кода с Ruff
-```bash
-cd backend
-
-# Проверка кода на ошибки и стиль
-uv run ruff check src/
-
-# Автоматическое исправление проблем
-uv run ruff check src/ --fix
-
-# Форматирование кода (автоматическое)
-uv run ruff format src/
-
-# Проверка конкретного файла
-uv run ruff check src/routers/user_router.py
-
-# Показать только ошибки (без предупреждений)
-uv run ruff check src/ --select=E,F
-
+# Убедитесь, что установлены dev зависимости
+pip install -r requirements/dev.txt
+# Форматирование кода (black)
+black src/
+# Проверка стиля кода (flake8)
+flake8 src/
+# Сортировка импортов (isort)
+isort src/
 # Создание новой миграции (автоматически отформатируется)
-uv run alembic revision --autogenerate -m "Add new feature"
+alembic revision --autogenerate -m "Add feature"
 ```
 
-### 9) Тестирование приложения
+### 8) Тестирование приложения
 ```bash
 cd backend
-# Запуск тестов через uv
-uv run pytest
+
+# Убедитесь, что установлены test зависимости
+pip install -r requirements/test.txt
+
+# Запуск тестов
+pytest
 ```
 
 ## Архитектура

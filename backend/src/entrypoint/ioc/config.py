@@ -1,4 +1,4 @@
-from dishka import Provider, provide, Scope
+from dishka import Provider, Scope, provide
 
 from entrypoint.config import Config, create_config
 

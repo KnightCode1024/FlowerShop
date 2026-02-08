@@ -202,12 +202,13 @@ class UserService:
                 role=user.role,
             )
 
-    def _validate_password(self, password: str, role: "RoleEnum") -> None:
+    def _validate_password(self, password: str, role: RoleEnum) -> None:
 
         if role in [RoleEnum.ADMIN, RoleEnum.EMPLOYEE]:
             if len(password) < 12:
                 raise ValueError(
-                    "Password must be at least 12 characters long for admin/employee roles"
+                    "Password must be at least 12 characters long ",
+                    "for admin/employee roles",
                 )
 
             if not re.search(r"[A-Z]", password):

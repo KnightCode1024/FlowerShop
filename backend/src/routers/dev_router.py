@@ -1,7 +1,7 @@
 from dishka.integrations.fastapi import DishkaRoute, FromDishka
 from fastapi import APIRouter, Request
 
-from core.rate_limiter import rate_limit, RateLimiter, Strategy
+from core.rate_limiter import RateLimiter, Strategy, rate_limit
 
 router = APIRouter(prefix="", tags=["Dev Tools"], route_class=DishkaRoute)
 

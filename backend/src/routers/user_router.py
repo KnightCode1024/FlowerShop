@@ -1,6 +1,7 @@
 from dishka.integrations.fastapi import DishkaRoute, FromDishka
-from fastapi import APIRouter, HTTPException, status, Request
+from fastapi import APIRouter, HTTPException, Request, status
 
+from core.rate_limiter import RateLimiter, Strategy, rate_limit
 from schemas.user import (
     RefreshToken,
     TokenPair,
@@ -10,7 +11,6 @@ from schemas.user import (
     UserUpdate,
 )
 from services import UserService
-from core.rate_limiter import rate_limit, Strategy, RateLimiter
 
 router = APIRouter(
     prefix="/users",

@@ -1,4 +1,4 @@
-from enum import Enum
+from enum import StrEnum
 
 from sqlalchemy import Enum as SQLEnum
 from sqlalchemy import String
@@ -7,7 +7,7 @@ from sqlalchemy.orm import Mapped, mapped_column
 from models import Base
 
 
-class RoleEnum(str, Enum):
+class RoleEnum(StrEnum):
     USER = "user"
     EMPLOYEE = "employee"
     ADMIN = "admin"

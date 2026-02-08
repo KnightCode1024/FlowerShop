@@ -5,7 +5,7 @@ from routers import (
     dev_router,
     product_router,
     user_router,
-    )
+)
 
 root_router = APIRouter(prefix="/api", tags=["API"])
 

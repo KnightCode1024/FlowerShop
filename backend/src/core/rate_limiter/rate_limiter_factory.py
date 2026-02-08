@@ -1,8 +1,7 @@
 import re
 from functools import wraps
 
-from fastapi import Request, HTTPException, status
-
+from fastapi import HTTPException, Request, status
 
 from core.rate_limiter.strategy import Strategy
 
@@ -27,11 +26,11 @@ def rate_limit(strategy: Strategy = Strategy.IP, policy: str | None = None):
                     "user",
                 )
                 if user is not None and hasattr(user, "id"):
-                    identifier = getattr(user, "id")
+                    identifier = user.id
                 else:
                     state_user = getattr(request.state, "user", None)
                     if state_user is not None and hasattr(state_user, "id"):
-                        identifier = getattr(state_user, "id")
+                        identifier = state_user.id
                     else:
                         identifier = request.headers.get("X-User-Id")
                 if identifier is None:

@@ -1,11 +1,12 @@
-from typing import Callable, TypeVar
+from collections.abc import Callable
+from typing import TypeVar
 
 from dishka.integrations.base import wrap_injection
 
 T = TypeVar("T")
 
 
-def inject(func: Callable[..., T]) -> Callable[..., T]:
+def inject[P, T](func: Callable[P, T]) -> Callable[P, T]:
     return wrap_injection(
         func=func,
         container_getter=lambda args, kwargs: kwargs["dishka_container"],

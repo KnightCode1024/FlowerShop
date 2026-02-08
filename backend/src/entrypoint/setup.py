@@ -1,11 +1,11 @@
-from typing import Iterable
+from collections.abc import Iterable
 from contextlib import asynccontextmanager
 
 from dishka import Provider, make_async_container
 from fastapi import APIRouter, FastAPI
 
-from entrypoint.config import Config, create_config
 from clients import RedisClient
+from entrypoint.config import Config, create_config
 
 
 @asynccontextmanager

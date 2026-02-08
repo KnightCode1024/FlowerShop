@@ -38,8 +38,8 @@ class RateLimiter:
 
             res = await pipe.execute()
 
-        counts = res[1: 1 + len(windows)]
-        for (max_requests, _), count in zip(windows, counts):
+        counts = res[1 : 1 + len(windows)]
+        for (max_requests, _), count in zip(windows, counts, strict=False):
             if count >= max_requests:
                 return True
 

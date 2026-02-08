@@ -1,5 +1,5 @@
-from clients.s3_client import S3Client
 from clients.redis_client import RedisClient
+from clients.s3_client import S3Client
 
 __all__ = [
     "S3Client",

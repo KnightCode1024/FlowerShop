@@ -2,8 +2,7 @@ from datetime import datetime
 
 from sqlalchemy import Integer, func
 from sqlalchemy.ext.asyncio import AsyncAttrs
-from sqlalchemy.orm import (DeclarativeBase, Mapped, declared_attr,
-                            mapped_column)
+from sqlalchemy.orm import DeclarativeBase, Mapped, declared_attr, mapped_column
 
 
 class Base(AsyncAttrs, DeclarativeBase):

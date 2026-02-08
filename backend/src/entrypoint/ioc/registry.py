@@ -1,17 +1,16 @@
-from typing import Iterable
+from collections.abc import Iterable
 
 from dishka import Provider
 from dishka.integrations.fastapi import FastapiProvider
 
-
 from entrypoint.ioc import (
     AuthProvider,
-    DatabaseProvider,
-    RepositoryProvider,
-    ServiceProvider,
     ConfigProvider,
+    DatabaseProvider,
     RateLimiterProvider,
     RedisProvider,
+    RepositoryProvider,
+    ServiceProvider,
 )
 
 

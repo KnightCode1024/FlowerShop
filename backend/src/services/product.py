@@ -4,15 +4,16 @@ from core.exceptions import (
     CategoryNotFoundError,
     ProductNameNotUniqueError,
     ProductNotFoundError,
-    )
+)
 from core.permissions import require_roles
 from core.uow import UnitOfWork
 from models import RoleEnum
 from repositories import (
     CategoryRepositoryI,
     ProductImageRepositoryI,
-    ProductRepositoryI, S3RepositoryI,
-    )
+    ProductRepositoryI,
+    S3RepositoryI,
+)
 from schemas.product import (
     CreateProductRequest,
     ProductCreate,
@@ -21,7 +22,7 @@ from schemas.product import (
     ProductsListResponse,
     ProductUpdate,
     UpdateProductRequest,
-    )
+)
 from schemas.user import UserResponse
 
 

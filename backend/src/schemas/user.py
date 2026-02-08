@@ -19,7 +19,7 @@ class UserEmail(BaseModel):
 
 class UserBase(UserEmail):
     username: str = Field(..., max_length=30)
-    password: str = Field(..., max_length=36)
+    password: str = Field(..., max_length=255)
 
 
 class UserCreate(UserBase):
@@ -32,13 +32,13 @@ class UserCreateConsole(UserBase):
 
 class UserLogin(BaseModel):
     email: str = Field(..., max_length=64)
-    password: str = Field(..., max_length=36)
+    password: str = Field(..., max_length=255)
 
 
 class UserUpdate(BaseModel):
     username: str | None = Field(None, max_length=30)
     email: str | None = Field(None, max_length=255)
-    password: str | None = Field(None, max_length=36)
+    password: str | None = Field(None, max_length=255)
 
 
 class UserRequest(BaseModel):

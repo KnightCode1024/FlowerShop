@@ -1,3 +1,5 @@
+import re
+
 from core.permissions import require_roles
 from core.uow import UnitOfWork
 from models import RoleEnum
@@ -10,14 +12,14 @@ from schemas.user import (
     UserLogin,
     UserResponse,
     UserUpdate,
-    )
+)
 from utils.jwt_utils import (
     create_access_token,
     create_refresh_token,
     decode_jwt,
     hash_password,
     validate_password,
-    )
+)
 
 
 class UserService:
@@ -171,8 +173,6 @@ class UserService:
         self, user_data: UserCreateConsole
     ) -> UserResponse:
         try:
-            from flowershop_api.models import RoleEnum
-
             user_role = RoleEnum(user_data.role.lower())
         except ValueError:
             raise ValueError(
@@ -205,15 +205,11 @@ class UserService:
             )
 
     def _validate_password(self, password: str, role: "RoleEnum") -> None:
-        import re
-
-        from flowershop_api.models import RoleEnum
 
         if role in [RoleEnum.ADMIN, RoleEnum.EMPLOYEE]:
-            if len(password) > 12:
+            if len(password) < 12:
                 raise ValueError(
-                    "Password must be at least 12",
-                    "characters long for admin/employee roles",
+                    "Password must be at least 12 characters long for admin/employee roles"
                 )
 
             if not re.search(r"[A-Z]", password):

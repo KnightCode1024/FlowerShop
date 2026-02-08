@@ -8,14 +8,6 @@ from core.rate_limiter.strategy import Strategy
 
 
 def rate_limit(strategy: Strategy = Strategy.IP, policy: str | None = None):
-    """
-    Usage:
-      @rate_limit(strategy=Strategy.IP, policy="10/s;100/m;500/h")
-    The decorator expects the endpoint handler to accept a `rate_limiter`
-    dependency (e.g. `rate_limiter: FromDishka[RateLimiter]`) so it can call
-    `is_limited(...)`.
-    """
-
     def decorator(func):
         @wraps(func)
         async def wrapper(request: Request, *args, **kwargs):

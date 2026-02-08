@@ -14,16 +14,6 @@ class RateLimiter:
         endpoint: str,
         windows: list[tuple[int, int]],
     ) -> bool:
-        """
-        windows is a list of (max_requests, window_seconds).
-        This method runs a single Redis pipeline:
-          - remove entries older than the largest window
-          - zcount for each window (counts before adding current request)
-          - zadd current request
-          - expire key
-        Returns True if any window is already at
-        or above its max (i.e. limited).
-        """
         key = f"rate_limiter:{endpoint}:{identifier}"
 
         current_ms = time() * 1000

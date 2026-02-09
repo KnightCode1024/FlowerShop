@@ -22,8 +22,6 @@ async def test_add_order_one(session, created_user, created_product, order_repos
 
     order = await order_repository.add(order_create_data)
 
-
-
     assert order.user_id == created_user.id
 
     return order
@@ -78,8 +76,6 @@ async def test_update_order_already_exists(session, created_user, created_produc
         assert exp.value == "Product in order 1 already exists"
 
 
-
-
 @pytest.mark.asyncio
 async def test_update_order_success_one(session, created_user, created_multiply_products, product_repository, order_repository):
     order_create_data = OrderCreate(user_id=created_user.id, order_products=[
@@ -90,11 +86,11 @@ async def test_update_order_success_one(session, created_user, created_multiply_
         )
     ])
 
-    order = await order_repository.add(order_create_data)
+    order_added = await order_repository.add(order_create_data)
 
-    print(order)
+    print(order_added, order_added.order_products)
 
-    order_create_data = OrderUpdate(id=order.id, user_id=created_user.id, order_products=[
+    order_update_data = OrderUpdate(id=order_added.id, user_id=created_user.id, order_products=[
         CartItem(
             product_id=created_multiply_products[1].id,
             quantity=random.randint(1, 10),
@@ -102,6 +98,11 @@ async def test_update_order_success_one(session, created_user, created_multiply_
         )
     ])
 
-    order = await order_repository.add(order_create_data)
+    order2_updated = await order_repository.update(order_update_data)
 
-    assert order.user_id == created_user.id
+    print(order2_updated)
+
+    print(order2_updated.order_products)
+
+    assert len(order2_updated.order_products) == 2
+    assert order2_updated.user_id == created_user.id

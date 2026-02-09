@@ -41,8 +41,6 @@ class OrderRepositories(IOrderRepositories):
         self.session.add(obj)
 
         await self.session.flush()
-
-
         await self._update_products(obj, order_data.order_products)
 
         stmt = select(Order).options(
@@ -55,9 +53,13 @@ class OrderRepositories(IOrderRepositories):
         return result
 
     async def get(self, id: int, user_id: int) -> Order:
-        stmt = select(Order).where(Order.id == id, Order.user_id == user_id)
+        stmt = select(Order).options(
+            joinedload(Order.order_products)
+        ).where(Order.id == id, Order.user_id == user_id)
+
         result = await self.session.execute(stmt)
-        obj: Order | None = result.scalar_one_or_none()
+        obj: Order | None = result.scalars().unique().one_or_none()
+
         if not obj:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Order not found")
 
@@ -66,15 +68,20 @@ class OrderRepositories(IOrderRepositories):
     async def update(self, order_data: OrderUpdate) -> Order:
         obj = await self.get(order_data.id, order_data.user_id)
 
-        if order_data.order_products:
-            await self._update_products(obj, order_data.order_products)
+        # if order_data.order_products:
+        await self._update_products(obj, order_data.order_products)
 
-        for name, value in order_data.model_dump(exclude_none=True, exclude={"order_products"}).items():
-            setattr(obj, name, value)
+        # for name, value in order_data.model_dump(exclude_none=True, exclude={"order_products"}).items():
+        #     setattr(obj, name, value)
 
-        await self.session.flush()
+        stmt = select(Order).options(
+            joinedload(Order.order_products)
+        ).where(Order.id == obj.id)
 
-        return obj
+        result = await self.session.execute(stmt)
+        result = result.scalars().unique().one_or_none()
+
+        return result
 
     async def get_all(self) -> list[Order]:
         stmt = select(Order).order_by(
@@ -92,8 +99,6 @@ class OrderRepositories(IOrderRepositories):
 
     async def _update_products(self, order: Order, order_products: list[CartItem]) -> Order:
         new_order_products = []
-        if order.id is None:
-            await self.session.flush()
 
         for o_prod in order_products:
             op = OrderProduct(order_id=order.id,
@@ -101,7 +106,8 @@ class OrderRepositories(IOrderRepositories):
                               quantity=o_prod.quantity,
                               price=o_prod.price)
             new_order_products.append(op)
-            self.session.add(op)
+
+        self.session.add_all(new_order_products)
 
 
         order.amount = round(float(sum(

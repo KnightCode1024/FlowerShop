@@ -40,21 +40,19 @@ class OrderRepositories(IOrderRepositories):
         obj: Order = Order(**order_data.model_dump(exclude={"order_products"}))
         self.session.add(obj)
 
-        try:
-            await self.session.flush()
-        except IntegrityError:
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail=f"Product in order {obj.id} already exists"
-            )
+        await self.session.flush()
+
 
         await self._update_products(obj, order_data.order_products)
 
-        await self.session.refresh(obj)
+        stmt = select(Order).options(
+            joinedload(Order.order_products)
+        ).where(Order.id == obj.id)
 
-        print(obj)
+        result = await self.session.execute(stmt)
+        result = result.scalars().unique().one_or_none()
 
-        return obj
+        return result
 
     async def get(self, id: int, user_id: int) -> Order:
         stmt = select(Order).where(Order.id == id, Order.user_id == user_id)
@@ -93,10 +91,7 @@ class OrderRepositories(IOrderRepositories):
         return None
 
     async def _update_products(self, order: Order, order_products: list[CartItem]) -> Order:
-        order.order_products.clear()
-
-        print(order)
-
+        new_order_products = []
         if order.id is None:
             await self.session.flush()
 
@@ -105,12 +100,12 @@ class OrderRepositories(IOrderRepositories):
                               product_id=o_prod.product_id,
                               quantity=o_prod.quantity,
                               price=o_prod.price)
-            order.order_products.append(op)
+            new_order_products.append(op)
             self.session.add(op)
 
 
         order.amount = round(float(sum(
-            [i.quantity * i.price for i in order.order_products]
+            [i.quantity * i.price for i in order_products]
         )), 2)
 
         await self.session.flush()

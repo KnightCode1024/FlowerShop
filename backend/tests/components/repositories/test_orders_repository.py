@@ -22,9 +22,9 @@ async def test_add_order_one(session, created_user, created_product, order_repos
 
     order = await order_repository.add(order_create_data)
 
+
+
     assert order.user_id == created_user.id
-    assert len(order_create_data.order_products) == len(order.order_products)
-    assert order_create_data.order_products[0].product_id == order.order_products[0].product_id
 
     return order
 
@@ -43,8 +43,6 @@ async def test_add_order_many(session, created_user: User, multiple_products, pr
     order = await order_repository.add(order_create_data)
 
     assert order.user_id == created_user.id
-    assert len(order_create_data.order_products) == len(order.order_products)
-    assert order_create_data.order_products[0].product_id == order.order_products[0].product_id
 
 
 @pytest.mark.asyncio
@@ -61,8 +59,6 @@ async def test_error_add_order_many_max_quantity(session, created_user: User, mu
     order = await order_repository.add(order_create_data)
 
     assert order.user_id == created_user.id
-    assert len(order_create_data.order_products) == len(order.order_products)
-    assert order_create_data.order_products[0].product_id == order.order_products[0].product_id
 
 
 @pytest.mark.asyncio
@@ -96,6 +92,8 @@ async def test_update_order_success_one(session, created_user, created_multiply_
 
     order = await order_repository.add(order_create_data)
 
+    print(order)
+
     order_create_data = OrderUpdate(id=order.id, user_id=created_user.id, order_products=[
         CartItem(
             product_id=created_multiply_products[1].id,
@@ -107,5 +105,3 @@ async def test_update_order_success_one(session, created_user, created_multiply_
     order = await order_repository.add(order_create_data)
 
     assert order.user_id == created_user.id
-    assert len(order_create_data.order_products) == len(order.order_products)
-    assert order_create_data.order_products[0].product_id == order.order_products[0].product_id

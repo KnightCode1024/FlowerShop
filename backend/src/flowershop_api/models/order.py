@@ -16,8 +16,6 @@ class OrderStatus(enum.StrEnum):
 
 
 class OrderProduct(Base):
-    __tablename__ = "order_products"
-
     id = None
     order_id: Mapped[int] = mapped_column(ForeignKey("orders.id", ondelete="CASCADE"), primary_key=True)
     product_id: Mapped[int] = mapped_column(ForeignKey("products.id"), primary_key=True)
@@ -31,13 +29,11 @@ class OrderProduct(Base):
 
 
 class Order(Base):
-    __tablename__ = "orders"
-
     order_products: Mapped[list["OrderProduct"]] = relationship(
         "OrderProduct",
         back_populates="order",
         cascade="all, delete-orphan",
-        uselist=True
+        lazy="joined",
     )
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     user: Mapped["User"] = relationship("User", back_populates="orders")

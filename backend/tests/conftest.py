@@ -2,7 +2,7 @@ import asyncio
 from unittest.mock import MagicMock
 
 import pytest
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, StaticPool
 from sqlalchemy.ext.asyncio import (
     AsyncSession,
     async_sessionmaker,
@@ -35,6 +35,9 @@ def sync_engine():
     engine = create_engine(
         "sqlite:///:memory:",
         connect_args={"check_same_thread": False},
+        poolclass=StaticPool,
+        future=True,
+        echo=True
     )
 
     Base.metadata.drop_all(engine)
@@ -48,6 +51,9 @@ async def async_engine(postgres_url):
     engine = create_async_engine(
         postgres_url,
         connect_args={"check_same_thread": False},
+        poolclass=StaticPool,
+        future=True,
+        echo=True
     )
 
     async with engine.begin() as conn:

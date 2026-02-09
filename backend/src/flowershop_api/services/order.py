@@ -16,8 +16,8 @@ class OrdersService:
         self.orders = order_repository
 
     @require_roles([RoleEnum.ADMIN, RoleEnum.USER])
-    async def create_order(self, user: UserResponse, request: OrderCreateRequest):
-        order_data = OrderCreate(user_id=user.id, **request.model_dump())
+    async def create_order(self, user: UserResponse, data: OrderCreateRequest):
+        order_data = OrderCreate(user_id=user.id, **data.model_dump())
 
         async with self.uow:
             order = await self.orders.add(order_data)
@@ -26,12 +26,19 @@ class OrdersService:
 
 
     @require_roles([RoleEnum.ADMIN, RoleEnum.USER])
-    async def update_order(self, user: UserResponse, request: OrderUpdateRequest):
-        order_data = OrderUpdate(id=request.order_id,
+    async def update_order(self, user: UserResponse, data: OrderUpdateRequest):
+        order_data = OrderUpdate(id=data.order_id,
                                  user_id=user.id,
-                                 **request.model_dump(exclude_none=True))
+                                 **data.model_dump(exclude_none=True))
 
         async with self.uow:
             order = await self.orders.update(order_data)
 
         return order
+
+
+    @require_roles([RoleEnum.ADMIN, RoleEnum.USER])
+    async def delete_order(self, id: int, user: UserResponse, data: OrderUpdateRequest):
+        async with self.uow:
+            return await self.orders.delete(id)
+

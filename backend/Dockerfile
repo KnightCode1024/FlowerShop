@@ -5,6 +5,9 @@ ENV PYTHONUNBUFFERED=1
 
 RUN pip install --upgrade pip
 WORKDIR /backend
-COPY requirements.txt /backend/
+COPY requirements/ ./requirements/
+RUN pip install -r requirements/prod.txt
 
-RUN pip install --no-cache-dir -r /backend/requirements.txt
+COPY src /backend/src
+COPY scripts /backend/scripts
+RUN chmod +x /backend/scripts/*.sh

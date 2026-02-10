@@ -63,8 +63,6 @@ async def test_error_add_order_many_max_quantity(session, created_user: User, mu
 async def test_update_order_already_exists(session, created_user, created_product, product_repository, order_repository):
     order = await test_add_order_one(session, created_user, created_product, order_repository) # +1
 
-    print(order)
-
     order_create_data = OrderUpdate(id=order.id, user_id=created_user.id, order_products=[
         CartItem(
             product_id=created_product.id,
@@ -74,8 +72,6 @@ async def test_update_order_already_exists(session, created_user, created_produc
     ])
 
     order_updated = await order_repository.update(order_create_data) # +1
-
-    print(order_updated.order_products.__dict__)
 
     assert len(order_updated.order_products) == 2
 
@@ -93,7 +89,6 @@ async def test_update_order_success_one(session, created_user, created_multiply_
 
     order_added = await order_repository.add(order_create_data)
 
-    print(order_added, order_added.order_products)
 
     order_update_data = OrderUpdate(id=order_added.id, user_id=created_user.id, order_products=[
         CartItem(
@@ -104,10 +99,6 @@ async def test_update_order_success_one(session, created_user, created_multiply_
     ])
 
     order2_updated = await order_repository.update(order_update_data)
-
-    print(order2_updated)
-
-    print(order2_updated.order_products)
 
     assert len(order2_updated.order_products) == 2
     assert order2_updated.user_id == created_user.id

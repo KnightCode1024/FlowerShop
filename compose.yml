@@ -18,8 +18,9 @@ services:
       - flower_shop_net
 
   minio:
-    image: quay.io/minio/minio:latest
-    entrypoint: ["/entrypoint-minio.sh"]
+    build:
+      context: ./backend
+      dockerfile: minio/Dockerfile
     environment:
       - MINIO_ROOT_USER=${S3_ACCESS_KEY}
       - MINIO_ROOT_PASSWORD=${S3_SECRET_KEY}
@@ -31,13 +32,30 @@ services:
       - "9001:9001"  # Web Console
     volumes:
       - minio-data:/data
-      - ./backend/scripts/init-minio.sh:/init-minio.sh
-      - ./backend/scripts/entrypoint-minio.sh:/entrypoint-minio.sh
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
       interval: 30s
       timeout: 20s
       retries: 3
+    networks:
+      - flower_shop_net
+
+  redis:
+    image: redis:8-alpine
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - flower_shop_net
+
+  redis_gui:
+    image: redis/redisinsight
+    ports:
+      - "5540:5540"
     networks:
       - flower_shop_net
 
@@ -50,6 +68,20 @@ services:
      - ./backend/scripts/entrypoint-backend.sh:/entrypoint-backend.sh
      - ./backend/certs:/backend/certs:ro
     working_dir: /backend
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=${POSTGRES_PORT}
+      - POSTGRES_NAME=${POSTGRES_NAME}
+      - S3_ACCESS_KEY=${S3_ACCESS_KEY}
+      - S3_SECRET_KEY=${S3_SECRET_KEY}
+      - S3_BUCKET_NAME=${S3_BUCKET_NAME}
+      - S3_ENDPOINT=${S3_ENDPOINT}
+      - S3_PUBLIC_ENDPOINT=${S3_PUBLIC_ENDPOINT}
+      - S3_REGION=${S3_REGION}
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
     ports:
       - "8000:8000"
     depends_on:
@@ -86,3 +118,4 @@ networks:
 volumes:
   postgres-data:
   minio-data:
+  redis-data:

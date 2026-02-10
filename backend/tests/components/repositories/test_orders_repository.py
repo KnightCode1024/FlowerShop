@@ -61,7 +61,9 @@ async def test_error_add_order_many_max_quantity(session, created_user: User, mu
 
 @pytest.mark.asyncio
 async def test_update_order_already_exists(session, created_user, created_product, product_repository, order_repository):
-    order = await test_add_order_one(session, created_user, created_product, order_repository)
+    order = await test_add_order_one(session, created_user, created_product, order_repository) # +1
+
+    print(order)
 
     order_create_data = OrderUpdate(id=order.id, user_id=created_user.id, order_products=[
         CartItem(
@@ -71,9 +73,12 @@ async def test_update_order_already_exists(session, created_user, created_produc
         )
     ])
 
-    with pytest.raises(HTTPException) as exp:
-        order = await order_repository.add(order_create_data)
-        assert exp.value == "Product in order 1 already exists"
+    order_updated = await order_repository.update(order_create_data) # +1
+
+    print(order_updated.order_products.__dict__)
+
+    assert len(order_updated.order_products) == 2
+
 
 
 @pytest.mark.asyncio

@@ -68,7 +68,6 @@ class OrderRepositories(IOrderRepositories):
     async def update(self, order_data: OrderUpdate) -> Order:
         obj = await self.get(order_data.id, order_data.user_id)
 
-        # if order_data.order_products:
         await self._update_products(obj, order_data.order_products)
 
         # for name, value in order_data.model_dump(exclude_none=True, exclude={"order_products"}).items():
@@ -109,11 +108,11 @@ class OrderRepositories(IOrderRepositories):
 
         self.session.add_all(new_order_products)
 
-
         order.amount = round(float(sum(
             [i.quantity * i.price for i in order_products]
         )), 2)
 
-        await self.session.flush()
 
+        await self.session.flush()
+        await self.session.refresh(order)
         return order

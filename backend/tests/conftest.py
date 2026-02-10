@@ -52,8 +52,6 @@ async def async_engine(postgres_url):
         postgres_url,
         connect_args={"check_same_thread": False},
         poolclass=StaticPool,
-        future=True,
-        echo=True
     )
 
     async with engine.begin() as conn:

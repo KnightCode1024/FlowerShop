@@ -16,10 +16,9 @@ class OrderStatus(enum.StrEnum):
 
 
 class OrderProduct(Base):
-    id = None
-    order_id: Mapped[int] = mapped_column(ForeignKey("orders.id", ondelete="CASCADE"), primary_key=True)
-    product_id: Mapped[int] = mapped_column(ForeignKey("products.id"), primary_key=True)
-
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    order_id: Mapped[int] = mapped_column(ForeignKey("orders.id", ondelete="CASCADE"), primary_key=False)
+    product_id: Mapped[int] = mapped_column(ForeignKey("products.id"), nullable=False, primary_key=False)
     order: Mapped["Order"] = relationship(
         "Order",
         back_populates="order_products"
@@ -29,6 +28,7 @@ class OrderProduct(Base):
 
 
 class Order(Base):
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     order_products: Mapped[list["OrderProduct"]] = relationship(
         "OrderProduct",
         back_populates="order",

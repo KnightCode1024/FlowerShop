@@ -15,6 +15,10 @@ class DatabaseProvider(Provider):
 
     @provide
     async def get_db_session(self) -> AsyncGenerator[AsyncSession]:
+        async with self._get_session_factory() as session:
+            yield session
+
+    def _get_session_factory(self):
         config = create_config()
         engine = create_async_engine(
             url=config.database.get_db_url(),
@@ -23,5 +27,4 @@ class DatabaseProvider(Provider):
             engine,
             expire_on_commit=False,
         )
-        async with session_factory() as session:
-            yield session
+        return session_factory

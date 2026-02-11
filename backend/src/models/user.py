@@ -2,9 +2,9 @@ from enum import StrEnum
 
 from sqlalchemy import Enum as SQLEnum
 from sqlalchemy import String
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from models import Base
+from models import *
 
 
 class RoleEnum(StrEnum):

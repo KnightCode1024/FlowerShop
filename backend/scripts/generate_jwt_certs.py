@@ -1,15 +1,5 @@
-#!/usr/bin/env python3
-"""
-Generate RSA private/public keys and produce a JWK/JWKS for JWT usage.
-Writes files to /certs by default.
-
-Works with Python 3.13 and cryptography.
-"""
-
-import os
 import json
 import uuid
-import stat
 import base64
 
 from pathlib import Path

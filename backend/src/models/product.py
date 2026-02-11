@@ -29,7 +29,7 @@ class Product(Base):
         default=True,
     )
 
-    images: Mapped[list[ProductImage]] = relationship(
+    images: Mapped[list["ProductImage"]] = relationship(
         "ProductImage",
         back_populates="product",
         cascade="all, delete-orphan",
@@ -45,7 +45,8 @@ class Product(Base):
         nullable=False,
     )
 
-    category: Mapped[Category] = relationship(
+    category: Mapped["Category"] = relationship(
         "Category",
         back_populates="products",
     )
+    # quantity: Mapped[int] = mapped_column(default=1)

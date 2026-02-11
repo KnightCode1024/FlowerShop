@@ -32,7 +32,7 @@ class ProductImage(Base):
         nullable=False,
     )
 
-    product: Mapped[Product] = relationship(
+    product: Mapped["Product"] = relationship(
         "Product",
         back_populates="images",
     )

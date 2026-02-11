@@ -6,11 +6,11 @@ services:
     ports:
       - "5432:5432"
     environment:
-      - POSTGRES_DB=db
-      - POSTGRES_USER=superuser
-      - POSTGRES_PASSWORD=strongpassword
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U superuser -d strongpassword" ]
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_PASSWORD}" ]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -69,6 +69,8 @@ services:
      - ./backend/scripts/entrypoint-backend.sh:/entrypoint-backend.sh
      - ./backend/certs:/backend/certs:ro
     working_dir: /backend
+    ports:
+      - "8000:8000"
     environment:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
@@ -83,8 +85,6 @@ services:
       - S3_REGION=${S3_REGION}
       - REDIS_HOST=${REDIS_HOST}
       - REDIS_PORT=${REDIS_PORT}
-    ports:
-      - "8000:8000"
     depends_on:
       postgres:
         condition: service_healthy

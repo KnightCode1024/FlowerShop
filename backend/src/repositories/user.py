@@ -8,7 +8,7 @@ from models.user import RoleEnum
 from schemas.user import UserCreate, UserUpdate
 
 
-class UserRepositoryI(Protocol):
+class IUserRepository(Protocol):
     async def create(self, user_data: UserCreate) -> User: ...
 
     async def get(self, user_id: int) -> User: ...
@@ -24,7 +24,7 @@ class UserRepositoryI(Protocol):
     async def get_user_by_email(self, email: str) -> User | None: ...
 
 
-class UserRepository(UserRepositoryI):
+class UserRepository(IUserRepository):
     def __init__(
         self,
         session: AsyncSession,

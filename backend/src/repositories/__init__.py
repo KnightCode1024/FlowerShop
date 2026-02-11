@@ -1,27 +1,30 @@
 from repositories.category import (
     CategoryRepository,
-    CategoryRepositoryI,
+    ICategoryRepository,
 )
+from repositories.order import IOrderRepositories, OrderRepositories
 from repositories.product import (
     ProductRepository,
-    ProductRepositoryI,
+    IProductRepository,
 )
 from repositories.product_image import (
     ProductImageRepository,
-    ProductImageRepositoryI,
+    IProductImageRepository,
 )
 from repositories.s3 import S3Repository, S3RepositoryI
-from repositories.user import UserRepository, UserRepositoryI
+from repositories.user import UserRepository, IUserRepository
 
 __all__ = [
     "CategoryRepository",
-    "CategoryRepositoryI",
+    "ICategoryRepository",
     "ProductRepository",
-    "ProductRepositoryI",
+    "IProductRepository",
     "ProductImageRepository",
-    "ProductImageRepositoryI",
+    "IProductImageRepository",
     "S3Repository",
     "S3RepositoryI",
     "UserRepository",
-    "UserRepositoryI",
+    "IUserRepository",
+    "OrderRepositories",
+    "IOrderRepositories"
 ]

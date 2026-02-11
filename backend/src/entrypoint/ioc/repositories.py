@@ -4,15 +4,15 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from core.uow import UnitOfWork
 from repositories import (
     CategoryRepository,
-    CategoryRepositoryI,
+    ICategoryRepository,
     ProductImageRepository,
-    ProductImageRepositoryI,
+    IProductImageRepository,
     ProductRepository,
-    ProductRepositoryI,
+    IProductRepository,
     S3Repository,
     S3RepositoryI,
     UserRepository,
-    UserRepositoryI,
+    IUserRepository,
 )
 
 
@@ -23,21 +23,21 @@ class RepositoryProvider(Provider):
     def get_product_repository(
         self,
         session: AsyncSession,
-    ) -> ProductRepositoryI:
+    ) -> IProductRepository:
         return ProductRepository(session)
 
     @provide
     def get_category_repository(
         self,
         session: AsyncSession,
-    ) -> CategoryRepositoryI:
+    ) -> ICategoryRepository:
         return CategoryRepository(session)
 
     @provide
     def get_image_repository(
         self,
         session: AsyncSession,
-    ) -> ProductImageRepositoryI:
+    ) -> IProductImageRepository:
         return ProductImageRepository(session)
 
     @provide
@@ -45,7 +45,7 @@ class RepositoryProvider(Provider):
         return S3Repository()
 
     @provide
-    def get_user_repository(self, session: AsyncSession) -> UserRepositoryI:
+    def get_user_repository(self, session: AsyncSession) -> IUserRepository:
         return UserRepository(session)
 
     @provide

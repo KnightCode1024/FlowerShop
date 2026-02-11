@@ -2,13 +2,14 @@ from dishka import Provider, Scope, provide
 
 from core.uow import UnitOfWork
 from repositories import (
-    CategoryRepositoryI,
-    ProductImageRepositoryI,
-    ProductRepositoryI,
+    ICategoryRepository,
+    IProductImageRepository,
+    IProductRepository,
     S3RepositoryI,
-    UserRepositoryI,
+    IUserRepository,
+    IOrderRepositories
 )
-from services import CategoriesService, ProductsService, UserService
+from services import CategoriesService, ProductsService, UserService, OrdersService
 
 
 class ServiceProvider(Provider):
@@ -16,12 +17,12 @@ class ServiceProvider(Provider):
 
     @provide
     def get_products_service(
-        self,
-        uow: UnitOfWork,
-        product_repository: ProductRepositoryI,
-        category_repository: CategoryRepositoryI,
-        image_repository: ProductImageRepositoryI,
-        s3_repository: S3RepositoryI,
+            self,
+            uow: UnitOfWork,
+            product_repository: IProductRepository,
+            category_repository: ICategoryRepository,
+            image_repository: IProductImageRepository,
+            s3_repository: S3RepositoryI,
     ) -> ProductsService:
         return ProductsService(
             uow,
@@ -33,16 +34,24 @@ class ServiceProvider(Provider):
 
     @provide
     def get_categories_service(
-        self,
-        uow: UnitOfWork,
-        category_repository: CategoryRepositoryI,
+            self,
+            uow: UnitOfWork,
+            category_repository: ICategoryRepository,
     ) -> CategoriesService:
         return CategoriesService(uow, category_repository)
 
     @provide
     def get_user_service(
-        self,
-        uow: UnitOfWork,
-        user_repository: UserRepositoryI,
+            self,
+            uow: UnitOfWork,
+            user_repository: IUserRepository,
     ) -> UserService:
         return UserService(uow, user_repository)
+
+    @provide
+    def get_order_service(
+            self,
+            uow: UnitOfWork,
+            order_repository: IOrderRepositories
+    ) -> OrdersService:
+        return OrdersService(uow, order_repository)

@@ -8,7 +8,7 @@ from models import Category, Product
 from schemas.category import CategoryCreate, CategoryUpdate
 
 
-class CategoryRepositoryI(Protocol):
+class ICategoryRepository(Protocol):
     async def create(self, data: CategoryCreate): ...
 
     async def get_by_id(self, category_id: int): ...
@@ -24,7 +24,7 @@ class CategoryRepositoryI(Protocol):
     ) -> bool: ...
 
 
-class CategoryRepository(CategoryRepositoryI):
+class CategoryRepository(ICategoryRepository):
     def __init__(
             self,
             session: AsyncSession,

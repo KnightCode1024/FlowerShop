@@ -6,7 +6,7 @@ from core.exceptions import (
 from core.permissions import require_roles
 from core.uow import UnitOfWork
 from models.user import RoleEnum
-from repositories import CategoryRepositoryI
+from repositories import ICategoryRepository
 from schemas.category import (
     CategoriesListResponse,
     CategoryCreate,
@@ -20,7 +20,7 @@ class CategoriesService:
     def __init__(
         self,
         uow: UnitOfWork,
-        category_repository: CategoryRepositoryI,
+        category_repository: ICategoryRepository,
     ):
         self.uow = uow
         self.categories = category_repository

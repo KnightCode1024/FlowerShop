@@ -3,7 +3,7 @@ import re
 from core.permissions import require_roles
 from core.uow import UnitOfWork
 from models import RoleEnum
-from repositories import UserRepositoryI
+from repositories import IUserRepository
 from schemas.user import (
     RefreshToken,
     TokenPair,
@@ -26,7 +26,7 @@ class UserService:
     def __init__(
         self,
         uow: UnitOfWork,
-        user_repository: UserRepositoryI,
+        user_repository: IUserRepository,
     ):
         self.uow = uow
         self.user_repository = user_repository

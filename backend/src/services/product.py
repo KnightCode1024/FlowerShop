@@ -9,9 +9,9 @@ from core.permissions import require_roles
 from core.uow import UnitOfWork
 from models import RoleEnum
 from repositories import (
-    CategoryRepositoryI,
-    ProductImageRepositoryI,
-    ProductRepositoryI,
+    ICategoryRepository,
+    IProductImageRepository,
+    IProductRepository,
     S3RepositoryI,
 )
 from schemas.product import (
@@ -30,9 +30,9 @@ class ProductsService:
     def __init__(
         self,
         uow: UnitOfWork,
-        product_repository: ProductRepositoryI,
-        category_repository: CategoryRepositoryI,
-        image_repository: ProductImageRepositoryI,
+        product_repository: IProductRepository,
+        category_repository: ICategoryRepository,
+        image_repository: IProductImageRepository,
         s3_repository: S3RepositoryI,
     ):
         self.uow = uow

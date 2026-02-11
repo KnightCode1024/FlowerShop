@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from models import ProductImage
 
 
-class ProductImageRepositoryI(Protocol):
+class IProductImageRepository(Protocol):
     async def create_for_product(
         self, product_id: int, url: str, order: int, is_primary: bool
     ): ...
@@ -14,7 +14,7 @@ class ProductImageRepositoryI(Protocol):
     async def delete_by_product_id(self, product_id: int): ...
 
 
-class ProductImageRepository(ProductImageRepositoryI):
+class ProductImageRepository(IProductImageRepository):
     def __init__(self, session: AsyncSession):
         self.session = session
 

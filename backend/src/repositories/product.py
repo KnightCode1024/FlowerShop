@@ -14,7 +14,7 @@ from schemas.product import (
 )
 
 
-class ProductRepositoryI(Protocol):
+class IProductRepository(Protocol):
     async def create(self, data: ProductCreate) -> ProductResponse: ...
 
     async def get_by_id(self, product_id: int) -> ProductResponse | None: ...
@@ -37,7 +37,7 @@ class ProductRepositoryI(Protocol):
     ) -> bool: ...
 
 
-class ProductRepository(ProductRepositoryI):
+class ProductRepository(IProductRepository):
     def __init__(self, session: AsyncSession):
         self.session = session
 

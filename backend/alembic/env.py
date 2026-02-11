@@ -7,8 +7,7 @@ from sqlalchemy.ext.asyncio import async_engine_from_config
 
 from alembic import context
 
-from flowershop_api.models import Base
-from flowershop_api.models import *
+from models import *
 from flowershop_api.entrypoint.config import create_config
 
 app_config = create_config()

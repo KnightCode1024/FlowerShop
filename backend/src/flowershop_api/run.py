@@ -9,10 +9,13 @@ from src.flowershop_api.entrypoint.ioc.registry import get_providers
 from src.flowershop_api.entrypoint.setup import (configure_app, create_app,
                                                  create_async_container)
 from src.flowershop_api.routers.root_router import root_router
+from src.flowershop_api.utils.db_utils import recreate_schemas
 
 
 def make_app(*di_providers: Provider) -> FastAPI:
     app: FastAPI = create_app()
+
+    recreate_schemas()
 
     configure_app(app=app, root_router=root_router)
 

@@ -12,4 +12,3 @@ alembic upgrade head
 
 # Запускаем приложение
 echo "Starting FastAPI application..."
-exec uvicorn src.flowershop_api.run:make_app --factory  --host 0.0.0.0 --port 8000 --reload

@@ -2,12 +2,13 @@ import pytest
 from decimal import Decimal
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.repositories.user import UserRepository
-from src.repositories.category import CategoryRepository
-from src.repositories.product import ProductRepository
-from src.schemas.user import UserCreate, UserUpdate
-from src.schemas.category import CategoryCreate, CategoryUpdate
-from src.schemas.product import ProductCreate, ProductUpdate
+from repositories import OrderRepository
+from repositories.user import UserRepository
+from repositories.category import CategoryRepository
+from repositories.product import ProductRepository
+from schemas.user import UserCreate, UserUpdate
+from schemas.category import CategoryCreate, CategoryUpdate
+from schemas.product import ProductCreate, ProductUpdate, ProductResponse
 
 
 @pytest.fixture
@@ -30,6 +31,11 @@ async def category_repository(session: AsyncSession):
 @pytest.fixture
 async def product_repository(session: AsyncSession):
     return ProductRepository(session=session)
+
+
+@pytest.fixture
+async def order_repository(session: AsyncSession):
+    return OrderRepository(session)
 
 
 @pytest.fixture
@@ -171,3 +177,12 @@ async def multiple_products(
     await product_repository.create(test_product1)
     await product_repository.create(test_product2)
     await product_repository.create(test_product3)
+
+
+@pytest.fixture
+async def created_multiply_products(product_repository, test_product1, test_product2, test_product3) -> list[ProductResponse]:
+    return [
+        await product_repository.create(test_product1),
+        await product_repository.create(test_product2),
+        await product_repository.create(test_product3)
+    ]

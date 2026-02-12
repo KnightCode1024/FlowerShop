@@ -30,9 +30,6 @@ class IOrderRepository(Protocol):
     async def delete(self, id: int) -> None:
         pass
 
-    async def get_by_filters(self, filters) -> list[Order]:
-        pass
-
 
 class OrderRepository(IOrderRepository):
 
@@ -55,16 +52,19 @@ class OrderRepository(IOrderRepository):
 
         return result
 
-    async def get(self, id: int, user_id: int) -> Order:
+    async def get(self, id: int, user_id: int = None) -> Order:
         stmt = select(Order).options(
             joinedload(Order.order_products)
-        ).where(Order.id == id, Order.user_id == user_id)
+        ).where(Order.id == id)
+
+        if user_id:
+            stmt.where(Order.user_id == user_id)
 
         result = await self.session.execute(stmt)
         obj: Order | None = result.scalars().unique().one_or_none()
 
         if not obj:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Order not found")
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Order {id} not found")
 
         return obj
 
@@ -73,8 +73,8 @@ class OrderRepository(IOrderRepository):
 
         await self._update_products(obj, order_data.order_products)
 
-        # for name, value in order_data.model_dump(exclude_none=True, exclude={"order_products"}).items():
-        #     setattr(obj, name, value)
+        for name, value in order_data.model_dump(exclude_none=True, exclude={"order_products"}).items():
+            setattr(obj, name, value)
 
         stmt = select(Order).options(
             joinedload(Order.order_products)
@@ -88,9 +88,11 @@ class OrderRepository(IOrderRepository):
     async def get_all(self) -> list[Order]:
         stmt = select(Order).order_by(
             Order.created_at.desc(),
-        )
+        ).options(joinedload(
+            Order.order_products
+        ))
         result = await self.session.execute(stmt)
-        result = result.scalars().all()
+        result = result.scalars().unique().all()
         return result
 
     async def get_all_user(self, user_id: int) -> list[Order]:
@@ -100,7 +102,7 @@ class OrderRepository(IOrderRepository):
             Order.user_id == user_id
         )
         result = await self.session.execute(stmt)
-        result = result.scalars().all()
+        result = result.scalars().unique().all()
         return result
 
     async def delete(self, id: int) -> None:

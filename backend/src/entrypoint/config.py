@@ -1,9 +1,11 @@
 from pathlib import Path
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from dotenv import find_dotenv, load_dotenv
 
 BASE_DIR = Path(__file__).parent.parent.parent
-ENV_PATH = BASE_DIR / ".env"
+env_file = find_dotenv() or (Path(__file__).resolve().parents[1] / ".env")
+load_dotenv(env_file)
 
 
 class DatabaseConfig(BaseSettings):
@@ -15,7 +17,6 @@ class DatabaseConfig(BaseSettings):
 
     model_config = SettingsConfigDict(
         env_prefix="POSTGRES_",
-        env_file=ENV_PATH,
         env_file_encoding="utf-8",
         extra="ignore",
     )
@@ -43,7 +44,6 @@ class AuthJWT(BaseSettings):
 class S3Config(BaseSettings):
     model_config = SettingsConfigDict(
         env_prefix="S3_",
-        env_file=ENV_PATH,
         env_file_encoding="utf-8",
         extra="ignore",
     )
@@ -62,7 +62,6 @@ class S3Config(BaseSettings):
 class RedisConfig(BaseSettings):
     model_config = SettingsConfigDict(
         env_prefix="REDIS_",
-        env_file=ENV_PATH,
         env_file_encoding="utf-8",
         extra="ignore",
     )
@@ -73,7 +72,6 @@ class RedisConfig(BaseSettings):
 
 class Config(BaseSettings):
     model_config = SettingsConfigDict(
-        env_file=ENV_PATH,
         env_file_encoding="utf-8",
         extra="ignore",
     )

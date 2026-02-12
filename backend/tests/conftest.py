@@ -15,7 +15,7 @@ from dishka import (
     make_async_container,
 )
 
-from src.models import (
+from models import (
     Base,
     # User,
     # Category,
@@ -23,7 +23,7 @@ from src.models import (
     # ProductImage,
     # RoleEnum,
 )
-from src.entrypoint.config import Config
+from entrypoint.config import Config
 
 
 @pytest.fixture(scope="session")

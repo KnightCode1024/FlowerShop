@@ -23,9 +23,7 @@ class ProductAdmin(ModelView, model=Product):
         Product.description,
         Product.price,
         Product.in_stock,
-        Product.images,
         Product.category_id,
-        Product.category,
     ]
 
 

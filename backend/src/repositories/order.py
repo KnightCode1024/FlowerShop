@@ -11,7 +11,7 @@ from schemas.order import OrderCreate, OrderUpdate, CartItem, OrderProductCreate
 from starlette import status
 
 
-class IOrderRepositories(Protocol):
+class IOrderRepository(Protocol):
     async def add(self, order_data: OrderCreate) -> Order:
         pass
 
@@ -19,6 +19,9 @@ class IOrderRepositories(Protocol):
         pass
 
     async def get_all(self) -> list[Order]:
+        pass
+
+    async def get_all_user(self, user_id: int) -> list[Order]:
         pass
 
     async def get(self, id: int, user_id: int) -> Order:
@@ -31,7 +34,7 @@ class IOrderRepositories(Protocol):
         pass
 
 
-class OrderRepositories(IOrderRepositories):
+class OrderRepository(IOrderRepository):
 
     def __init__(self, session: AsyncSession):
         self.session = session
@@ -90,6 +93,16 @@ class OrderRepositories(IOrderRepositories):
         result = result.scalars().all()
         return result
 
+    async def get_all_user(self, user_id: int) -> list[Order]:
+        stmt = select(Order).order_by(
+            Order.created_at.desc(),
+        ).where(
+            Order.user_id == user_id
+        )
+        result = await self.session.execute(stmt)
+        result = result.scalars().all()
+        return result
+
     async def delete(self, id: int) -> None:
         order = await self.get(id)
         await self.session.delete(order)
@@ -111,7 +124,6 @@ class OrderRepositories(IOrderRepositories):
         order.amount = round(float(sum(
             [i.quantity * i.price for i in order_products]
         )), 2)
-
 
         await self.session.flush()
         await self.session.refresh(order)

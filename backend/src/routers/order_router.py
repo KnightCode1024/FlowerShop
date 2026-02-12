@@ -29,11 +29,23 @@ async def patch_order(order_data: OrderUpdateRequest,
 
 @router.delete("/{id}")
 async def delete_order(id: int,
-                       current_user: FromDishka[UserResponse],
                        service: FromDishka[OrdersService]):
-    return await service.delete_order(current_user)
+    return await service.delete_order(id)
+
+
+@router.get("/all")
+async def get_all_orders(service: FromDishka[OrdersService]):
+    return await service.get_all_orders()
 
 
 @router.get("/")
-async def get_all_orders():
-    pass
+async def get_user_all_orders(current_user: FromDishka[UserResponse],
+                              service: FromDishka[OrdersService]):
+    return await service.get_all_user_orders(current_user)
+
+
+@router.get("/{id}")
+async def get_order(id: int,
+                    current_user: FromDishka[UserResponse],
+                    service: FromDishka[OrdersService]):
+    return await service.get_order_by_user(id, current_user)

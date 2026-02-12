@@ -7,7 +7,7 @@ from repositories import (
     IProductRepository,
     S3RepositoryI,
     IUserRepository,
-    IOrderRepositories
+    IOrderRepository
 )
 from services import CategoriesService, ProductsService, UserService, OrdersService
 
@@ -52,6 +52,6 @@ class ServiceProvider(Provider):
     def get_order_service(
             self,
             uow: UnitOfWork,
-            order_repository: IOrderRepositories
+            order_repository: IOrderRepository
     ) -> OrdersService:
         return OrdersService(uow, order_repository)

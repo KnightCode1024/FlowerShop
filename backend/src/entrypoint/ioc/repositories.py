@@ -12,7 +12,7 @@ from repositories import (
     S3Repository,
     S3RepositoryI,
     UserRepository,
-    IUserRepository,
+    IUserRepository, IOrderRepository, OrderRepository,
 )
 
 
@@ -21,28 +21,32 @@ class RepositoryProvider(Provider):
 
     @provide
     def get_product_repository(
-        self,
-        session: AsyncSession,
+            self,
+            session: AsyncSession,
     ) -> IProductRepository:
         return ProductRepository(session)
 
     @provide
     def get_category_repository(
-        self,
-        session: AsyncSession,
+            self,
+            session: AsyncSession,
     ) -> ICategoryRepository:
         return CategoryRepository(session)
 
     @provide
     def get_image_repository(
-        self,
-        session: AsyncSession,
+            self,
+            session: AsyncSession,
     ) -> IProductImageRepository:
         return ProductImageRepository(session)
 
     @provide
     def get_s3_repository(self) -> S3RepositoryI:
         return S3Repository()
+
+    @provide
+    def get_order_repository(self, session: AsyncSession) -> IOrderRepository:
+        return OrderRepository(session)
 
     @provide
     def get_user_repository(self, session: AsyncSession) -> IUserRepository:

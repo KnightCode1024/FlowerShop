@@ -2,7 +2,7 @@ from repositories.category import (
     CategoryRepository,
     ICategoryRepository,
 )
-from repositories.order import IOrderRepositories, OrderRepositories
+from repositories.order import IOrderRepository, OrderRepository
 from repositories.product import (
     ProductRepository,
     IProductRepository,
@@ -25,6 +25,6 @@ __all__ = [
     "S3RepositoryI",
     "UserRepository",
     "IUserRepository",
-    "OrderRepositories",
-    "IOrderRepositories"
+    "OrderRepository",
+    "IOrderRepository"
 ]

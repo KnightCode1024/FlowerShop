@@ -71,7 +71,8 @@ class OrderRepository(IOrderRepository):
     async def update(self, order_data: OrderUpdate) -> Order:
         obj = await self.get(order_data.id, order_data.user_id)
 
-        await self._update_products(obj, order_data.order_products)
+        if order_data.order_products:
+            await self._update_products(obj, order_data.order_products)
 
         for name, value in order_data.model_dump(exclude_none=True, exclude={"order_products"}).items():
             setattr(obj, name, value)

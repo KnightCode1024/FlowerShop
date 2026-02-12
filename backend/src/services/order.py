@@ -1,3 +1,5 @@
+import logging
+
 from fastapi import UploadFile
 from starlette import status
 
@@ -8,6 +10,8 @@ from repositories.order import IOrderRepository
 from schemas.order import OrderCreate, OrderResponse, OrderCreateRequest, OrderProductCreate, OrderUpdateRequest, OrderUpdate
 from schemas.product import CreateProductRequest
 from schemas.user import UserResponse
+
+logger = logging.getLogger(__name__)
 
 
 class OrdersService:
@@ -21,6 +25,7 @@ class OrdersService:
 
         async with self.uow:
             order = await self.orders.add(order_data)
+            logger.info("Created order: %s", order)
 
         return order
 
@@ -32,25 +37,33 @@ class OrdersService:
 
         async with self.uow:
             order = await self.orders.update(order_data)
+            logger.info("Updated order: %s", order)
 
         return order
 
     @require_roles([RoleEnum.USER])
     async def get_all_user_orders(self, user: UserResponse):
         async with self.uow:
-            return await self.orders.get_all_user(user.id)
+            orders = await self.orders.get_all_user(user.id)
+            logger.info("Get all orders users: %s", orders)
+            return orders
 
     @require_roles([RoleEnum.USER])
     async def get_order_by_user(self, id: int, user: UserResponse):
         async with self.uow:
-            return await self.orders.get(id, user.id)
+            order = await self.orders.get(id, user.id)
+            logger.info("Get order by user: %s", order)
+            return order
 
     @require_roles([RoleEnum.ADMIN])
     async def delete_order(self, id: int):
         async with self.uow:
-            return await self.orders.delete(id)
+            await self.orders.delete(id)
+            logger.info("Deleted order: %s", id)
 
     @require_roles([RoleEnum.ADMIN])
     async def get_all_orders(self):
         async with self.uow:
-            return await self.orders.get_all()
+            orders = await self.orders.get_all()
+            logger.info("Get all orders: %s", orders)
+            return orders

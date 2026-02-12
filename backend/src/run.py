@@ -10,6 +10,9 @@ from entrypoint.setup import (
     create_async_container,
 )
 from routers.root_router import root_router
+from core.logger_setup import get_logger_config
+
+get_logger_config()
 
 
 def make_app(*di_providers: Provider) -> FastAPI:

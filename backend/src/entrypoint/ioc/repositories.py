@@ -2,18 +2,7 @@ from dishka import Provider, Scope, provide
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.uow import UnitOfWork
-from repositories import (
-    CategoryRepository,
-    ICategoryRepository,
-    ProductImageRepository,
-    IProductImageRepository,
-    ProductRepository,
-    IProductRepository,
-    S3Repository,
-    S3RepositoryI,
-    UserRepository,
-    IUserRepository, IOrderRepository, OrderRepository,
-)
+from repositories import *
 
 
 class RepositoryProvider(Provider):
@@ -47,6 +36,11 @@ class RepositoryProvider(Provider):
     @provide
     def get_order_repository(self, session: AsyncSession) -> IOrderRepository:
         return OrderRepository(session)
+
+
+    @provide
+    def get_promocode_repository(self, session: AsyncSession) -> IPromocodeRepository:
+        return PromocodeRepository(session)
 
     @provide
     def get_user_repository(self, session: AsyncSession) -> IUserRepository:

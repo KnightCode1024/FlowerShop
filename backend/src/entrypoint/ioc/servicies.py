@@ -7,9 +7,10 @@ from repositories import (
     IProductRepository,
     S3RepositoryI,
     IUserRepository,
-    IOrderRepository
+    IOrderRepository, IPromocodeRepository
 )
 from services import CategoriesService, ProductsService, UserService, OrdersService
+from services.promocode import PromocodesService
 
 
 class ServiceProvider(Provider):
@@ -55,3 +56,9 @@ class ServiceProvider(Provider):
             order_repository: IOrderRepository
     ) -> OrdersService:
         return OrdersService(uow, order_repository)
+
+    @provide
+    def get_promocode_service(self,
+                              uow: UnitOfWork,
+                              promocode_repository: IPromocodeRepository) -> PromocodesService:
+        return PromocodesService(uow, promocode_repository)

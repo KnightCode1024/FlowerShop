@@ -1,8 +1,10 @@
+import logging
 from collections.abc import Iterable
 from contextlib import asynccontextmanager
 
 from dishka import Provider, make_async_container
 from fastapi import APIRouter, FastAPI
+from prometheus_fastapi_instrumentator import Instrumentator
 
 from clients import RedisClient
 from entrypoint.config import Config, create_config
@@ -16,11 +18,13 @@ async def lifespan(app: FastAPI):
     redis = redis_client.get_redis()
     await broker.startup()
     await redis.ping()
-    print("Redis is working")
+    logging.info("Redis is working")
+
     yield
     await broker.shutdown()
     await redis.aclose()
-    print("Redis disconnected")
+    logging.info("Redis disconnected")
+
 
 
 def create_app() -> FastAPI:
@@ -38,3 +42,8 @@ def create_async_container(providers: Iterable[Provider]):
 
 def configure_app(app: FastAPI, root_router: APIRouter) -> None:
     app.include_router(root_router)
+
+
+def configure_middlewares(app: FastAPI) -> None:
+    instrument = Instrumentator().instrument(app)
+    instrument.expose(app, endpoint="/metrics")

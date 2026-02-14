@@ -8,13 +8,18 @@ from entrypoint.setup import (
     configure_app,
     create_app,
     create_async_container,
+    configure_middlewares,
 )
 from routers.root_router import root_router
 
 
 def make_app(*di_providers: Provider) -> FastAPI:
     app: FastAPI = create_app()
+
+    configure_middlewares(app=app)
+
     configure_app(app=app, root_router=root_router)
+
     providers = get_providers()
 
     async_container: AsyncContainer = create_async_container(

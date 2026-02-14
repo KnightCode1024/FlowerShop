@@ -6,6 +6,7 @@ from fastapi import APIRouter, FastAPI
 
 from clients import RedisClient
 from entrypoint.config import Config, create_config
+from core.broker import broker
 
 
 @asynccontextmanager
@@ -13,9 +14,11 @@ async def lifespan(app: FastAPI):
     config = create_config()
     redis_client = RedisClient(config)
     redis = redis_client.get_redis()
+    await broker.startup()
     await redis.ping()
     print("Redis is working")
     yield
+    await broker.shutdown()
     await redis.aclose()
     print("Redis disconnected")
 

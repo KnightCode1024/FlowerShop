@@ -20,6 +20,7 @@ from utils.jwt_utils import (
     hash_password,
     validate_password,
 )
+from tasks.email import send_verify_email
 
 
 class UserService:
@@ -48,6 +49,9 @@ class UserService:
                 password=hashed_password,
             )
             user = await self.user_repository.create(user_create_data)
+
+            await send_verify_email.kiq()
+
             return UserResponse(
                 id=user.id,
                 email=user.email,

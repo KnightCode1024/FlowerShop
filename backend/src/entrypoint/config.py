@@ -70,6 +70,20 @@ class RedisConfig(BaseSettings):
     HOST: str
 
 
+class EmailConfig(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_prefix="EMAIL_",
+        env_file_encoding="utf-8",
+        extra="ignore",
+    )
+
+    PORT: int
+    HOST: str
+    USE_TLS: bool
+    PASSWORD: str
+    USERNAME: str
+
+
 class Config(BaseSettings):
     model_config = SettingsConfigDict(
         env_file_encoding="utf-8",
@@ -80,6 +94,7 @@ class Config(BaseSettings):
     s3: S3Config = S3Config()
     auth_jwt: AuthJWT = AuthJWT()
     redis: RedisConfig = RedisConfig()
+    email: EmailConfig = EmailConfig()
 
 
 def create_config() -> Config:

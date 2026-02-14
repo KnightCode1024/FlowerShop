@@ -17,3 +17,5 @@ SQLAlchemy==2.0.45
 uvicorn==0.40.0
 taskiq==0.12.1
 sqladmin==0.23.0
+prometheus-fastapi-instrumentator==7.1.0
+pytest

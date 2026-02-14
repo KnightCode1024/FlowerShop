@@ -7,24 +7,24 @@ from sqlalchemy.ext.asyncio import (
     create_async_engine,
 )
 
-from entrypoint.config import create_config
+from entrypoint.config import config
+
+
 
 
 class DatabaseProvider(Provider):
     scope = Scope.REQUEST
 
+    engine = create_async_engine(
+        url=config.database.get_db_url(),
+    )
+    session_factory = async_sessionmaker(
+        engine,
+        expire_on_commit=False,
+        autoflush=False,
+    )
+
     @provide
     async def get_db_session(self) -> AsyncGenerator[AsyncSession]:
-        async with self._get_session_factory() as session:
+        async with self.session_factory() as session:
             yield session
-
-    def _get_session_factory(self):
-        config = create_config()
-        engine = create_async_engine(
-            url=config.database.get_db_url(),
-        )
-        session_factory = async_sessionmaker(
-            engine,
-            expire_on_commit=False,
-        )
-        return session_factory

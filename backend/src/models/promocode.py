@@ -9,10 +9,10 @@ from utils.strings import generate_random_promo
 
 
 class Promocode(Base):
-    code: Mapped[str] = mapped_column(String(), default=generate_random_promo)
+    code: Mapped[str] = mapped_column(String(), default=generate_random_promo, unique=True)
     count_activation: Mapped[int] = mapped_column(Integer(), nullable=False, default=0)
     max_count_activators: Mapped[int] = mapped_column(Integer(), nullable=False)
-    percent: Mapped[float] = mapped_column(Numeric(10, 2))
+    percent: Mapped[float] = mapped_column(Numeric(10, 2), nullable=False)
 
 
 

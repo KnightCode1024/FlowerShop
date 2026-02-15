@@ -32,7 +32,7 @@ services:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_PASSWORD}" ]
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_NAME}" ]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -127,7 +127,7 @@ services:
     ports:
       - "3100:3100"
     volumes:
-      - ./infra/grafana_loki/loki.yaml:/etc/loki/local-config.yaml
+      - ./infra/loki/loki.yaml:/etc/loki/local-config.yaml
     networks:
       - flower_shop_net
 
@@ -136,8 +136,9 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - ./infra/grafana/datasources.yaml:/etc/grafana/provisioning/datasources/datasources.yaml
       - grafana-data:/var/lib/grafana
+      - ./infra/grafana/dashboards:/var/lib/grafana/dashboards
+      - ./infra/grafana/provisioning:/etc/grafana/provisioning
     networks:
       - flower_shop_net
 

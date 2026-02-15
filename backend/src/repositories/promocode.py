@@ -24,7 +24,7 @@ class IPromocodeRepository(Protocol):
     async def get_all(self) -> list[Promocode]:
         pass
 
-    async def activate_user_promo(self, data: PromoActivateCreate) -> PromocodeActions:
+    async def activate_user_promo(self, data: PromoActivateCreate) -> Promocode:
         pass
 
     async def get_promo_is_activate(self, data: PromoActivateCreate) -> PromocodeActions | None:
@@ -101,7 +101,7 @@ class PromocodeRepository(IPromocodeRepository):
 
         return None
 
-    async def activate_user_promo(self, data: PromoActivateCreate) -> PromocodeActions:
+    async def activate_user_promo(self, data: PromoActivateCreate) -> Promocode:
         stmt = (
             select(Promocode)
             .where(Promocode.code == data.code)
@@ -115,9 +115,9 @@ class PromocodeRepository(IPromocodeRepository):
                 detail="Promocode not found"
             )
 
-        obj = PromocodeActions(promo_id=obj.id, user_id=data.user_id)
+        obj2 = PromocodeActions(promo_id=obj.id, user_id=data.user_id)
 
-        self.session.add(obj)
+        self.session.add(obj2)
 
         try:
             await self.session.flush()

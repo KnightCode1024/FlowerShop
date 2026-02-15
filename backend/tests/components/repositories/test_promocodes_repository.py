@@ -82,8 +82,7 @@ async def test_promocode_activate(promocodes_repository: PromocodeRepository, cr
     )
     promo_activated = await promocodes_repository.activate_user_promo(promo_activate)
 
-    assert promo_activated.promo_id == promo.id
-    assert promo_activated.user_id == created_user.id
+    assert promo_activated.percent == promocode_data.percent
 
     with pytest.raises(HTTPException) as exp:
         promo_activated2 = await promocodes_repository.activate_user_promo(promo_activate)

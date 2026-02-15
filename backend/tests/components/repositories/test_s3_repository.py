@@ -1,8 +1,8 @@
 import pytest
 from types import SimpleNamespace
 
-from src.repositories.s3 import S3Repository
-from src.entrypoint.config import config
+from repositories.s3 import S3Repository
+from entrypoint.config import config
 
 
 class DummyClient:

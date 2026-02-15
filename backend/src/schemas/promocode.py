@@ -3,7 +3,6 @@ from pydantic import BaseModel
 
 class PromoCreateRequest(BaseModel):
     code: str | None = None
-    count_activation: int
     max_count_activators: int
     percent: float
 
@@ -29,7 +28,6 @@ class PromoActivateCreate(BaseModel):
 
 class PromoCreate(BaseModel):
     code: str | None = None
-    count_activation: int
     max_count_activators: int
     percent: float
 
@@ -37,6 +35,5 @@ class PromoCreate(BaseModel):
 class PromoUpdate(BaseModel):
     id: int
     code: str | None = None
-    count_activation: int
     max_count_activators: int
     percent: float

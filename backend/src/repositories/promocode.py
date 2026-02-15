@@ -6,22 +6,22 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette import status
 
-from models.promocode import Promocodes, PromocodeActions
+from models.promocode import Promocode, PromocodeActions
 from schemas.promocode import PromoUpdate, PromoCreate, PromoActivateCreate
 
 
 class IPromocodeRepository(Protocol):
 
-    async def add(self, data: PromoCreate) -> Promocodes:
+    async def add(self, data: PromoCreate) -> Promocode:
         pass
 
     async def delete(self, id: int) -> None:
         pass
 
-    async def update(self, data: PromoUpdate) -> Promocodes:
+    async def update(self, data: PromoUpdate) -> Promocode:
         pass
 
-    async def get_all(self) -> list[Promocodes]:
+    async def get_all(self) -> list[Promocode]:
         pass
 
     async def activate_user_promo(self, data: PromoActivateCreate) -> PromocodeActions:
@@ -36,8 +36,8 @@ class PromocodeRepository(IPromocodeRepository):
     def __init__(self, session: AsyncSession):
         self.session = session
 
-    async def add(self, data: PromoCreate) -> Promocodes:
-        obj = Promocodes(**data.model_dump())
+    async def add(self, data: PromoCreate) -> Promocode:
+        obj = Promocode(**data.model_dump())
         self.session.add(obj)
 
         try:
@@ -50,8 +50,8 @@ class PromocodeRepository(IPromocodeRepository):
 
         return obj
 
-    async def update(self, data: PromoUpdate) -> Promocodes:
-        obj: Promocodes | None = await self.session.get(Promocodes, data.id)
+    async def update(self, data: PromoUpdate) -> Promocode:
+        obj: Promocode | None = await self.session.get(Promocode, data.id)
 
         if not obj:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Promocode not found")
@@ -64,7 +64,7 @@ class PromocodeRepository(IPromocodeRepository):
         return obj
 
     async def delete(self, id: int) -> None:
-        obj: Promocodes | None = await self.session.get(Promocodes, id)
+        obj: Promocode | None = await self.session.get(Promocode, id)
 
         if not obj:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Promocode not found")
@@ -74,8 +74,8 @@ class PromocodeRepository(IPromocodeRepository):
 
         return None
 
-    async def get_all(self) -> list[Promocodes]:
-        stmt = select(Promocodes)
+    async def get_all(self) -> list[Promocode]:
+        stmt = select(Promocode)
 
         result = await self.session.execute(stmt)
         result = result.scalars().all()
@@ -85,9 +85,9 @@ class PromocodeRepository(IPromocodeRepository):
         stmt = (
             select(PromocodeActions)
             .join(
-                Promocodes, PromocodeActions.promo_id == Promocodes.id
+                Promocode, PromocodeActions.promo_id == Promocode.id
             )
-            .where(Promocodes.code == data.code,
+            .where(Promocode.code == data.code,
                    PromocodeActions.user_id == data.user_id)
         )
 
@@ -103,8 +103,8 @@ class PromocodeRepository(IPromocodeRepository):
 
     async def activate_user_promo(self, data: PromoActivateCreate) -> PromocodeActions:
         stmt = (
-            select(Promocodes)
-            .where(Promocodes.code == data.code)
+            select(Promocode)
+            .where(Promocode.code == data.code)
         )
 
         obj = (await self.session.execute(stmt)).scalars().one_or_none()
@@ -115,7 +115,7 @@ class PromocodeRepository(IPromocodeRepository):
                 detail="Promocode not found"
             )
 
-        obj = PromocodeActions(promo_id=obj.id, **data.model_dump())
+        obj = PromocodeActions(promo_id=obj.id, user_id=data.user_id)
 
         self.session.add(obj)
 

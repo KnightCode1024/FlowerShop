@@ -24,3 +24,10 @@ class Base(AsyncAttrs, DeclarativeBase):
     @declared_attr.directive
     def __tablename__(cls) -> str:
         return cls.__name__.lower() + "s".replace("ys", "ies")
+
+    def __repr__(self):
+        cols = []
+        for num, col in enumerate(self.__table__.columns.keys()):
+            cols.append(f"{col}={getattr(self, col)}")
+
+        return f"<{self.__class__.__name__} {','.join(cols)}>"

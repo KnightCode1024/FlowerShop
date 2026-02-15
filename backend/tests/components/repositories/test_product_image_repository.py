@@ -1,5 +1,5 @@
 import pytest
-from src.repositories.product_image import ProductImageRepository
+from repositories.product_image import ProductImageRepository
 
 
 @pytest.mark.asyncio

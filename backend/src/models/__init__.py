@@ -4,7 +4,7 @@ from models.order import Order
 from models.product import Product
 from models.product_image import ProductImage
 from models.user import RoleEnum, User
-from models.promocode import Promocodes
+from models.promocode import Promocode
 
 __all__ = [
     "Base",
@@ -14,5 +14,5 @@ __all__ = [
     "User",
     "RoleEnum",
     "Order",
-    "Promocodes"
+    "Promocode"
 ]

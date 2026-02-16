@@ -1,0 +1,9 @@
+@import "tailwindcss";
+
+
+.image {
+    @apply
+    rounded-2xl
+    w-full
+    h-1/4
+}

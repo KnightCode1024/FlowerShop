@@ -17,6 +17,7 @@ class AuthProvider(Provider):
         request: Request,
     ) -> UserResponse:
         authorization = request.headers.get("Authorization")
+
         if not authorization:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
@@ -44,6 +45,7 @@ class AuthProvider(Provider):
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid token",
             ) from err
+
         user_id = int(decoded_token.get("sub"))
 
         if user_id:

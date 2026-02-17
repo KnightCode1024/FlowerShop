@@ -38,7 +38,7 @@ class UserService:
             user_data.email,
         )
         if existing_user is not None:
-            raise ValueError("Email already exist")
+            raise ValueError("Email already exists")
 
         async with self.uow:
             hashed_password = hash_password(user_data.password)

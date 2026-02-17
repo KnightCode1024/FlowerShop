@@ -24,7 +24,6 @@ async def register(
     user_data: UserCreate,
     service: FromDishka[UserService],
 ):
-    # register endpoint
     try:
         return await service.register_user(user_data)
     except ValueError as e:

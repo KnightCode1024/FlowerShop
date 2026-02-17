@@ -1,7 +1,6 @@
 services:
   backend:
     &backend
-    container_name: backend
     env_file: .env
     build: ./backend
     restart: always
@@ -30,7 +29,7 @@ services:
       - EMAIL_USERNAME=${EMAIL_USERNAME}
       - EMAIL_PASSWORD=${EMAIL_PASSWORD}
       - EMAIL_USE_TLS=${EMAIL_USE_TLS}
-    command: sh -c "alembic upgrade head && uvicorn run:make_app --factory --host ${APP_HOST} --port ${APP_PORT} --reload"
+    command: sh -c "alembic upgrade head && uvicorn run:make_app --factory --host ${APP_HOST} --port ${APP_PORT}"
     ports:
       - "8000:8000"
     depends_on:
@@ -38,11 +37,13 @@ services:
         condition: service_healthy
       minio:
         condition: service_started
+      rabbitmq:
+        condition: service_healthy
     networks:
       - flower_shop_net
 
   rabbitmq:
-    image: heidiks/rabbitmq-delayed-message-exchange:latest
+    image: rabbitmq:4-management-alpine
     environment:
       RABBITMQ_DEFAULT_USER: "guest"
       RABBITMQ_DEFAULT_PASS: "guest"
@@ -59,10 +60,34 @@ services:
     networks:
       - flower_shop_net
 
-  taskiq-worker:
+  worker:
     <<: *backend
     ports: []
-    command: [ taskiq, worker, -fsd, -tp, "**tasks/*.py" ,src.core.broker:broker, -w, "1", --max-fails, "1"]
+    command: taskiq worker core.broker:broker --workers 1 --fs-discover --tasks-pattern **/tasks/*.py
+    # command: sh -c "celery -A celery_app:celery_app worker -l info"
+    # environment:
+    #   - TASKIQ_ADMIN_URL=http://taskiq_admin:3000
+    #   - TASKIQ_ADMIN_API_TOKEN=supersecret
+    # depends_on:
+    #   rabbitmq:
+    #     condition: service_healthy
+    #   redis:
+    #     condition: service_healthy
+    #   postgres:
+    #     condition: service_healthy
+
+
+  # taskiq_admin:
+  #   image: ghcr.io/taskiq-python/taskiq-admin:latest
+  #   container_name: taskiq_admin
+  #   ports:
+  #     - 3003:3003
+  #   environment:
+  #     - TASKIQ_ADMIN_API_TOKEN=supersecret
+  #   volumes:
+  #     - admin_data:/usr/database/
+  #   networks:
+  #     - flower_shop_net
 
   postgres:
     env_file: .env
@@ -149,7 +174,6 @@ services:
       - "--config.file=/etc/prometheus/prometheus.yml"
       - "--storage.tsdb.path=/prometheus"
       - "--storage.tsdb.retention.time=7d"
-
     networks:
       - flower_shop_net
 
@@ -178,7 +202,7 @@ services:
   grafana:
     image: grafana/grafana:latest
     ports:
-      - "3000:3000"
+       - 3000:3000
     volumes:
       - ./infra/grafana/datasources.yaml:/etc/grafana/provisioning/datasources/datasources.yaml
       - grafana-data:/var/lib/grafana
@@ -196,3 +220,4 @@ volumes:
   redis-data:
   prometheus-data:
   grafana-data:
+  # admin_data:

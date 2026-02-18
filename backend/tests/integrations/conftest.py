@@ -8,18 +8,24 @@ from models import Base
 from schemas.user import UserCreate, UserLogin, UserResponse
 
 
+@pytest_asyncio.fixture(scope="session", autouse=True)
+async def prepare_db():
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+    yield
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.drop_all)
+
+
 @pytest_asyncio.fixture(loop_scope="session")
 async def clear_db():
-    tables = ", ".join(
-        f'{t.schema + "." if t.schema else ""}"{t.name}"'
-        for t in Base.metadata.sorted_tables
-    )
-
-    if tables:
-        query = f'TRUNCATE TABLE {tables} RESTART IDENTITY CASCADE;'
-        async with engine.begin() as conn:
-            await conn.exec_driver_sql(query)
-
+    async with engine.begin() as conn:
+        tables = ", ".join(
+            f'"{t.schema}"."{t.name}"' if t.schema else f'"{t.name}"'
+            for t in Base.metadata.sorted_tables
+        )
+        if tables:
+            await conn.exec_driver_sql(f"TRUNCATE TABLE {tables} RESTART IDENTITY CASCADE;")
     return True
 
 

@@ -15,8 +15,7 @@ class Promocode(Base):
     percent: Mapped[float] = mapped_column(Numeric(10, 2), nullable=False)
 
 
-
-class PromocodeActions(Base):
+class PromocodeAction(Base):
     id = None
     promo_id: Mapped[int] = mapped_column(ForeignKey("promocodes.id"), primary_key=True, autoincrement=False)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), primary_key=False)

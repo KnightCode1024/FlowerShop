@@ -6,7 +6,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette import status
 
-from models.promocode import Promocode, PromocodeActions
+from models.promocode import Promocode, PromocodeAction
 from schemas.promocode import PromoUpdate, PromoCreate, PromoActivateCreate
 
 
@@ -27,7 +27,7 @@ class IPromocodeRepository(Protocol):
     async def activate_user_promo(self, data: PromoActivateCreate) -> Promocode:
         pass
 
-    async def get_promo_is_activate(self, data: PromoActivateCreate) -> PromocodeActions | None:
+    async def get_promo_is_activate(self, data: PromoActivateCreate) -> PromocodeAction | None:
         pass
 
 
@@ -81,14 +81,14 @@ class PromocodeRepository(IPromocodeRepository):
         result = result.scalars().all()
         return result
 
-    async def get_promo_is_activate(self, data: PromoActivateCreate) -> PromocodeActions:
+    async def get_promo_is_activate(self, data: PromoActivateCreate) -> PromocodeAction:
         stmt = (
-            select(PromocodeActions)
+            select(PromocodeAction)
             .join(
-                Promocode, PromocodeActions.promo_id == Promocode.id
+                Promocode, PromocodeAction.promo_id == Promocode.id
             )
             .where(Promocode.code == data.code,
-                   PromocodeActions.user_id == data.user_id)
+                   PromocodeAction.user_id == data.user_id)
         )
 
         obj = (await self.session.execute(stmt)).scalars().one_or_none()
@@ -115,7 +115,7 @@ class PromocodeRepository(IPromocodeRepository):
                 detail="Promocode not found"
             )
 
-        obj2 = PromocodeActions(promo_id=obj.id, user_id=data.user_id)
+        obj2 = PromocodeAction(promo_id=obj.id, user_id=data.user_id)
 
         self.session.add(obj2)
 

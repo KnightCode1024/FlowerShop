@@ -28,7 +28,7 @@ async def test_login_user_success(user_factory, client):
 
 
 @pytest.mark.asyncio
-async def test_register_user_already_exists(user_factory, client):
+async def test_register_user_already_exists(clear_db, user_factory, client):
     register_data = UserCreate(email=f"test1@test.com", password="12345678A@", username="Alex")
 
     created_user = await client.post("/users/register", json=register_data.model_dump())

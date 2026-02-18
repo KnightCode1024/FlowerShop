@@ -8,23 +8,13 @@ from sqlalchemy.ext.asyncio import (
 )
 
 from entrypoint.config import config
-
-
+from entrypoint.ioc.engine import session_factory
 
 
 class DatabaseProvider(Provider):
     scope = Scope.REQUEST
 
-    engine = create_async_engine(
-        url=config.database.get_db_url(),
-    )
-    session_factory = async_sessionmaker(
-        engine,
-        expire_on_commit=False,
-        autoflush=False,
-    )
-
     @provide
     async def get_db_session(self) -> AsyncGenerator[AsyncSession]:
-        async with self.session_factory() as session:
+        async with session_factory() as session:
             yield session

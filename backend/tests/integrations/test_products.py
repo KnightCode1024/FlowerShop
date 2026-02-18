@@ -14,8 +14,7 @@ async def test_success_create_product(client):
     )
     response1 = await client.post(
         "/categories/",
-        data=category_data.model_dump(),
-        files={"images": open("media/photo_1.png", "rb")}
+        json=category_data.model_dump(),
     )
     category = CategoryResponse(**response1.json())
 
@@ -29,7 +28,7 @@ async def test_success_create_product(client):
 
     response2 = await client.post(
         "/products/",
-        data={"product_data": product_data.json()},
+        json={"product_data": product_data.json()},
         files=[("images", ("photo_1.png", open("media/photo_1.png", "rb"), "image/png"))]
     )
 

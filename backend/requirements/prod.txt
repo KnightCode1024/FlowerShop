@@ -19,3 +19,9 @@ taskiq==0.12.1
 sqladmin==0.23.0
 prometheus-fastapi-instrumentator==7.1.0
 pytest
+pytest
+pytest-asyncio
+pytest-cov
+pytest-xdist
+asyncpg
+httpx

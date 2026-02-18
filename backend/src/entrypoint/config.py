@@ -74,6 +74,7 @@ class AppConfig(BaseSettings):
     model_config = SettingsConfigDict(
         env_prefix="APP_"
     )
+    MODE: str
     NAME: str
     HOST: str
     PORT: str

@@ -1,3 +1,4 @@
+import os
 import random
 
 import httpx
@@ -5,15 +6,19 @@ import pytest
 import pytest_asyncio
 from httpx import AsyncClient
 from sqlalchemy import text
+from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 
 from entrypoint.ioc import DatabaseProvider
+from entrypoint.ioc.engine import engine
 from models import Base
 from schemas.user import UserCreate, UserLogin, UserResponse
 
 
+
+
 @pytest_asyncio.fixture(loop_scope="session")
 async def clear_db():
-    async with DatabaseProvider().engine.begin() as conn:
+    async with engine.begin() as conn:
         tables = ", ".join(Base.metadata.tables.values())
         query = f"TRUNCATE TABLE {tables} RESTART IDENTITY CASCADE;"
         await conn.execute(text(query))
@@ -42,7 +47,6 @@ def user_factory(client):
         response2 = await client.post("/users/login", json=login_data.model_dump())
 
         assert response2.status_code == 200
-        print(client.headers)
 
         client.cookies.set("access_token", response2.json()["access_token"])
         client.headers["Authorization"] = f"Bearer {response2.json()["access_token"]}"

@@ -47,8 +47,3 @@ def configure_middlewares(app: FastAPI) -> None:
     # instrument.expose(app, endpoint="/metrics")
 
     app.add_middleware(MetricsMiddleware)
-
-
-
-def configure_system_routers(app: FastAPI) -> None:
-    app.add_route()

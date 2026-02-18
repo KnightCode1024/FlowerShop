@@ -6,7 +6,7 @@ from dishka.integrations.base import wrap_injection
 T = TypeVar("T")
 
 
-def inject[P, T](func: Callable[P, T]) -> Callable[P, T]:
+def inject(func: Callable) -> Callable:
     return wrap_injection(
         func=func,
         container_getter=lambda args, kwargs: kwargs["dishka_container"],

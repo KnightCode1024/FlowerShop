@@ -1,33 +1,30 @@
-import os
 import random
-
 import httpx
 import pytest
 import pytest_asyncio
-from httpx import AsyncClient
-from sqlalchemy import text
-from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 
-from entrypoint.ioc import DatabaseProvider
 from entrypoint.ioc.engine import engine
 from models import Base
 from schemas.user import UserCreate, UserLogin, UserResponse
 
 
-
-
 @pytest_asyncio.fixture(loop_scope="session")
 async def clear_db():
-    async with engine.begin() as conn:
-        tables = ", ".join(Base.metadata.tables.values())
-        query = f"TRUNCATE TABLE {tables} RESTART IDENTITY CASCADE;"
-        await conn.execute(text(query))
+    tables = ", ".join(
+        f'{t.schema + "." if t.schema else ""}"{t.name}"'
+        for t in Base.metadata.sorted_tables
+    )
+
+    if tables:
+        query = f'TRUNCATE TABLE {tables} RESTART IDENTITY CASCADE;'
+        async with engine.begin() as conn:
+            await conn.exec_driver_sql(query)
 
     return True
 
 
 @pytest.fixture
-async def client(base_url="http://localhost:8000/api"):
+async def client(base_url="http://backend:8000/api"):
     async with httpx.AsyncClient(base_url=base_url) as client:
         yield client
 

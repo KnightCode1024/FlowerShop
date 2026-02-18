@@ -25,3 +25,4 @@ pytest-cov
 pytest-xdist
 asyncpg
 httpx
+aiosqlite

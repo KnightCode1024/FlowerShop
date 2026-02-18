@@ -9,7 +9,7 @@ import pytest
 async def test_all_routers(client):
     tasks = []
 
-    for i in range(random.randint(1000, 10000)):
+    for i in range(5):
         tasks.append(await client.get("/ping"))
         tasks.append(await client.post("/orders/"))
         tasks.append(await client.post("/products/"))

@@ -2,11 +2,12 @@ import pytest
 from decimal import Decimal
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from models import RoleEnum
 from repositories import OrderRepository, PromocodeRepository
 from repositories.user import UserRepository
 from repositories.category import CategoryRepository
 from repositories.product import ProductRepository
-from schemas.user import UserCreate, UserUpdate
+from schemas.user import UserCreate, UserUpdate, UserCreateConsole
 from schemas.category import CategoryCreate, CategoryUpdate
 from schemas.product import ProductCreate, ProductUpdate, ProductResponse
 
@@ -49,6 +50,16 @@ def test_user1():
         email="test_user1@gmail.com",
         username="test_user1",
         password="Qwerty123!",
+    )
+
+
+@pytest.fixture
+def test_admin_user():
+    return UserCreateConsole(
+        email="test_user1@gmail.com",
+        username="test_user1",
+        password="Qwerty123!",
+        admin=RoleEnum.ADMIN
     )
 
 
@@ -114,7 +125,7 @@ async def created_category(category_repository: CategoryRepository, test_categor
 
 @pytest.fixture
 async def multiple_categories(
-    category_repository: CategoryRepository, test_category1, test_category2, test_category3
+        category_repository: CategoryRepository, test_category1, test_category2, test_category3
 ):
     await category_repository.create(test_category1)
     await category_repository.create(test_category2)
@@ -177,7 +188,7 @@ async def created_product(product_repository: ProductRepository, test_product1):
 
 @pytest.fixture
 async def multiple_products(
-    product_repository: ProductRepository, test_product1, test_product2, test_product3
+        product_repository: ProductRepository, test_product1, test_product2, test_product3
 ):
     await product_repository.create(test_product1)
     await product_repository.create(test_product2)

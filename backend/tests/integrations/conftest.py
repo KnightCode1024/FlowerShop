@@ -2,17 +2,22 @@ import random
 import httpx
 import pytest
 import pytest_asyncio
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from entrypoint.ioc.engine import engine
-from models import Base
-from schemas.user import UserCreate, UserLogin, UserResponse
+from models import Base, RoleEnum
+from repositories import UserRepository
+from schemas.user import UserCreate, UserLogin, UserResponse, UserCreateConsole
+from utils.strings import generate_random_token
 
 
 @pytest_asyncio.fixture(scope="session", autouse=True)
 async def prepare_db():
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
+
     yield
+
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
 
@@ -61,3 +66,42 @@ def user_factory(client):
         return UserResponse(**created_user.json())
 
     return _create
+
+
+@pytest.fixture
+async def session(async_session_maker):
+    async with async_session_maker() as session:
+        yield session
+        await session.rollback()
+
+
+@pytest.fixture
+async def user_repository(session: AsyncSession) -> UserRepository:
+    return UserRepository(session=session)
+
+
+@pytest.fixture
+async def created_admin_client(clear_db, client, user_repository):
+    user_create_data = UserCreateConsole(
+        email="ADMINadminov@test.com",
+        username="admin",
+        password=generate_random_token(10) + "@",
+        role=RoleEnum.ADMIN,
+    )
+    user = await user_repository.create(user_create_data)
+
+    assert user_create_data.email == user.email
+
+    login_data = UserLogin(email=user_create_data.email, password=user_create_data.password)
+    response = await client.post("/users/login", json=login_data.model_dump())
+
+    assert response.status_code == 200
+
+    client.cookies.set("access_token", response.json()["access_token"])
+    client.headers["Authorization"] = f"Bearer {response.json()["access_token"]}"
+    client.cookies.set("refresh_token", response.json()["access_token"])
+
+    assert response.json()["access_token"] is not None
+    assert response.json()["refresh_token"] is not None
+
+    return client

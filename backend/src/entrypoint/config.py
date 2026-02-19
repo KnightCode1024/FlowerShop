@@ -8,6 +8,13 @@ env_file = find_dotenv() or (Path(__file__).resolve().parents[1] / ".env")
 load_dotenv(env_file)
 
 
+class PaymentsConfig(BaseSettings):
+    YOOMONEY_CLIENT_ID: int
+    YOOMONEY_SECRET_KEY: str
+    YOOMONEY_REDIRECT_URI: str
+    YOOMONEY_ACCESS_TOKEN: str
+
+
 class DatabaseConfig(BaseSettings):
     USER: str
     PASSWORD: str
@@ -91,6 +98,7 @@ class Config(BaseSettings):
     auth_jwt: AuthJWT = AuthJWT()
     redis: RedisConfig = RedisConfig()
     app: AppConfig = AppConfig()
+    payment: PaymentsConfig = PaymentsConfig()
 
 
 def create_config() -> Config:

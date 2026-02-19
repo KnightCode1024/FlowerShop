@@ -3,10 +3,14 @@ from enum import Enum
 from pydantic import BaseModel
 
 
-class InvoiceStatus(Enum):
+class InvoiceStatus(str, Enum):
     created = "created"
     processing = "processing"
     payed = "payed"
+
+
+class Methods(str, Enum):
+    YOOMONEY = "yoomoney"
 
 
 class InvoiceCreateRequest(BaseModel):
@@ -16,12 +20,13 @@ class InvoiceCreateRequest(BaseModel):
 
 
 class InvoiceCreate(BaseModel):
+    uid: str
     name: str
     order_id: int
     user_id: int
     amount: int
     status: InvoiceStatus
-
+    method: Methods
 
 
 class InvoiceUpdateRequest(BaseModel):
@@ -29,6 +34,7 @@ class InvoiceUpdateRequest(BaseModel):
     order_id: int
     user_id: int
     amount: int
+    method: Methods
 
 
 class InvoiceUpdate(BaseModel):
@@ -37,3 +43,4 @@ class InvoiceUpdate(BaseModel):
     user_id: int
     amount: int
     status: InvoiceStatus
+    method: Methods

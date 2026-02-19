@@ -3,10 +3,16 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.uow import UnitOfWork
 from repositories import *
+from repositories.invoice import InvoiceRepositoryI, InvoiceRepository
 
 
 class RepositoryProvider(Provider):
     scope = Scope.REQUEST
+
+    @provide
+    def get_invoice_repository(self,
+                               session: AsyncSession) -> InvoiceRepositoryI:
+        return InvoiceRepository(session)
 
     @provide
     def get_product_repository(
@@ -36,7 +42,6 @@ class RepositoryProvider(Provider):
     @provide
     def get_order_repository(self, session: AsyncSession) -> IOrderRepository:
         return OrderRepository(session)
-
 
     @provide
     def get_promocode_repository(self, session: AsyncSession) -> IPromocodeRepository:

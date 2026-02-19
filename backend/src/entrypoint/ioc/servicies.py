@@ -9,7 +9,9 @@ from repositories import (
     IUserRepository,
     IOrderRepository, IPromocodeRepository
 )
+from repositories.invoice import InvoiceRepositoryI
 from services import CategoriesService, ProductsService, UserService, OrdersService
+from services.invoice import InvoiceService
 from services.promocode import PromocodesService
 
 
@@ -32,6 +34,12 @@ class ServiceProvider(Provider):
             image_repository,
             s3_repository,
         )
+
+    @provide
+    def get_invoices_service(self,
+                             uow: UnitOfWork,
+                             invoice_repository: InvoiceRepositoryI):
+        return InvoiceService(uow, invoice_repository)
 
     @provide
     def get_categories_service(

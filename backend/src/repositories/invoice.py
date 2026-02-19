@@ -1,6 +1,7 @@
 import abc
 
 from fastapi import HTTPException
+from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -12,7 +13,7 @@ class InvoiceRepositoryI(abc.ABC):
 
     async def add(self, invoice: InvoiceCreate) -> Invoice: pass
 
-    async def get(self, uid: str) -> Invoice: pass
+    async def get(self, uid: str, user_id: int) -> Invoice: pass
 
 
 class InvoiceRepository(InvoiceRepositoryI):
@@ -34,8 +35,9 @@ class InvoiceRepository(InvoiceRepositoryI):
 
         return obj
 
-    async def get(self, uid: str) -> Invoice:
-        obj: Invoice | None = await self.session.get(Invoice, Invoice.uid)
+    async def get(self, uid: str, user_id: int) -> Invoice:
+        stmt = select(Invoice).where(Invoice.uid == uid, Invoice.user_id == user_id)
+        obj: Invoice | None = (await self.session.execute(stmt)).scalar_one_or_none()
 
         if not obj:
             raise HTTPException(

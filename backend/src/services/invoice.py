@@ -5,6 +5,7 @@ from models.invoices import Invoice
 from providers import IPaymentProvider
 from repositories.invoice import InvoiceRepository
 from schemas.invoice import InvoiceCreateRequest, InvoiceCreate
+from schemas.user import UserResponse
 
 
 class InvoiceService:
@@ -15,8 +16,8 @@ class InvoiceService:
         self.provider = provider
 
     @require_roles([RoleEnum.USER])
-    async def create_invoice(self, invoice_data: InvoiceCreateRequest) -> Invoice:
-        invoice_data = InvoiceCreate(**invoice_data.model_dump())
+    async def create_invoice(self, invoice_data: InvoiceCreateRequest, current_user: UserResponse) -> Invoice:
+        invoice_data = InvoiceCreate(user_id=current_user.id, **invoice_data.model_dump())
 
         async with self.uow:
             invoice = await self.repo.add(invoice_data)
@@ -25,8 +26,8 @@ class InvoiceService:
         return invoice
 
     @require_roles([RoleEnum.USER])
-    async def process_invoice(self, uid: str) -> Invoice:
+    async def process_invoice(self, uid: str, current_user: UserResponse) -> Invoice:
         async with self.uow:
-            invoice = await self.repo.get(uid)
+            invoice = await self.repo.get(uid, current_user.id)
 
         return invoice

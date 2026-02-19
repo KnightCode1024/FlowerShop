@@ -72,6 +72,7 @@ def user_factory(client):
 async def session(async_session_maker):
     async with async_session_maker() as session:
         yield session
+
         await session.rollback()
 
 
@@ -81,9 +82,9 @@ async def user_repository(session: AsyncSession) -> UserRepository:
 
 
 @pytest.fixture
-async def created_admin_client(clear_db, client, user_repository):
+async def created_admin_client(client, user_repository):
     user_create_data = UserCreateConsole(
-        email="ADMINadminov@test.com",
+        email=f"ADMINadminov{random.randint(1, 10000)}@test.com",
         username="admin",
         password=generate_random_token(10) + "@",
         role=RoleEnum.ADMIN,

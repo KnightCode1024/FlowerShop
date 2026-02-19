@@ -36,6 +36,6 @@ class Order(Base):
         lazy="joined",
     )
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
-
+    user_order: Mapped["User"] = relationship(back_populates="order")
     status: Mapped[OrderStatus] = mapped_column(Enum(OrderStatus), default=OrderStatus.IN_CART)
     amount: Mapped[float] = mapped_column(Float(), default=0.00)

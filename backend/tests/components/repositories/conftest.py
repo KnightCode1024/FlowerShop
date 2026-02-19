@@ -4,6 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from models import RoleEnum
 from repositories import OrderRepository, PromocodeRepository
+from repositories.invoice import InvoiceRepository
 from repositories.user import UserRepository
 from repositories.category import CategoryRepository
 from repositories.product import ProductRepository
@@ -42,6 +43,11 @@ async def order_repository(session: AsyncSession):
 @pytest.fixture
 async def promocodes_repository(session: AsyncSession):
     return PromocodeRepository(session)
+
+
+@pytest.fixture
+async def invoices_repository(session: AsyncSession):
+    return InvoiceRepository(session)
 
 
 @pytest.fixture

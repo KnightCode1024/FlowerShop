@@ -15,7 +15,6 @@ class Methods(str, Enum):
 
 class InvoiceCreateRequest(BaseModel):
     order_id: int
-    user_id: int
     amount: int
 
 
@@ -24,7 +23,17 @@ class InvoiceCreate(BaseModel):
     name: str
     order_id: int
     user_id: int
-    amount: int
+    amount: float
+    status: InvoiceStatus
+    method: Methods
+
+
+class InvoiceResponse(BaseModel):
+    uid: str
+    name: str
+    order_id: int
+    user_id: int
+    amount: float
     status: InvoiceStatus
     method: Methods
 
@@ -33,7 +42,7 @@ class InvoiceUpdateRequest(BaseModel):
     uid: str
     order_id: int
     user_id: int
-    amount: int
+    amount: float
     method: Methods
 
 
@@ -41,6 +50,6 @@ class InvoiceUpdate(BaseModel):
     name: str
     order_id: int
     user_id: int
-    amount: int
+    amount: float
     status: InvoiceStatus
     method: Methods

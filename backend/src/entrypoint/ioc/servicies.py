@@ -1,6 +1,7 @@
 from dishka import Provider, Scope, provide
 
 from core.uow import UnitOfWork
+from providers import IPaymentProvider
 from repositories import (
     ICategoryRepository,
     IProductImageRepository,
@@ -38,8 +39,9 @@ class ServiceProvider(Provider):
     @provide
     def get_invoices_service(self,
                              uow: UnitOfWork,
-                             invoice_repository: InvoiceRepositoryI):
-        return InvoiceService(uow, invoice_repository)
+                             invoice_repository: InvoiceRepositoryI,
+                             provider: IPaymentProvider):
+        return InvoiceService(uow, invoice_repository, provider)
 
     @provide
     def get_categories_service(

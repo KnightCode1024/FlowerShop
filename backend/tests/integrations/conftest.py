@@ -106,3 +106,30 @@ async def created_admin_client(client, user_repository):
     assert response.json()["refresh_token"] is not None
 
     return client
+
+
+@pytest.fixture
+async def created_user_client(client, user_repository):
+    user_create_data = UserCreateConsole(
+        email=f"User{random.randint(1, 10000)}@test.com",
+        username="user",
+        password=generate_random_token(10) + "@",
+        role=RoleEnum.USER,
+    )
+    user = await user_repository.create(user_create_data)
+
+    assert user_create_data.email == user.email
+
+    login_data = UserLogin(email=user_create_data.email, password=user_create_data.password)
+    response = await client.post("/users/login", json=login_data.model_dump())
+
+    assert response.status_code == 200
+
+    client.cookies.set("access_token", response.json()["access_token"])
+    client.headers["Authorization"] = f"Bearer {response.json()["access_token"]}"
+    client.cookies.set("refresh_token", response.json()["access_token"])
+
+    assert response.json()["access_token"] is not None
+    assert response.json()["refresh_token"] is not None
+
+    return client

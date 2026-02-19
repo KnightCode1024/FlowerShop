@@ -11,14 +11,14 @@ from schemas.invoice import InvoiceCreate
 
 class YoomoneyProvider(IPaymentProvider):
 
-    async def create(self, invoice: InvoiceCreate) -> str:
+    async def create(self, invoice: Invoice) -> str:
         async with self._get_client() as client:
             account = await self._get_account_info()
             params = {
-                "receiver": account,
-                "sum": invoice.amount,
-                "successURL": config.payment.YOOMONEY_REDIRECT_URI,
                 "label": invoice.uid,
+                "sum": invoice.amount,
+                "receiver": account,
+                "successURL": config.payment.YOOMONEY_REDIRECT_URI,
                 "quickpay-form": "button",
                 "paymentType": "AC",
 

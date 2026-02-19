@@ -1,6 +1,6 @@
 import pytest
 
-from schemas.invoice import InvoiceCreateRequest
+from schemas.invoice import InvoiceCreateRequest, InvoiceResponse
 
 
 @pytest.mark.asyncio
@@ -12,5 +12,6 @@ async def test_create_invoice(created_user_client):
     uid = str(response.text)
 
     response2 = await created_user_client.get(f"/api/invoices/{uid}")
+    invoice_created = InvoiceResponse(**response2.json())
 
-    assert response2
+    assert invoice.amount == invoice_created.amount

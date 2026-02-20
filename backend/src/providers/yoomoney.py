@@ -1,4 +1,5 @@
 import abc
+import uuid
 
 import aiohttp
 import httpx
@@ -6,12 +7,13 @@ import httpx
 from entrypoint.config import config
 from models.invoices import Invoice
 from providers import IPaymentProvider
-from schemas.invoice import InvoiceCreate
+from schemas.invoice import InvoiceCreate, InvoiceCreateRequest
 
 
 class YoomoneyProvider(IPaymentProvider):
 
-    async def create(self, invoice: Invoice) -> str:
+    async def create(self, invoice: InvoiceCreate) -> str | None:
+
         async with self._get_client() as client:
             account = await self._get_account_info()
             params = {

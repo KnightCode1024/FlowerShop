@@ -1,8 +1,5 @@
-import json
 import random
-
 import pytest
-from httpx import AsyncClient
 
 from schemas.category import CategoryResponse, CategoryCreate
 from schemas.product import CreateProductRequest, ProductResponse

@@ -1,13 +1,12 @@
 import abc
 
-from models.invoices import Invoice
 from schemas.invoice import InvoiceCreate
 
 
 class IPaymentProvider(abc.ABC):
 
     @abc.abstractmethod
-    async def create(self, invoice: Invoice) -> str:
+    async def create(self, invoice: InvoiceCreate) -> str:
         pass
 
     @abc.abstractmethod

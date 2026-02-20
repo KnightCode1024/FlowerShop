@@ -16,8 +16,9 @@ async def post_invoices(invoice_data: InvoiceCreateRequest,
     return await service.create_invoice(invoice_data, current_user)
 
 
-@router.get("/{uid}")
-async def get_invoice(uid: str,
+@router.get("/{method}/{uid}")
+async def get_invoice(method: str,
+                      uid: str,
                       service: FromDishka[InvoiceService],
                       current_user: FromDishka[UserResponse]):
-    return await service.process_invoice(uid, current_user)
+    return await service.process_invoice(uid, method, current_user)

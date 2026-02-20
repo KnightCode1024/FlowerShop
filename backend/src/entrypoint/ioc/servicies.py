@@ -2,6 +2,7 @@ from dishka import Provider, Scope, provide
 
 from core.uow import UnitOfWork
 from providers import IPaymentProvider
+from providers.dependencies import yoomoney_factory
 from repositories import (
     ICategoryRepository,
     IProductImageRepository,
@@ -11,6 +12,7 @@ from repositories import (
     IOrderRepository, IPromocodeRepository
 )
 from repositories.invoice import InvoiceRepositoryI
+from schemas.invoice import Methods
 from services import CategoriesService, ProductsService, UserService, OrdersService
 from services.invoice import InvoiceService
 from services.promocode import PromocodesService
@@ -39,9 +41,11 @@ class ServiceProvider(Provider):
     @provide
     def get_invoices_service(self,
                              uow: UnitOfWork,
-                             invoice_repository: InvoiceRepositoryI,
-                             provider: IPaymentProvider):
-        return InvoiceService(uow, invoice_repository, provider)
+                             invoice_repository: InvoiceRepositoryI):
+        return InvoiceService(uow, invoice_repository,
+                              {
+                                  Methods.YOOMONEY: yoomoney_factory
+                              })
 
     @provide
     def get_categories_service(

@@ -14,6 +14,7 @@ class Methods(str, Enum):
 
 
 class InvoiceCreateRequest(BaseModel):
+    method: Methods
     order_id: int
     amount: int
 
@@ -29,27 +30,20 @@ class InvoiceCreate(BaseModel):
 
 
 class InvoiceResponse(BaseModel):
+    link: str | None = None
     uid: str
     name: str
     order_id: int
     user_id: int
+    link: str
     amount: float
     status: InvoiceStatus
-    method: Methods
-
-
-class InvoiceUpdateRequest(BaseModel):
-    uid: str
-    order_id: int
-    user_id: int
-    amount: float
     method: Methods
 
 
 class InvoiceUpdate(BaseModel):
-    name: str
-    order_id: int
-    user_id: int
-    amount: float
-    status: InvoiceStatus
-    method: Methods
+    uid: str
+    link: str | None = None
+    amount: float | None = None
+    method: Methods | None = None
+    status: InvoiceStatus | None = None

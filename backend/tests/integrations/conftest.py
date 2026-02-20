@@ -1,4 +1,6 @@
 import random
+from decimal import Decimal
+
 import httpx
 import pytest
 import pytest_asyncio
@@ -6,7 +8,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from entrypoint.ioc.engine import engine
 from models import Base, RoleEnum
-from repositories import UserRepository
+from repositories import UserRepository, ProductRepository
+from schemas.product import ProductCreate
 from schemas.user import UserCreate, UserLogin, UserResponse, UserCreateConsole
 from utils.strings import generate_random_token
 
@@ -69,6 +72,17 @@ def user_factory(client):
 
 
 @pytest.fixture
+def test_product1(test_category_for_products):
+    return ProductCreate(
+        name="Rose Bouquet",
+        description="Beautiful red roses",
+        price=Decimal("29.99"),
+        in_stock=True,
+        category_id=test_category_for_products.id,
+    )
+
+
+@pytest.fixture
 async def session(async_session_maker):
     async with async_session_maker() as session:
         yield session
@@ -82,9 +96,19 @@ async def user_repository(session: AsyncSession) -> UserRepository:
 
 
 @pytest.fixture
+async def product_repository(session: AsyncSession):
+    return ProductRepository(session=session)
+
+
+@pytest.fixture
+async def created_product(product_repository: ProductRepository, test_product1):
+    return await product_repository.create(test_product1)
+
+
+@pytest.fixture
 async def created_admin_client(client, user_repository):
     user_create_data = UserCreateConsole(
-        email=f"ADMINadminov{random.randint(1, 10000)}@test.com",
+        email=f"ADMIN_adminov{random.randint(1, 10000)}@test.com",
         username="admin",
         password=generate_random_token(10) + "@",
         role=RoleEnum.ADMIN,

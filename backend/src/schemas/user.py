@@ -58,3 +58,7 @@ class RefreshToken(BaseModel):
 class TokenPair(BaseModel):
     access_token: str = Field(...)
     refresh_token: str = Field(...)
+
+
+class OTPCode(BaseModel):
+    token: str

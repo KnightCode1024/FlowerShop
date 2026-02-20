@@ -2,7 +2,12 @@ from datetime import datetime
 
 from sqlalchemy import Integer, func
 from sqlalchemy.ext.asyncio import AsyncAttrs
-from sqlalchemy.orm import DeclarativeBase, Mapped, declared_attr, mapped_column
+from sqlalchemy.orm import (
+    DeclarativeBase,
+    Mapped,
+    declared_attr,
+    mapped_column,
+)
 
 
 class Base(AsyncAttrs, DeclarativeBase):
@@ -23,4 +28,15 @@ class Base(AsyncAttrs, DeclarativeBase):
 
     @declared_attr.directive
     def __tablename__(cls) -> str:
-        return cls.__name__.lower() + "s".replace("ys", "ies")
+        name = cls.__name__.lower()
+
+        if name.endswith("y") and not name.endswith(
+            ("ay", "ey", "iy", "oy", "uy"),
+        ):
+            return name[:-1] + "ies"
+        elif name.endswith("s"):
+            return name + "es"
+        elif name.endswith(("sh", "ch", "x", "z")):
+            return name + "es"
+        else:
+            return name + "s"

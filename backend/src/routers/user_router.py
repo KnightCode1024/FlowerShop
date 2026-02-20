@@ -9,6 +9,7 @@ from schemas.user import (
     UserLogin,
     UserResponse,
     UserUpdate,
+    OTPCode,
 )
 from services import UserService
 
@@ -24,13 +25,31 @@ async def register(
     user_data: UserCreate,
     service: FromDishka[UserService],
 ):
-    # register endpoint
     try:
         return await service.register_user(user_data)
     except ValueError as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"{e}",
+        )
+
+
+@router.get("/verify-email")
+async def verify_email(token: str):
+    pass
+
+
+@router.post("/check-code")
+async def check_code(
+    code: OTPCode,
+    service: FromDishka[UserService],
+):
+    try:
+        return await service.check_code()
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"Not valid code: {e}",
         )
 
 

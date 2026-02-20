@@ -1,10 +1,12 @@
+import uuid
 from enum import StrEnum
 
+from pyotp import OTP
 from sqlalchemy import Enum as SQLEnum
-from sqlalchemy import String
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy import String, UUID, Boolean
+from sqlalchemy.orm import Mapped, mapped_column
 
-from models import *
+from models import Base
 
 
 class RoleEnum(StrEnum):
@@ -27,7 +29,6 @@ class User(Base):
         String(255),
         nullable=False,
     )
-
     role: Mapped[RoleEnum] = mapped_column(
         SQLEnum(
             RoleEnum,
@@ -36,4 +37,18 @@ class User(Base):
         ),
         default=RoleEnum.USER,
         nullable=False,
+    )
+    email_verified: Mapped[bool] = mapped_column(
+        Boolean,
+        default=False,
+        nullable=False,
+    )
+    token: Mapped[uuid.UUID] = mapped_column(
+        UUID(),
+        default=uuid.uuid4(),
+        nullable=True,
+    )
+    otp_code: Mapped[OTP] = mapped_column(
+        String(),
+        nullable=True,
     )

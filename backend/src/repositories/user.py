@@ -5,13 +5,15 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from models import User
 from models.user import RoleEnum
-from schemas.user import UserCreate, UserUpdate
+from schemas.user import UserCreate, UserUpdate, UserResponse
 
 
 class IUserRepository(Protocol):
     async def create(self, user_data: UserCreate) -> User: ...
 
     async def get(self, user_id: int) -> User: ...
+
+    async def get_user_by_email_token(self, token: str) -> User | None: ...
 
     async def get_all(
         self,
@@ -22,6 +24,8 @@ class IUserRepository(Protocol):
     async def update(self, user_data: UserUpdate) -> User: ...
 
     async def get_user_by_email(self, email: str) -> User | None: ...
+
+    async def verify_user(self, user: UserResponse) -> bool: ...
 
 
 class UserRepository(IUserRepository):
@@ -67,3 +71,16 @@ class UserRepository(IUserRepository):
         query = select(User).where(User.email == email)
         result = await self.session.execute(query)
         return result.scalar_one_or_none()
+
+    async def get_user_by_email_token(self, token: str) -> User | None:
+        query = select(User).where(User.token == token)
+        result = await self.session.execute(query)
+        return result.scalar_one_or_none()
+
+    async def verify_user(self, token: str) -> bool:
+        user = await self.get_user_by_email_token(token)
+        if not user:
+            return False
+        user.email_verified = True
+        self.session.add(user)
+        return True

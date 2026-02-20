@@ -12,6 +12,7 @@ from schemas.user import (
     UserLogin,
     UserResponse,
     UserUpdate,
+    OTPCode,
 )
 from utils.jwt_utils import (
     create_access_token,
@@ -21,7 +22,7 @@ from utils.jwt_utils import (
     validate_password,
 )
 
-# from tasks.email import send_verify_email
+from tasks.email import send_verify_email
 
 
 class UserService:
@@ -51,12 +52,24 @@ class UserService:
             )
             user = await self.user_repository.create(user_create_data)
 
+            await send_verify_email.kiq(
+                to_email=user.email,
+                token=user.token,
+            )
+
             return UserResponse(
                 id=user.id,
                 email=user.email,
                 username=user.username,
                 role=user.role,
             )
+
+    async def check_code(code: OTPCode):
+        pass
+
+    async def verify_email(token: str):
+        # user = select
+        pass
 
     async def login_user(self, user_data: UserLogin) -> TokenPair:
         user = await self.user_repository.get_user_by_email(user_data.email)

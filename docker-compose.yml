@@ -10,26 +10,26 @@ services:
       - ./backend/certs:/backend/certs:ro
     working_dir: /backend
     environment:
-      - PYTHONPATH=src
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - POSTGRES_HOST=postgres
-      - POSTGRES_PORT=${POSTGRES_PORT}
-      - POSTGRES_NAME=${POSTGRES_NAME}
-      - S3_ACCESS_KEY=${S3_ACCESS_KEY}
-      - S3_SECRET_KEY=${S3_SECRET_KEY}
-      - S3_BUCKET_NAME=${S3_BUCKET_NAME}
-      - S3_ENDPOINT=${S3_ENDPOINT}
-      - S3_PUBLIC_ENDPOINT=${S3_PUBLIC_ENDPOINT}
-      - S3_REGION=${S3_REGION}
-      - REDIS_HOST=${REDIS_HOST}
-      - REDIS_PORT=${REDIS_PORT}
-      - EMAIL_PORT=${EMAIL_PORT}
-      - EMAIL_HOST=${EMAIL_HOST}
-      - EMAIL_USERNAME=${EMAIL_USERNAME}
-      - EMAIL_PASSWORD=${EMAIL_PASSWORD}
-      - EMAIL_USE_TLS=${EMAIL_USE_TLS}
-    command: sh -c "alembic upgrade head && uvicorn run:make_app --factory --host ${APP_HOST} --port ${APP_PORT}"
+    - PYTHONPATH=src
+    #   - POSTGRES_USER=${POSTGRES_USER}
+    #   - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    #   - POSTGRES_HOST=postgres
+    #   - POSTGRES_PORT=${POSTGRES_PORT}
+    #   - POSTGRES_NAME=${POSTGRES_NAME}
+    #   - S3_ACCESS_KEY=${S3_ACCESS_KEY}
+    #   - S3_SECRET_KEY=${S3_SECRET_KEY}
+    #   - S3_BUCKET_NAME=${S3_BUCKET_NAME}
+    #   - S3_ENDPOINT=${S3_ENDPOINT}
+    #   - S3_PUBLIC_ENDPOINT=${S3_PUBLIC_ENDPOINT}
+    #   - S3_REGION=${S3_REGION}
+    #   - REDIS_HOST=${REDIS_HOST}
+    #   - REDIS_PORT=${REDIS_PORT}
+    #   - EMAIL_PORT=${EMAIL_PORT}
+    #   - EMAIL_HOST=${EMAIL_HOST}
+    #   - EMAIL_USERNAME=${EMAIL_USERNAME}
+    #   - EMAIL_PASSWORD=${EMAIL_PASSWORD}
+    #   - EMAIL_USE_TLS=${EMAIL_USE_TLS}
+    command: sh -c "alembic upgrade head && uvicorn run:make_app --factory --host ${APP_HOST} --port ${APP_PORT} --reload"
     ports:
       - "8000:8000"
     depends_on:
@@ -44,37 +44,39 @@ services:
 
   rabbitmq:
     image: rabbitmq:4-management-alpine
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+      # - "61613:61613"
     environment:
       RABBITMQ_DEFAULT_USER: "guest"
       RABBITMQ_DEFAULT_PASS: "guest"
-      RABBITMQ_DEFAULT_VHOST: "/"
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
     healthcheck:
       test: ["CMD", "rabbitmq-diagnostics", "check_running", "-q"]
       interval: 10s
       timeout: 5s
       retries: 8
-    ports:
-      - "5672:5672"
-      - "15672:15672"
-      - "61613:61613"
+
     networks:
       - flower_shop_net
 
   worker:
     <<: *backend
     ports: []
-    command: taskiq worker core.broker:broker --workers 1 --fs-discover --tasks-pattern **/tasks/*.py
-    # command: sh -c "celery -A celery_app:celery_app worker -l info"
-    # environment:
-    #   - TASKIQ_ADMIN_URL=http://taskiq_admin:3000
-    #   - TASKIQ_ADMIN_API_TOKEN=supersecret
-    # depends_on:
-    #   rabbitmq:
-    #     condition: service_healthy
-    #   redis:
-    #     condition: service_healthy
-    #   postgres:
-    #     condition: service_healthy
+    command: taskiq worker core:broker --workers 1 --fs-discover --tasks-pattern **/tasks/*.py
+    environment:
+      - PYTHONPATH=src
+      - TASKIQ_ADMIN_URL=http://taskiq_admin:3000
+      - TASKIQ_ADMIN_API_TOKEN=supersecret
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
 
 
   # taskiq_admin:
@@ -132,6 +134,8 @@ services:
 
   redis:
     image: redis:8-alpine
+    ports:
+      - "6379:6379"
     volumes:
       - redis-data:/data
     healthcheck:
@@ -220,4 +224,5 @@ volumes:
   redis-data:
   prometheus-data:
   grafana-data:
+  rabbitmq-data:
   # admin_data:

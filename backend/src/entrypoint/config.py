@@ -84,6 +84,38 @@ class EmailConfig(BaseSettings):
     USERNAME: str
 
 
+class FrontendConfig(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_prefix="FRONTEND_",
+        env_file_encoding="utf-8",
+        extra="ignore",
+    )
+
+    URL: str
+
+
+class RabbitMQConfig(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_prefix="RABBITMQ_",
+        env_file_encoding="utf-8",
+        extra="ignore",
+    )
+
+    URL: str
+
+
+class APPConfig(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_prefix="APP_",
+        env_file_encoding="utf-8",
+        extra="ignore",
+    )
+
+    SECRET_KEY: str
+    HOST: str
+    PORT: int
+
+
 class Config(BaseSettings):
     model_config = SettingsConfigDict(
         env_file_encoding="utf-8",
@@ -95,6 +127,9 @@ class Config(BaseSettings):
     auth_jwt: AuthJWT = AuthJWT()
     redis: RedisConfig = RedisConfig()
     email: EmailConfig = EmailConfig()
+    rabbitmq: RabbitMQConfig = RabbitMQConfig()
+    frontend: FrontendConfig = FrontendConfig()
+    app: APPConfig = APPConfig()
 
 
 def create_config() -> Config:

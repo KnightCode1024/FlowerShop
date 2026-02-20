@@ -1,29 +1,33 @@
-import asyncio
 import logging
 
-# import time
+from email.message import EmailMessage
 
-# from email.message import EmailMessage
-
-# import aiosmtplib
-from src.core.broker import broker
+import aiosmtplib
+from core import broker
+from entrypoint.config import config
 
 logger = logging.getLogger(__name__)
 
-# from celery_app import celery_app
-
 
 @broker.task(task_name="send_verify_email")
-async def send_verify_email():
-    # message = EmailMessage()
-    # message["From"] = "n17k17@yandex.ru"
-    # message["To"] = "nikiforovkirill171@gmail.com"
-    # message["Subject"] = "Hello World!"
-    # message.set_content("Sent via aiosmtplib")
+async def send_verify_email(to_email: str, token):
+    message = EmailMessage()
+    message["From"] = config.email.USERNAME
+    message["To"] = to_email
+    message["Subject"] = "Verify Email"
+    verify_link = config.frontend.URL + f"verify-email?{token}"
+    message.set_content(f"Для активации перейдите по ссылке:\n\n{verify_link}")
 
-    # await aiosmtplib.send(message, hostname="smtp.yandex.ru", port=465)
-    await asyncio.sleep(5)
-    with open("hello.txt", "w", "utf-8") as file:
-        file.write("Hello!")
+    smtp_client = aiosmtplib.SMTP(
+        hostname=config.email.HOST,
+        port=config.email.PORT,
+        use_tls=config.email.USE_TLS,
+    )
 
-    print("task: OK")
+    async with smtp_client:
+        await smtp_client.starttls()
+        await smtp_client.login(
+            username=config.email.USERNAME,
+            password=config.email.PASSWORD,
+        )
+        await smtp_client.send_message(message)

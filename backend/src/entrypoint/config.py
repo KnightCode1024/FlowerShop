@@ -9,7 +9,7 @@ load_dotenv(env_file)
 
 
 class PaymentsConfig(BaseSettings):
-    YOOMONEY_CLIENT_ID: int
+    YOOMONEY_CLIENT_ID: str
     YOOMONEY_SECRET_KEY: str
     YOOMONEY_REDIRECT_URI: str
     YOOMONEY_ACCESS_TOKEN: str

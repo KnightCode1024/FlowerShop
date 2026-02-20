@@ -6,7 +6,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from models.invoices import Invoice
-from schemas.invoice import InvoiceCreate, InvoiceStatus, InvoiceUpdateRequest, InvoiceUpdate
+from schemas.invoice import InvoiceCreate, InvoiceUpdate
 
 
 class InvoiceRepositoryI(abc.ABC):

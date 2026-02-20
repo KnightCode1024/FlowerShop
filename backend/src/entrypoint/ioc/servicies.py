@@ -41,7 +41,7 @@ class ServiceProvider(Provider):
     @provide
     def get_invoices_service(self,
                              uow: UnitOfWork,
-                             invoice_repository: InvoiceRepositoryI):
+                             invoice_repository: InvoiceRepositoryI) -> InvoiceService:
         return InvoiceService(uow, invoice_repository,
                               {
                                   Methods.YOOMONEY: yoomoney_factory

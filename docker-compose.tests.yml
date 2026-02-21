@@ -6,7 +6,6 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     image: flowershop:latest
-
     restart: always
     volumes:
       - ./backend:/backend
@@ -35,8 +34,6 @@ services:
     command: pytest tests
     depends_on:
       postgres:
-        condition: service_healthy
-      redis:
         condition: service_healthy
     networks:
       - flower_shop_net

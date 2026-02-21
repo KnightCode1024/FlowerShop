@@ -33,8 +33,10 @@ class UserRepository(IUserRepository):
 
     async def create(self, user_data: UserCreate) -> User:
         user = User(**user_data.model_dump())
+
         if getattr(user, "role", None) is None:
             user.role = RoleEnum.USER
+
         self.session.add(user)
         await self.session.flush()
         return user

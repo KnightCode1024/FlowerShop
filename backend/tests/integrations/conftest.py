@@ -1,10 +1,14 @@
+import asyncio
+import os
 import random
 from decimal import Decimal
 
 import httpx
 import pytest
 import pytest_asyncio
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import event, StaticPool, create_engine
+from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
+from sqlalchemy.orm import sessionmaker
 
 from entrypoint.ioc.engine import engine
 from models import Base, RoleEnum
@@ -13,28 +17,81 @@ from schemas.product import ProductCreate
 from schemas.user import UserCreate, UserLogin, UserResponse, UserCreateConsole
 from utils.strings import generate_random_token
 
+TEST_DATABASE_URL = os.environ.get("TEST_DATABASE_URL", "sqlite+aiosqlite:///:memory:")
 
-@pytest_asyncio.fixture(scope="session", autouse=True)
-async def prepare_db():
+
+@pytest.fixture(scope="session")
+def event_loop():
+    """pytest-asyncio: session-scoped event loop"""
+    loop = asyncio.get_event_loop_policy().new_event_loop()
+    yield loop
+    loop.close()
+
+
+@pytest.fixture(scope="session")
+async def async_engine():
+    """
+    Session-scoped engine. Detects sqlite in-memory and uses StaticPool so
+    the in-memory DB is shared between connections in the same process.
+    """
+    if TEST_DATABASE_URL.startswith("sqlite"):
+        engine = create_async_engine(
+            TEST_DATABASE_URL,
+            connect_args={"check_same_thread": False},
+            poolclass=StaticPool,
+        )
+    else:
+        engine = create_async_engine(TEST_DATABASE_URL)
+
+    # create once (optional, per-test fixture will recreate before each test)
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
 
-    yield
+    yield engine
 
+    # teardown engine and drop schema
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
+    await engine.dispose()
 
 
-@pytest_asyncio.fixture(loop_scope="session")
-async def clear_db():
-    async with engine.begin() as conn:
-        tables = ", ".join(
-            f'"{t.schema}"."{t.name}"' if t.schema else f'"{t.name}"'
-            for t in Base.metadata.sorted_tables
-        )
-        if tables:
-            await conn.exec_driver_sql(f"TRUNCATE TABLE {tables} RESTART IDENTITY CASCADE;")
-    return True
+@pytest.fixture(scope="session")
+def async_session_maker(async_engine) -> async_sessionmaker[AsyncSession]:
+    """sessionmaker bound to the async engine"""
+    return async_sessionmaker(bind=async_engine, expire_on_commit=False, autoflush=False)
+
+
+@pytest.fixture(autouse=True, scope="function")
+async def recreate_db_per_test(async_engine):
+    """
+    AUTOUSE fixture: перед каждым тестом пересоздаём схему (drop_all -> create_all).
+    После теста дополнительно дропаем (чтобы не оставлять состояние).
+    Это простая, надёжная очистка — работает с любым движком (sqlite/postgres).
+    """
+    async with async_engine.begin() as conn:
+        await conn.run_sync(Base.metadata.drop_all)
+        await conn.run_sync(Base.metadata.create_all)
+
+    try:
+        yield
+    finally:
+        # дополнительная очистка после теста
+        async with async_engine.begin() as conn:
+            await conn.run_sync(Base.metadata.drop_all)
+
+
+@pytest.fixture
+async def session(async_session_maker) -> AsyncSession:
+    """
+    Простая сессия для теста. Используйте её в тестах:
+        async def test_x(session):
+            ...
+    Если нужно транзакционное поведение (rollback) — можно заменить на
+    pattern с outer transaction + nested savepoint (см. комментарий ниже).
+    """
+    async with async_session_maker() as s:
+        yield s
+        await s.close()
 
 
 @pytest.fixture
@@ -83,14 +140,6 @@ def test_product1(test_category_for_products):
 
 
 @pytest.fixture
-async def session(async_session_maker):
-    async with async_session_maker() as session:
-        yield session
-
-        await session.rollback()
-
-
-@pytest.fixture
 async def user_repository(session: AsyncSession) -> UserRepository:
     return UserRepository(session=session)
 
@@ -124,7 +173,7 @@ async def created_admin_client(client, user_repository):
 
     client.cookies.set("access_token", response.json()["access_token"])
     client.headers["Authorization"] = f"Bearer {response.json()["access_token"]}"
-    client.cookies.set("refresh_token", response.json()["access_token"])
+    client.cookies.set("refresh_token", response.json()["refresh_token"])
 
     assert response.json()["access_token"] is not None
     assert response.json()["refresh_token"] is not None
@@ -138,7 +187,7 @@ async def created_user_client(client, user_repository):
         email=f"User{random.randint(1, 10000)}@test.com",
         username="user",
         password=generate_random_token(10) + "@",
-        role=RoleEnum.USER,
+        role=RoleEnum.USER
     )
     user = await user_repository.create(user_create_data)
 
@@ -151,7 +200,7 @@ async def created_user_client(client, user_repository):
 
     client.cookies.set("access_token", response.json()["access_token"])
     client.headers["Authorization"] = f"Bearer {response.json()["access_token"]}"
-    client.cookies.set("refresh_token", response.json()["access_token"])
+    client.cookies.set("refresh_token", response.json()["refresh_token"])
 
     assert response.json()["access_token"] is not None
     assert response.json()["refresh_token"] is not None

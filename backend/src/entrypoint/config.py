@@ -24,15 +24,15 @@ class DatabaseConfig(BaseSettings):
 
     model_config = SettingsConfigDict(
         env_prefix="POSTGRES_",
-        env_file_encoding="utf-8",
-        extra="ignore",
     )
 
-    def get_db_url(self) -> str:
-        return (
-            f"postgresql+asyncpg://{self.USER}:{self.PASSWORD}@"
-            f"{self.HOST}:{self.PORT}/{self.NAME}"
-        )
+    @property
+    def DATABASE_URI(self) -> str:
+        return f"postgresql+asyncpg://{self.USER}:{self.PASSWORD}@{self.HOST}:{self.PORT}/{self.NAME}"
+
+    @property
+    def ALEMBIC_DATABASE_URI(self) -> str:
+        return f"postgresql+psycopg://{self.USER}:{self.PASSWORD}@{self.HOST}:{self.PORT}/{self.NAME}?async_fallback"
 
 
 class AuthJWT(BaseSettings):
@@ -84,7 +84,7 @@ class AppConfig(BaseSettings):
     MODE: str
     NAME: str
     HOST: str
-    PORT: str
+    PORT: int
 
 
 class Config(BaseSettings):

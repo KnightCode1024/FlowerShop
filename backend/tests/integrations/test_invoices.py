@@ -4,7 +4,7 @@ from schemas.order import OrderCreate, OrderCreateRequest, CartItem, OrderRespon
 
 
 @pytest.mark.asyncio
-async def test_create_invoice(created_user_client, created_product):
+async def test_create_invoice(clear_db, created_user_client, created_product):
     orders_data = OrderCreateRequest(order_products=[
         CartItem(product_id=created_product.quantity,
                  quantity=1,
@@ -14,9 +14,7 @@ async def test_create_invoice(created_user_client, created_product):
     order = OrderResponse(**response.json())
 
     invoice = InvoiceCreateRequest(order_id=order.id, amount=order.amount)
-    response = await created_user_client.post(
-        "/invoices/", json=invoice.model_dump()
-    )
+    response = await created_user_client.post("/invoices/", json=invoice.model_dump())
     uid = str(response.text)
 
     response2 = await created_user_client.get(f"/invoices/{uid}")

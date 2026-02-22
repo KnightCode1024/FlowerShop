@@ -13,6 +13,7 @@ from schemas.user import (
     UserResponse,
     UserUpdate,
     OTPCode,
+    AccessToken,
 )
 from utils.jwt_utils import (
     create_access_token,
@@ -21,8 +22,12 @@ from utils.jwt_utils import (
     hash_password,
     validate_password,
 )
-
-from tasks.email import send_verify_email
+from utils.otp_utils import (
+    verify_otp_code, 
+    generate_otp_code, 
+    generate_otp_secret,
+)
+from tasks.email import send_verify_email, send_otp_code
 
 
 class UserService:
@@ -64,8 +69,20 @@ class UserService:
                 role=user.role,
             )
 
-    async def check_code(self, code: OTPCode):
-        pass
+    async def check_code(self, user: UserResponse, otp_code: OTPCode):
+        otp_secret = await self.user_repository.get_otp_secret(user)
+
+        if not verify_otp_code(otp_code.otp_code, otp_secret):
+            raise ValueError("Not valid code")
+        
+        # async with self.uow:
+        #     await self.user_repository.set_otp_secret(user, None)
+
+        tokens = TokenPair(
+            access_token=create_access_token({"sub": str(user.id)}),
+            refresh_token=create_refresh_token({"sub": str(user.id)}),
+        )
+        return tokens
 
     async def verify_email(self, token: str):
         user = await self.user_repository.get_user_by_email_token(token)
@@ -73,19 +90,42 @@ class UserService:
             raise ValueError("User not found")
         async with self.uow:
             await self.user_repository.set_is_verify_user(user, token)
+            return True
+        
+    async def resend_otp_code(self, user: UserResponse):
+        otp_secret = await self.user_repository.get_otp_secret(user)
+        
+        if not otp_secret:
+            otp_secret = generate_otp_secret()
+            async with self.uow:
+                await self.user_repository.set_otp_secret(user, otp_secret)
 
-    async def login_user(self, user_data: UserLogin) -> TokenPair:
+        otp_code = generate_otp_code(otp_secret)
+        await send_otp_code.kiq(user.email, otp_code)
+        return True
+
+    async def login_user(self, user_data: UserLogin) -> AccessToken:
         user = await self.user_repository.get_user_by_email(user_data.email)
         if user is None or not validate_password(
             user_data.password,
             user.password,
         ):
-            raise ValueError("Invalid credentials")
-        tokens = TokenPair(
-            access_token=create_access_token({"sub": str(user.id)}),
-            refresh_token=create_refresh_token({"sub": str(user.id)}),
+            raise ValueError("Uncorrect login or password")
+        if not user.email_verified:
+            raise ValueError("Email not verify")
+
+        otp_secret = generate_otp_secret()
+        otp_code = generate_otp_code(otp_secret)
+
+        async with self.uow:
+            await self.user_repository.set_otp_secret(user, otp_secret)
+        
+        await send_otp_code.kiq(user.email, otp_code)
+
+        token = AccessToken(
+            access_token=create_access_token({"sub": str(user.id)}, 5),
         )
-        return tokens
+        return token
 
     @require_roles([RoleEnum.ADMIN])
     async def update_user(

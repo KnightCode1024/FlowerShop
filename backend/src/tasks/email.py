@@ -22,11 +22,32 @@ async def send_verify_email(to_email: str, token):
             message,
             sender=config.email.USERNAME,
             hostname=config.email.HOST,
-            port=config.email.PORT,  # 465
+            port=config.email.PORT,
             username=config.email.USERNAME,
             password=config.email.PASSWORD,
             use_tls=True, 
             timeout=60,  
             tls_context=None, 
         )
-    
+
+
+@broker.task(task_name="send_otp_code")
+async def send_otp_code(to_email: str, otp_code: str):
+    message = EmailMessage()
+    message["From"] = config.email.USERNAME
+    message["To"] = to_email
+    message["Subject"] = "Verify Email"
+    body = f"Ваш код для входа:\n\n{otp_code}\n\nКод действует 5 минут."
+    message.set_content(body)
+
+    await aiosmtplib.send(
+            message,
+            sender=config.email.USERNAME,
+            hostname=config.email.HOST,
+            port=config.email.PORT, 
+            username=config.email.USERNAME,
+            password=config.email.PASSWORD,
+            use_tls=True, 
+            timeout=60,  
+            tls_context=None, 
+        )

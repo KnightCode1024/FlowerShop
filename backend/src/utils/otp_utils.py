@@ -2,15 +2,16 @@ import pyotp
 
 from entrypoint.config import config
 
-totp = pyotp.TOTP(
-    s=config.app.SECRET_KEY,
-    interval=5 * 60,
-)
+
+def generate_otp_secret() -> str:
+    return pyotp.random_base32()
 
 
-def generate_code() -> pyotp.OTP:
+def generate_otp_code(otp_secret: str) -> str:
+    totp = pyotp.TOTP(s=otp_secret, interval=config.otp.TTL)
     return totp.now()
 
 
-def verify_code(code: pyotp.OTP) -> bool:
+def verify_otp_code(code: str, otp_secret: str) -> bool:
+    totp = pyotp.TOTP(s=otp_secret, interval=config.otp.TTL)
     return totp.verify(code)

@@ -25,7 +25,11 @@ class IUserRepository(Protocol):
 
     async def get_user_by_email(self, email: str) -> User | None: ...
 
-    async def set_is_verify_user(self, user: UserResponse) -> bool: ...
+    async def set_is_verify_user(self, user: User) -> bool: ...
+
+    async def set_otp_secret(self, user: User, otp_secret: str | None): ...
+
+    async def get_otp_secret(self, user: User) -> str | None: ...
 
 
 class UserRepository(IUserRepository):
@@ -81,3 +85,13 @@ class UserRepository(IUserRepository):
         user.email_verified = True
         self.session.add(user)
         return user
+  
+    async def set_otp_secret(self, user: User, otp_secret: str | None): 
+        user.otp_secret = otp_secret
+        self.session.add(user)
+        return user
+    
+    async def get_otp_secret(self, user: User) -> str | None:
+        query = select(User.otp_secret).where(User.id == user.id)
+        result = await self.session.execute(query)
+        return result.scalar_one_or_none()

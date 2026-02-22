@@ -94,6 +94,16 @@ class FrontendConfig(BaseSettings):
     URL: str
 
 
+class OTPConfig(BaseSettings):
+    # model_config = SettingsConfigDict(
+    #     env_prefix="OTP_",
+    #     env_file_encoding="utf-8",
+    #     extra="ignore",
+    # )
+
+    TTL: int = 300  # seconds
+
+
 class RabbitMQConfig(BaseSettings):
     model_config = SettingsConfigDict(
         env_prefix="RABBITMQ_",
@@ -130,6 +140,7 @@ class Config(BaseSettings):
     rabbitmq: RabbitMQConfig = RabbitMQConfig()
     frontend: FrontendConfig = FrontendConfig()
     app: APPConfig = APPConfig()
+    otp: OTPConfig = OTPConfig()
 
 
 def create_config() -> Config:

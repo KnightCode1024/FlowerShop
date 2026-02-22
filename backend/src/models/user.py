@@ -1,7 +1,6 @@
 import uuid
 from enum import StrEnum
 
-from pyotp import OTP
 from sqlalchemy import Enum as SQLEnum
 from sqlalchemy import String, UUID, Boolean
 from sqlalchemy.orm import Mapped, mapped_column
@@ -48,7 +47,7 @@ class User(Base):
         default=uuid.uuid4(),
         nullable=True,
     )
-    otp_code: Mapped[OTP] = mapped_column(
+    otp_secret: Mapped[str] = mapped_column(
         String(),
         nullable=True,
     )

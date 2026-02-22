@@ -1,3 +1,4 @@
+import inflect
 from datetime import datetime
 
 from sqlalchemy import Integer, func
@@ -8,6 +9,8 @@ from sqlalchemy.orm import (
     declared_attr,
     mapped_column,
 )
+
+p = inflect.engine()
 
 
 class Base(AsyncAttrs, DeclarativeBase):
@@ -28,15 +31,9 @@ class Base(AsyncAttrs, DeclarativeBase):
 
     @declared_attr.directive
     def __tablename__(cls) -> str:
-        name = cls.__name__.lower()
-
-        if name.endswith("y") and not name.endswith(
-            ("ay", "ey", "iy", "oy", "uy"),
-        ):
-            return name[:-1] + "ies"
-        elif name.endswith("s"):
-            return name + "es"
-        elif name.endswith(("sh", "ch", "x", "z")):
-            return name + "es"
-        else:
-            return name + "s"
+        name = cls.__name__
+        snake_case = "".join(
+            ["_" + c.lower() if c.isupper() else c for c in name]
+        ).lstrip("_")
+        plural = p.plural(snake_case)
+        return plural

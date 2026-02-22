@@ -79,7 +79,7 @@ class EmailConfig(BaseSettings):
 
     PORT: int
     HOST: str
-    USE_TLS: bool
+    USE_SSL: bool
     PASSWORD: str
     USERNAME: str
 

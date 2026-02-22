@@ -11,5 +11,5 @@ __all__ = [
     "product_router",
     "user_router",
     "order_router",
-    "promocode_router"
+    "promocode_router",
 ]

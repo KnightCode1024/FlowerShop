@@ -14,6 +14,3 @@ def generate_code() -> pyotp.OTP:
 
 def verify_code(code: pyotp.OTP) -> bool:
     return totp.verify(code)
-
-
-# pyotp.OTP

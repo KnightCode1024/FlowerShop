@@ -10,8 +10,6 @@ from sqlalchemy.ext.asyncio import (
 from entrypoint.config import config
 
 
-
-
 class DatabaseProvider(Provider):
     scope = Scope.REQUEST
 

@@ -16,7 +16,7 @@ from schemas.category import (
 from schemas.user import UserResponse
 
 
-class CategoriesService:
+class CategoryService:
     def __init__(
         self,
         uow: UnitOfWork,

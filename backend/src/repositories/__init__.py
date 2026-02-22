@@ -12,7 +12,7 @@ from repositories.product_image import (
     IProductImageRepository,
 )
 from repositories.promocode import IPromocodeRepository, PromocodeRepository
-from repositories.s3 import S3Repository, S3RepositoryI
+from repositories.s3 import S3Repository, IS3Repository
 from repositories.user import UserRepository, IUserRepository
 
 __all__ = [
@@ -23,11 +23,11 @@ __all__ = [
     "ProductImageRepository",
     "IProductImageRepository",
     "S3Repository",
-    "S3RepositoryI",
+    "IS3Repository",
     "UserRepository",
     "IUserRepository",
     "OrderRepository",
     "IOrderRepository",
     "IPromocodeRepository",
-    "PromocodeRepository"
+    "PromocodeRepository",
 ]

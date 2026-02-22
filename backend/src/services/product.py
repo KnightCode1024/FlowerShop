@@ -12,7 +12,7 @@ from repositories import (
     ICategoryRepository,
     IProductImageRepository,
     IProductRepository,
-    S3RepositoryI,
+    IS3Repository,
 )
 from schemas.product import (
     CreateProductRequest,
@@ -26,14 +26,14 @@ from schemas.product import (
 from schemas.user import UserResponse
 
 
-class ProductsService:
+class ProductService:
     def __init__(
         self,
         uow: UnitOfWork,
         product_repository: IProductRepository,
         category_repository: ICategoryRepository,
         image_repository: IProductImageRepository,
-        s3_repository: S3RepositoryI,
+        s3_repository: IS3Repository,
     ):
         self.uow = uow
         self.products = product_repository

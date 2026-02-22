@@ -25,7 +25,7 @@ class IUserRepository(Protocol):
 
     async def get_user_by_email(self, email: str) -> User | None: ...
 
-    async def verify_user(self, user: UserResponse) -> bool: ...
+    async def set_is_verify_user(self, user: UserResponse) -> bool: ...
 
 
 class UserRepository(IUserRepository):
@@ -77,10 +77,7 @@ class UserRepository(IUserRepository):
         result = await self.session.execute(query)
         return result.scalar_one_or_none()
 
-    async def verify_user(self, token: str) -> bool:
-        user = await self.get_user_by_email_token(token)
-        if not user:
-            return False
+    async def set_is_verify_user(self, user: User, token: str) -> User:
         user.email_verified = True
         self.session.add(user)
-        return True
+        return user

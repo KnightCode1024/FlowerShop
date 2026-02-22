@@ -5,8 +5,9 @@ from admins.views import *
 from entrypoint.ioc import DatabaseProvider
 
 
-
-def create_admin(app: FastAPI, provider: DatabaseProvider = DatabaseProvider()) -> Admin:
+def create_admin(
+    app: FastAPI, provider: DatabaseProvider = DatabaseProvider()
+) -> Admin:
     admin = Admin(app=app, session_maker=provider.session_factory)
 
     register_admin_views(admin)

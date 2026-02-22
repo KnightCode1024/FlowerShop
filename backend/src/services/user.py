@@ -64,12 +64,15 @@ class UserService:
                 role=user.role,
             )
 
-    async def check_code(code: OTPCode):
+    async def check_code(self, code: OTPCode):
         pass
 
-    async def verify_email(token: str):
-        # user = select
-        pass
+    async def verify_email(self, token: str):
+        user = await self.user_repository.get_user_by_email_token(token)
+        if user is None:
+            raise ValueError("User not found")
+        async with self.uow:
+            await self.user_repository.set_is_verify_user(user, token)
 
     async def login_user(self, user_data: UserLogin) -> TokenPair:
         user = await self.user_repository.get_user_by_email(user_data.email)

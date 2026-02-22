@@ -29,3 +29,4 @@ aio-pika==9.5.8
 sqladmin==0.23.0
 prometheus-fastapi-instrumentator==7.1.0
 pyotp==2.9.0
+inflect==7.5.0

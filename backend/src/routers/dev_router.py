@@ -3,7 +3,6 @@ from fastapi import APIRouter, Request
 
 from core.rate_limiter import RateLimiter, Strategy, rate_limit
 
-
 router = APIRouter(
     prefix="",
     tags=["Dev Tools"],

@@ -19,7 +19,6 @@ router = APIRouter(
     route_class=DishkaRoute,
 )
 
-
 @router.post("/register", response_model=UserResponse)
 async def register(
     user_data: UserCreate,
@@ -35,8 +34,17 @@ async def register(
 
 
 @router.get("/verify-email")
-async def verify_email(token: str):
-    pass
+async def verify_email(
+    token: str, 
+    service: FromDishka[UserService],
+):
+    try: 
+        return await service.verify_email(token)
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=e,
+        )
 
 
 @router.post("/check-code")

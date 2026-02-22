@@ -18,16 +18,15 @@ async def send_verify_email(to_email: str, token):
     verify_link = config.frontend.URL + f"verify-email?{token}"
     message.set_content(f"Для активации перейдите по ссылке:\n\n{verify_link}")
 
-    smtp_client = aiosmtplib.SMTP(
-        hostname=config.email.HOST,
-        port=config.email.PORT,
-        use_tls=config.email.USE_TLS,
-    )
-
-    async with smtp_client:
-        await smtp_client.starttls()
-        await smtp_client.login(
+    await aiosmtplib.send(
+            message,
+            sender=config.email.USERNAME,
+            hostname=config.email.HOST,
+            port=config.email.PORT,  # 465
             username=config.email.USERNAME,
             password=config.email.PASSWORD,
+            use_tls=True, 
+            timeout=60,  
+            tls_context=None, 
         )
-        await smtp_client.send_message(message)
+    

@@ -1,5 +1,3 @@
-# from decimal import Decimal
-
 from sqlalchemy import String, Integer, Numeric, ForeignKey
 
 from models import Base
@@ -8,7 +6,7 @@ from sqlalchemy.orm import Mapped, mapped_column
 from utils.strings import generate_random_promo
 
 
-class Promocodes(Base):
+class Promocode(Base):
     code: Mapped[str] = mapped_column(
         String(),
         default=generate_random_promo,

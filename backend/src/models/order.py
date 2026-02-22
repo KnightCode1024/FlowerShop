@@ -17,12 +17,13 @@ class OrderStatus(enum.StrEnum):
 
 class OrderProduct(Base):
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    order_id: Mapped[int] = mapped_column(ForeignKey("orders.id", ondelete="CASCADE"), primary_key=False)
-    product_id: Mapped[int] = mapped_column(ForeignKey("products.id"), nullable=False, primary_key=False)
-    order: Mapped["Order"] = relationship(
-        "Order",
-        back_populates="order_products"
+    order_id: Mapped[int] = mapped_column(
+        ForeignKey("orders.id", ondelete="CASCADE"), primary_key=False
     )
+    product_id: Mapped[int] = mapped_column(
+        ForeignKey("products.id"), nullable=False, primary_key=False
+    )
+    order: Mapped["Order"] = relationship("Order", back_populates="order_products")
     quantity: Mapped[int] = mapped_column(Integer(), nullable=False)
     price: Mapped[float] = mapped_column(Float(), nullable=False)
 
@@ -35,7 +36,11 @@ class Order(Base):
         cascade="all, delete-orphan",
         lazy="joined",
     )
-    user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    user_id: Mapped[int] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+    )
 
-    status: Mapped[OrderStatus] = mapped_column(Enum(OrderStatus), default=OrderStatus.IN_CART)
+    status: Mapped[OrderStatus] = mapped_column(
+        Enum(OrderStatus), default=OrderStatus.IN_CART
+    )
     amount: Mapped[float] = mapped_column(Float(), default=0.00)

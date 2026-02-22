@@ -4,7 +4,7 @@ from schemas.order import OrderCreate, OrderCreateRequest, CartItem, OrderRespon
 
 
 @pytest.mark.asyncio
-async def test_create_invoice(clear_db, created_user_client, created_product):
+async def test_create_invoice(created_user_client, created_product):
     orders_data = OrderCreateRequest(order_products=[
         CartItem(product_id=created_product.quantity,
                  quantity=1,

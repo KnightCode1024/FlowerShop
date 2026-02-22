@@ -24,9 +24,9 @@ from utils.jwt_utils import (
 
 class UserService:
     def __init__(
-        self,
-        uow: UnitOfWork,
-        user_repository: IUserRepository,
+            self,
+            uow: UnitOfWork,
+            user_repository: IUserRepository,
     ):
         self.uow = uow
         self.user_repository = user_repository
@@ -58,8 +58,8 @@ class UserService:
     async def login_user(self, user_data: UserLogin) -> TokenPair:
         user = await self.user_repository.get_user_by_email(user_data.email)
         if user is None or not validate_password(
-            user_data.password,
-            user.password,
+                user_data.password,
+                user.password,
         ):
             raise ValueError("Invalid credentials")
         tokens = TokenPair(
@@ -70,10 +70,10 @@ class UserService:
 
     @require_roles([RoleEnum.ADMIN])
     async def update_user(
-        self,
-        user_id: int,
-        user_update: UserUpdate,
-        user: UserResponse,
+            self,
+            user_id: int,
+            user_update: UserUpdate,
+            user: UserResponse,
     ) -> UserResponse:
         update_data = user_update.model_dump(exclude_unset=True)
         if "password" in update_data and update_data["password"]:
@@ -94,9 +94,9 @@ class UserService:
 
     @require_roles([RoleEnum.ADMIN, RoleEnum.EMPLOYEE])
     async def get_user(
-        self,
-        user_id: int,
-        current_user,
+            self,
+            user_id: int,
+            current_user,
     ) -> UserResponse:
         user = await self.user_repository.get(user_id)
         if not user:
@@ -115,10 +115,10 @@ class UserService:
 
     @require_roles([RoleEnum.ADMIN])
     async def get_all_users(
-        self,
-        user: UserResponse,
-        offset: int = 0,
-        limit: int = 20,
+            self,
+            user: UserResponse,
+            offset: int = 0,
+            limit: int = 20,
     ):
         users = await self.user_repository.get_all(offset, limit)
         if not users:
@@ -126,8 +126,8 @@ class UserService:
         return users
 
     async def refresh_token(
-        self,
-        payload: RefreshToken,
+            self,
+            payload: RefreshToken,
     ) -> TokenPair:
         try:
             payload = decode_jwt(payload.refresh_token)
@@ -168,7 +168,7 @@ class UserService:
             return None
 
     async def create_user_for_console(
-        self, user_data: UserCreateConsole
+            self, user_data: UserCreateConsole
     ) -> UserResponse:
         try:
             user_role = RoleEnum(user_data.role.lower())

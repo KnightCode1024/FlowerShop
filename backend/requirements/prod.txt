@@ -28,3 +28,4 @@ httpx
 psycopg[binary]
 aiosqlite
 psycopg
+black

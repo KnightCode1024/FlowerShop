@@ -32,7 +32,7 @@ class DatabaseConfig(BaseSettings):
 
     @property
     def ALEMBIC_DATABASE_URI(self) -> str:
-        return f"postgresql+psycopg://{self.USER}:{self.PASSWORD}@{self.HOST}:{self.PORT}/{self.NAME}?async_fallback"
+        return f"postgresql+psycopg://{self.USER}:{self.PASSWORD}@{self.HOST}:{self.PORT}/{self.NAME}"
 
 
 class AuthJWT(BaseSettings):

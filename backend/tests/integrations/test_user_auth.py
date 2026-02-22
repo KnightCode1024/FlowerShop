@@ -5,6 +5,8 @@ from models import User
 from schemas.user import UserLogin, UserCreate, UserResponse
 import random
 
+from utils.strings import generate_random_password, make_valid_password
+
 
 @pytest.mark.asyncio
 async def test_login_user_not_found(client: AsyncClient):
@@ -28,8 +30,8 @@ async def test_login_user_success(user_factory, client):
 
 
 @pytest.mark.asyncio
-async def test_register_user_already_exists(clear_db, user_factory, client):
-    register_data = UserCreate(email=f"test1@test.com", password="12345678A@", username="Alex")
+async def test_register_user_already_exists(user_factory, client):
+    register_data = UserCreate(email=f"test1@test.com", password=make_valid_password(), username="Alex")
 
     created_user = await client.post("/users/register", json=register_data.model_dump())
 

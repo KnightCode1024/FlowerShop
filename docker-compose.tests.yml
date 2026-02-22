@@ -2,6 +2,12 @@ services:
   backend:
     container_name: backend
     env_file: .env
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_NAME=${POSTGRES_NAME}
+      - POSTGRES_HOST=${POSTGRES_HOST}
+      - POSTGRES_PORT=${POSTGRES_PORT}
     build:
       context: ./backend
       dockerfile: Dockerfile
@@ -31,7 +37,7 @@ services:
       - ./backend:/backend
     env_file:
       - .env
-    command: pytest tests
+    command: pytest tests -s
     depends_on:
       postgres:
         condition: service_healthy
@@ -68,7 +74,6 @@ services:
       - MINIO_ROOT_PASSWORD=${S3_SECRET_KEY}
     ports:
       - "9000:9000"
-      - "9001:9001"
     volumes:
       - minio-data:/data
     healthcheck:

@@ -70,7 +70,7 @@ def test_product1(test_category_for_products):
         description="Beautiful red roses",
         price=Decimal("29.99"),
         in_stock=True,
-        category_id=test_category_for_products.id,
+        category_id=category_for_products.id,
     )
 
 
@@ -79,14 +79,15 @@ async def user_repository(session):
     return UserRepository(session=session)
 
 
-async def test_category_for_products(category_repository: CategoryRepository):
-    category_data = CategoryCreate(name="Flowers")
-    return await category_repository.create(category_data)
-
-
 @pytest.fixture
 async def category_repository(session: AsyncSession):
     return CategoryRepository(session=session)
+
+
+@pytest.fixture
+async def category_for_products(category_repository: CategoryRepository):
+    category_data = CategoryCreate(name="Flowers")
+    return await category_repository.create(category_data)
 
 
 @pytest.fixture
@@ -101,8 +102,6 @@ async def created_product(product_repository, test_product1):
 
 @pytest.fixture
 async def user_service(user_repository, session: AsyncSession) -> UserService:
-    assert isinstance(session, AsyncSession), f"ожидался AsyncSession, получили {type(session)}"
-
     return UserService(UnitOfWork(session), user_repository)
 
 
@@ -140,6 +139,33 @@ async def created_user_client(client, user_service: UserService):
         username="user",
         password=make_valid_password(12),
         role=RoleEnum.USER
+    )
+    user = await user_service.create_user_for_console(user_create_data)
+
+    assert user_create_data.email == user.email
+
+    login_data = UserLogin(email=user_create_data.email, password=user_create_data.password)
+    response = await client.post("/users/login", json=login_data.model_dump())
+
+    assert response.status_code == 200
+
+    client.cookies.set("access_token", response.json()["access_token"])
+    client.headers["Authorization"] = f"Bearer {response.json()["access_token"]}"
+    client.cookies.set("refresh_token", response.json()["refresh_token"])
+
+    assert response.json()["access_token"] is not None
+    assert response.json()["refresh_token"] is not None
+
+    return client
+
+
+@pytest.fixture
+async def created_employee_client(client, user_service: UserService):
+    user_create_data = UserCreateConsole(
+        email=f"employee{random.randint(1, 10000)}@test.com",
+        username="employee",
+        password=make_valid_password(12),
+        role=RoleEnum.EMPLOYEE
     )
     user = await user_service.create_user_for_console(user_create_data)
 

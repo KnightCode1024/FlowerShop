@@ -11,12 +11,15 @@ from repositories import (
     IPromocodeRepository,
 )
 from services import (
-    CategoryService, 
-    ProductService, 
-    UserService, 
+    CategoryService,
+    ProductService,
+    UserService,
     OrderService,
+    EmailService,
 )
+from interfaces import IEmailService
 from services.promocode import PromocodeService
+from entrypoint.config import Config
 
 
 class ServiceProvider(Provider):
@@ -52,8 +55,13 @@ class ServiceProvider(Provider):
         self,
         uow: UnitOfWork,
         user_repository: IUserRepository,
+        email_service: IEmailService,
     ) -> UserService:
-        return UserService(uow, user_repository)
+        return UserService(uow, user_repository, email_service)
+    
+    @provide
+    def get_email_service(self, config: Config) -> IEmailService:
+        return EmailService(config)
 
     @provide
     def get_order_service(
@@ -67,4 +75,4 @@ class ServiceProvider(Provider):
         uow: UnitOfWork,
         promocode_repository: IPromocodeRepository,
     ) -> PromocodeService:
-        return PromocodeService(uow, promocode_repository)
+        return PromocodeService(uow, promocode_repository)   

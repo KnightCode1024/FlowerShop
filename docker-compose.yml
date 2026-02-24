@@ -44,8 +44,7 @@ services:
       - YOOMONEY_ACCESS_TOKEN=${YOOMONEY_ACCESS_TOKEN}
       - APP_MODE=${APP_MODE}
       - APP_NAME=${APP_NAME}
-    # command: sh -c "alembic upgrade head && uvicorn run:make_app --factory --host ${APP_HOST} --port ${APP_PORT} --reload"
-    command: sh -c "PYTHONPATH=src uvicorn run:make_app --factory --host ${APP_HOST} --port ${APP_PORT} --reload"
+    command: sh -c "alembic upgrade head && uvicorn run:make_app --factory --host ${APP_HOST} --port ${APP_PORT} --reload"
     ports:
       - "8000:8000"
     depends_on:

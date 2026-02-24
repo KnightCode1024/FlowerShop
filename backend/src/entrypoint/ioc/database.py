@@ -10,16 +10,16 @@ class DatabaseProvider(Provider):
     scope = Scope.REQUEST
 
     engine = create_async_engine(
-            config.database.DATABASE_URI,
-            future=True,
-        )
+        config.database.DATABASE_URI,
+        future=True,
+    )
     session_factory = async_sessionmaker(
-            engine,
-            expire_on_commit=False,
-            autoflush=False,
-        )
+        engine,
+        expire_on_commit=False,
+        autoflush=False,
+    )
 
     @provide
     async def get_db_session(self) -> AsyncGenerator[AsyncSession]:
-        async with session_factory() as session:
+        async with self.session_factory() as session:
             yield session

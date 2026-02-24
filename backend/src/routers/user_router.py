@@ -2,8 +2,16 @@ from dishka.integrations.fastapi import DishkaRoute, FromDishka
 from fastapi import APIRouter, HTTPException, Request, status
 
 from core.rate_limiter import RateLimiter, Strategy, rate_limit
-from schemas.user import (AccessToken, OTPCode, RefreshToken, TokenPair,
-                          UserCreate, UserLogin, UserResponse, UserUpdate)
+from schemas.user import (
+    AccessToken,
+    OTPCode,
+    RefreshToken,
+    TokenPair,
+    UserCreate,
+    UserLogin,
+    UserResponse,
+    UserUpdate,
+    )
 from services import UserService
 
 router = APIRouter(
@@ -13,11 +21,11 @@ router = APIRouter(
 )
 
 
-@rate_limit(strategy=Strategy.IP, policy="3/m;10/h;20/d")
 @router.post("/register", response_model=UserResponse)
+@rate_limit(strategy=Strategy.IP, policy="3/m;10/h;20/d")
 async def register(
-    user_data: UserCreate,
     request: Request,
+    user_data: UserCreate,
     rate_limiter: FromDishka[RateLimiter],
     service: FromDishka[UserService],
 ):
@@ -34,8 +42,8 @@ async def register(
 @router.get("/verify-email")
 @rate_limit(strategy=Strategy.IP, policy="5/m;20/h")
 async def verify_email(
-    token: str,
     request: Request,
+    token: str,
     rate_limiter: FromDishka[RateLimiter],
     service: FromDishka[UserService],
 ):
@@ -51,8 +59,8 @@ async def verify_email(
 @router.post("/check-code", response_model=TokenPair)
 @rate_limit(strategy=Strategy.IP, policy="5/m;20/h")
 async def check_code(
-    code: OTPCode,
     request: Request,
+    code: OTPCode,
     rate_limiter: FromDishka[RateLimiter],
     service: FromDishka[UserService],
     current_user: FromDishka[UserResponse],
@@ -86,8 +94,8 @@ async def resend_otp(
 @rate_limit(strategy=Strategy.IP, policy="5/m;20/h;50/d")
 @router.post("/login", response_model=AccessToken)
 async def login(
-    user_data: UserLogin,
     request: Request,
+    user_data: UserLogin,
     rate_limiter: FromDishka[RateLimiter],
     service: FromDishka[UserService],
 ):
@@ -111,8 +119,8 @@ async def get_profile(
 @router.post("/refresh", response_model=TokenPair)
 @rate_limit(strategy=Strategy.IP, policy="10/m;100/h")
 async def refresh_token(
-    payload: RefreshToken,
     request: Request,
+    payload: RefreshToken,
     rate_limiter: FromDishka[RateLimiter],
     service: FromDishka[UserService],
 ):

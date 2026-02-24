@@ -25,3 +25,4 @@ aiosmtplib==5.1.0
 pyotp==2.9.0
 httpx==0.28.1
 black
+itsdangerous

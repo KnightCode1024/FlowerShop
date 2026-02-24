@@ -1,7 +1,7 @@
 from sqlalchemy import ForeignKey, Numeric, String, Enum, Uuid
 
 from models import Base
-from sqlalchemy.orm import *
+from sqlalchemy.orm import Mapped, mapped_column
 
 from schemas.invoice import InvoiceStatus, Methods
 

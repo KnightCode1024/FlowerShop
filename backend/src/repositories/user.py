@@ -5,15 +5,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from models import User
 from models.user import RoleEnum
-<<<<<<< HEAD
-from schemas.user import UserCreate, UserResponse, UserUpdate
-=======
 from schemas.user import UserCreate, UserUpdate, UserCreateConsole
->>>>>>> origin/main
 
 
 class IUserRepository(Protocol):
-    async def create(self, user_data: UserCreate | UserCreateConsole) -> User: ...
+    async def create(
+        self,
+        user_data: UserCreate | UserCreateConsole,
+    ) -> User: ...
 
     async def get(self, user_id: int) -> User: ...
 

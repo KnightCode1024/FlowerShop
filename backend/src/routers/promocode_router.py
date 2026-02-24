@@ -7,15 +7,12 @@ from schemas.promocode import (PromoActivateRequest, PromoCreateRequest,
 from schemas.user import UserResponse
 from services.promocode import PromocodeService
 
-<<<<<<< HEAD
+
 router = APIRouter(
     prefix="/promocodes",
     tags=["Promocodes"],
     route_class=DishkaRoute,
 )
-=======
-router = APIRouter(prefix="/promocodes", tags=["Promocode"], route_class=DishkaRoute)
->>>>>>> origin/main
 
 
 @router.get("/")

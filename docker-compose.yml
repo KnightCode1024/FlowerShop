@@ -38,7 +38,14 @@ services:
       - EMAIL_USE_SSL=${EMAIL_USE_SSL}
       - RABBITMQ_URL=${RABBITMQ_URL}
       - FRONTEND_URL=${FRONTEND_URL}
-    command: sh -c "alembic upgrade head && uvicorn run:make_app --factory --host ${APP_HOST} --port ${APP_PORT} --reload"
+      - YOOMONEY_CLIENT_ID=${YOOMONEY_CLIENT_ID}
+      - YOOMONEY_SECRET_KEY=${YOOMONEY_SECRET_KEY}
+      - YOOMONEY_REDIRECT_URI=${YOOMONEY_REDIRECT_URI}
+      - YOOMONEY_ACCESS_TOKEN=${YOOMONEY_ACCESS_TOKEN}
+      - APP_MODE=${APP_MODE}
+      - APP_NAME=${APP_NAME}
+    # command: sh -c "alembic upgrade head && uvicorn run:make_app --factory --host ${APP_HOST} --port ${APP_PORT} --reload"
+    command: sh -c "PYTHONPATH=src uvicorn run:make_app --factory --host ${APP_HOST} --port ${APP_PORT} --reload"
     ports:
       - "8000:8000"
     depends_on:
@@ -88,17 +95,17 @@ services:
         condition: service_healthy
 
 
-  taskiq_admin:
-    image: ghcr.io/taskiq-python/taskiq-admin:latest
-    container_name: taskiq_admin
-    ports:
-      - 3000:3000
-    environment:
-      - TASKIQ_ADMIN_API_TOKEN=supersecret
-    volumes:
-      - taskiq-admin-data:/usr/database/
-    networks:
-      - flower_shop_net
+  # taskiq_admin:
+  #   image: ghcr.io/taskiq-python/taskiq-admin:latest
+  #   container_name: taskiq_admin
+  #   ports:
+  #     - 3000:3000
+  #   environment:
+  #     - TASKIQ_ADMIN_API_TOKEN=supersecret
+  #   volumes:
+  #     - taskiq-admin-data:/usr/database/
+  #   networks:
+  #     - flower_shop_net
 
   postgres:
     env_file: .env
@@ -232,6 +239,6 @@ volumes:
   minio-data:
   redis-data:
   prometheus-data:
-  # grafana-data:
+  grafana-data:
   rabbitmq-data:
   taskiq-admin-data:

@@ -4,7 +4,19 @@ from fastapi.openapi.models import Response
 from starlette.responses import PlainTextResponse
 
 from core.rate_limiter import RateLimiter, Strategy, rate_limit
-from prometheus_client import Counter, Histogram, Gauge, generate_latest, CONTENT_TYPE_LATEST, CollectorRegistry, GCCollector, process_collector, PLATFORM_COLLECTOR, REGISTRY
+from prometheus_client import (
+    Counter,
+    Histogram,
+    Gauge,
+    generate_latest,
+    CONTENT_TYPE_LATEST,
+    CollectorRegistry,
+    GCCollector,
+    process_collector,
+    PLATFORM_COLLECTOR,
+    REGISTRY
+)
+
 
 router = APIRouter(
     prefix="",

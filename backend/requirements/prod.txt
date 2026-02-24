@@ -18,29 +18,9 @@ uvicorn==0.40.0
 taskiq==0.12.1
 sqladmin==0.23.0
 prometheus-fastapi-instrumentator==7.1.0
-pytest
-<<<<<<< HEAD
-taskiq==0.12.1
-taskiq-aio-pika==0.5.0
-black==26.1.0
-aiosmtplib==5.1.0
-rabbitmq==0.2.0
-aiormq==6.9.2
-aio-pika==9.5.8
-sqladmin==0.23.0
-prometheus-fastapi-instrumentator==7.1.0
-pyotp==2.9.0
 inflect==7.5.0
-=======
-pytest-asyncio
-pytest-cov
-pytest-xdist
-asyncpg
-httpx
-psycopg[binary]
-aiosqlite
-psycopg
-black
-pydantic_settings
-dotenv
->>>>>>> origin/main
+psycopg==3.3.3
+taskiq-aio-pika==0.5.0
+aiosmtplib==5.1.0
+pyotp==2.9.0
+httpx==0.28.1

@@ -1,32 +1,29 @@
 from dishka import Provider, Scope, provide
 
 from core.uow import UnitOfWork
-<<<<<<< HEAD
 from entrypoint.config import Config
 from interfaces import IEmailService
-from repositories import (ICategoryRepository, IOrderRepository,
-                          IProductImageRepository, IProductRepository,
-                          IPromocodeRepository, IS3Repository, IUserRepository)
-from services import (CategoryService, EmailService, OrderService,
-                      ProductService, UserService)
-from services.promocode import PromocodeService
-=======
-from providers import IPaymentProvider
-from providers.dependencies import yoomoney_factory
 from repositories import (
     ICategoryRepository,
+    IOrderRepository,
     IProductImageRepository,
     IProductRepository,
-    S3RepositoryI,
+    IPromocodeRepository,
+    IS3Repository,
     IUserRepository,
-    IOrderRepository, IPromocodeRepository
+    InvoiceRepositoryI,
+    )
+from services import (
+    CategoryService,
+    EmailService,
+    OrderService,
+    ProductService,
+    UserService,
+    PromocodeService,
+    InvoiceService,
 )
-from repositories.invoice import InvoiceRepositoryI
+from providers.dependencies import yoomoney_factory
 from schemas.invoice import Methods
-from services import CategoriesService, ProductsService, UserService, OrdersService
-from services.invoice import InvoiceService
-from services.promocode import PromocodesService
->>>>>>> origin/main
 
 
 class ServiceProvider(Provider):
@@ -50,9 +47,11 @@ class ServiceProvider(Provider):
         )
 
     @provide
-    def get_invoices_service(self,
-                             uow: UnitOfWork,
-                             invoice_repository: InvoiceRepositoryI) -> InvoiceService:
+    def get_invoices_service(
+        self,
+        uow: UnitOfWork,
+        invoice_repository: InvoiceRepositoryI,
+    ) -> InvoiceService:
         return InvoiceService(uow, invoice_repository,
                               {
                                   Methods.YOOMONEY: yoomoney_factory

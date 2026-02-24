@@ -36,16 +36,10 @@ class Order(Base):
         cascade="all, delete-orphan",
         lazy="joined",
     )
-<<<<<<< HEAD
     user_id: Mapped[int] = mapped_column(
         ForeignKey("users.id", ondelete="CASCADE"), nullable=False
     )
-
     status: Mapped[OrderStatus] = mapped_column(
         Enum(OrderStatus), default=OrderStatus.IN_CART
     )
-=======
-    user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
-    status: Mapped[OrderStatus] = mapped_column(Enum(OrderStatus), default=OrderStatus.IN_CART)
->>>>>>> origin/main
     amount: Mapped[float] = mapped_column(Float(), default=0.00)

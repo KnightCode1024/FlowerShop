@@ -16,16 +16,10 @@ from utils.otp_utils import (generate_otp_code, generate_otp_secret,
 
 class UserService:
     def __init__(
-<<<<<<< HEAD
         self,
         uow: UnitOfWork,
         user_repository: IUserRepository,
         email_service: IEmailService,
-=======
-            self,
-            uow: UnitOfWork,
-            user_repository: IUserRepository,
->>>>>>> origin/main
     ):
         self.uow = uow
         self.user_repository = user_repository
@@ -61,27 +55,11 @@ class UserService:
                 role=user.role,
             )
 
-<<<<<<< HEAD
     async def check_code(self, user: UserResponse, otp_code: OTPCode):
         otp_secret = await self.user_repository.get_otp_secret(user)
 
         if not verify_otp_code(otp_code.otp_code, otp_secret):
             raise ValueError("Not valid code")
-
-=======
-    async def login_user(self, user_data: UserLogin) -> TokenPair:
-        user = await self.user_repository.get_user_by_email(user_data.email)
-        if user is None or not validate_password(
-                user_data.password,
-                user.password,
-        ):
-            raise ValueError("Invalid credentials")
->>>>>>> origin/main
-        tokens = TokenPair(
-            access_token=create_access_token({"sub": str(user.id)}),
-            refresh_token=create_refresh_token({"sub": str(user.id)}),
-        )
-        return tokens
 
     async def verify_email(self, token: str):
         user = await self.user_repository.get_user_by_email_token(token)
@@ -135,10 +113,10 @@ class UserService:
 
     @require_roles([RoleEnum.ADMIN])
     async def update_user(
-            self,
-            user_id: int,
-            user_update: UserUpdate,
-            user: UserResponse,
+        self,
+        user_id: int,
+        user_update: UserUpdate,
+        user: UserResponse,
     ) -> UserResponse:
         update_data = user_update.model_dump(exclude_unset=True)
         if "password" in update_data and update_data["password"]:

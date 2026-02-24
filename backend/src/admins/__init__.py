@@ -1,20 +1,15 @@
 from fastapi import FastAPI
 from sqladmin import Admin
 
-from admins.views import *
-from entrypoint.ioc.engine import session_factory
+from admins.views import UserAdmin, ProductAdmin, OrderAdmin, CategoryAdmin
+from entrypoint.ioc.database import DatabaseProvider
 
 
-<<<<<<< HEAD
 def create_admin(
-    app: FastAPI, provider: DatabaseProvider = DatabaseProvider()
+    app: FastAPI,
+    provider: DatabaseProvider = DatabaseProvider(),
 ) -> Admin:
     admin = Admin(app=app, session_maker=provider.session_factory)
-=======
-
-def create_admin(app: FastAPI) -> Admin:
-    admin = Admin(app=app, session_maker=session_factory)
->>>>>>> origin/main
 
     register_admin_views(admin)
 

@@ -3,6 +3,8 @@ from services.email import EmailService, IEmailService
 from services.order import OrderService
 from services.product import ProductService
 from services.user import UserService
+from services.invoice import InvoiceService
+from services.promocode import PromocodeService
 
 __all__ = [
     "ProductService",
@@ -11,4 +13,6 @@ __all__ = [
     "OrderService",
     "EmailService",
     "IEmailService",
+    "InvoiceService",
+    "PromocodeService",
 ]

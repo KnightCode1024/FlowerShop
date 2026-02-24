@@ -77,7 +77,6 @@ class RedisConfig(BaseSettings):
     HOST: str
 
 
-<<<<<<< HEAD
 class EmailConfig(BaseSettings):
     model_config = SettingsConfigDict(
         env_prefix="EMAIL_",
@@ -103,12 +102,6 @@ class FrontendConfig(BaseSettings):
 
 
 class OTPConfig(BaseSettings):
-    # model_config = SettingsConfigDict(
-    #     env_prefix="OTP_",
-    #     env_file_encoding="utf-8",
-    #     extra="ignore",
-    # )
-
     TTL: int = 300  # seconds
 
 
@@ -124,20 +117,10 @@ class RabbitMQConfig(BaseSettings):
 
 class APPConfig(BaseSettings):
     model_config = SettingsConfigDict(
-        env_prefix="APP_",
-        env_file_encoding="utf-8",
-        extra="ignore",
-    )
-
-    SECRET_KEY: str
-=======
-class AppConfig(BaseSettings):
-    model_config = SettingsConfigDict(
         env_prefix="APP_"
     )
     MODE: str
     NAME: str
->>>>>>> origin/main
     HOST: str
     PORT: int
 
@@ -152,16 +135,12 @@ class Config(BaseSettings):
     s3: S3Config = S3Config()
     auth_jwt: AuthJWT = AuthJWT()
     redis: RedisConfig = RedisConfig()
-<<<<<<< HEAD
     email: EmailConfig = EmailConfig()
     rabbitmq: RabbitMQConfig = RabbitMQConfig()
     frontend: FrontendConfig = FrontendConfig()
     app: APPConfig = APPConfig()
     otp: OTPConfig = OTPConfig()
-=======
-    app: AppConfig = AppConfig()
     payment: PaymentsConfig = PaymentsConfig()
->>>>>>> origin/main
 
 
 def create_config() -> Config:

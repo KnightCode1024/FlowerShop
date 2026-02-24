@@ -4,8 +4,8 @@ import enum
 from sqlalchemy import Enum, Float, ForeignKey, Integer
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from models import Base
 from models import *
+from models import Base
 
 
 class OrderStatus(enum.StrEnum):

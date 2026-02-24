@@ -2,19 +2,16 @@ from dishka import FromDishka
 from dishka.integrations.fastapi import DishkaRoute
 from fastapi import APIRouter
 
-from schemas.promocode import (
-    PromoCreateRequest,
-    PromoUpdateRequest,
-    PromoActivateRequest,
-)
+from schemas.promocode import (PromoActivateRequest, PromoCreateRequest,
+                               PromoUpdateRequest)
 from schemas.user import UserResponse
 from services.promocode import PromocodeService
 
 router = APIRouter(
-    prefix="/promocodes", 
-    tags=["Promocodes"], 
+    prefix="/promocodes",
+    tags=["Promocodes"],
     route_class=DishkaRoute,
-    )
+)
 
 
 @router.get("/")
@@ -32,9 +29,7 @@ async def activate_promo(
 
 
 @router.post("/")
-async def create_promo(
-    data: PromoCreateRequest, service: FromDishka[PromocodeService]
-):
+async def create_promo(data: PromoCreateRequest, service: FromDishka[PromocodeService]):
     return await service.create_promo(data)
 
 

@@ -1,7 +1,7 @@
 from pathlib import Path
 
-from pydantic_settings import BaseSettings, SettingsConfigDict
 from dotenv import find_dotenv, load_dotenv
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 BASE_DIR = Path(__file__).parent.parent.parent
 env_file = find_dotenv() or (Path(__file__).resolve().parents[1] / ".env")

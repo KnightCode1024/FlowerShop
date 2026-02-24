@@ -27,9 +27,7 @@ def upgrade() -> None:
         sa.Column("code", sa.String(), nullable=False),
         sa.Column("count_activation", sa.Integer(), nullable=False),
         sa.Column("max_count_activators", sa.Integer(), nullable=False),
-        sa.Column(
-            "percent", sa.Numeric(precision=10, scale=2), nullable=False
-        ),
+        sa.Column("percent", sa.Numeric(precision=10, scale=2), nullable=False),
         sa.Column("id", sa.Integer(), autoincrement=True, nullable=False),
         sa.Column(
             "created_at",
@@ -51,9 +49,7 @@ def upgrade() -> None:
         sa.Column("user_id", sa.Integer(), nullable=False),
         sa.Column(
             "status",
-            sa.Enum(
-                "IN_CART", "WAITING_PAY", "PAYED", "ERROR", name="orderstatus"
-            ),
+            sa.Enum("IN_CART", "WAITING_PAY", "PAYED", "ERROR", name="orderstatus"),
             nullable=False,
         ),
         sa.Column("amount", sa.Float(), nullable=False),
@@ -118,9 +114,7 @@ def upgrade() -> None:
             server_default=sa.text("now()"),
             nullable=False,
         ),
-        sa.ForeignKeyConstraint(
-            ["order_id"], ["orders.id"], ondelete="CASCADE"
-        ),
+        sa.ForeignKeyConstraint(["order_id"], ["orders.id"], ondelete="CASCADE"),
         sa.ForeignKeyConstraint(
             ["product_id"],
             ["products.id"],
@@ -146,15 +140,11 @@ def upgrade() -> None:
             server_default=sa.text("now()"),
             nullable=False,
         ),
-        sa.ForeignKeyConstraint(
-            ["product_id"], ["products.id"], ondelete="CASCADE"
-        ),
+        sa.ForeignKeyConstraint(["product_id"], ["products.id"], ondelete="CASCADE"),
         sa.PrimaryKeyConstraint("id"),
     )
     op.drop_table("productimages")
-    op.add_column(
-        "users", sa.Column("email_verified", sa.Boolean(), nullable=False)
-    )
+    op.add_column("users", sa.Column("email_verified", sa.Boolean(), nullable=False))
     op.add_column("users", sa.Column("token", sa.UUID(), nullable=True))
     op.add_column("users", sa.Column("otp_code", sa.String(), nullable=True))
     # ### end Alembic commands ###
@@ -168,16 +158,10 @@ def downgrade() -> None:
     op.drop_column("users", "email_verified")
     op.create_table(
         "productimages",
-        sa.Column(
-            "product_id", sa.INTEGER(), autoincrement=False, nullable=False
-        ),
-        sa.Column(
-            "url", sa.VARCHAR(length=1000), autoincrement=False, nullable=False
-        ),
+        sa.Column("product_id", sa.INTEGER(), autoincrement=False, nullable=False),
+        sa.Column("url", sa.VARCHAR(length=1000), autoincrement=False, nullable=False),
         sa.Column("order", sa.INTEGER(), autoincrement=False, nullable=False),
-        sa.Column(
-            "is_primary", sa.BOOLEAN(), autoincrement=False, nullable=False
-        ),
+        sa.Column("is_primary", sa.BOOLEAN(), autoincrement=False, nullable=False),
         sa.Column("id", sa.INTEGER(), autoincrement=True, nullable=False),
         sa.Column(
             "created_at",

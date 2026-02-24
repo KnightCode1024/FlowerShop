@@ -1,12 +1,10 @@
-import pytest
 from decimal import Decimal
 
-from src.schemas.product import (
-    ProductUpdate,
-    ProductFilterParams,
-)
-from src.schemas.category import CategoryCreate
+import pytest
+
 from src.models import Product
+from src.schemas.category import CategoryCreate
+from src.schemas.product import ProductFilterParams, ProductUpdate
 
 
 class TestProductRepository:

@@ -1,6 +1,7 @@
 import pytest
-from src.schemas.category import CategoryUpdate
+
 from src.models import Category
+from src.schemas.category import CategoryUpdate
 
 
 class TestCategoryRepository:

@@ -5,13 +5,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
 from models import Category, Product, ProductImage
-from schemas.product import (
-    ProductCreate,
-    ProductFilterParams,
-    ProductResponse,
-    ProductsListResponse,
-    ProductUpdate,
-)
+from schemas.product import (ProductCreate, ProductFilterParams,
+                             ProductResponse, ProductsListResponse,
+                             ProductUpdate)
 
 
 class IProductRepository(Protocol):

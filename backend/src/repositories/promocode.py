@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from starlette import status
 
 from models.promocode import Promocode, PromocodeActions
-from schemas.promocode import PromoUpdate, PromoCreate, PromoActivateCreate
+from schemas.promocode import PromoActivateCreate, PromoCreate, PromoUpdate
 
 
 class IPromocodeRepository(Protocol):

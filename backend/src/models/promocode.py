@@ -1,8 +1,7 @@
-from sqlalchemy import String, Integer, Numeric, ForeignKey
-
-from models import Base
+from sqlalchemy import ForeignKey, Integer, Numeric, String
 from sqlalchemy.orm import Mapped, mapped_column
 
+from models import Base
 from utils.strings import generate_random_promo
 
 

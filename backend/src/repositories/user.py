@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from models import User
 from models.user import RoleEnum
-from schemas.user import UserCreate, UserUpdate, UserResponse
+from schemas.user import UserCreate, UserResponse, UserUpdate
 
 
 class IUserRepository(Protocol):
@@ -85,12 +85,12 @@ class UserRepository(IUserRepository):
         user.email_verified = True
         self.session.add(user)
         return user
-  
-    async def set_otp_secret(self, user: User, otp_secret: str | None): 
+
+    async def set_otp_secret(self, user: User, otp_secret: str | None):
         user.otp_secret = otp_secret
         self.session.add(user)
         return user
-    
+
     async def get_otp_secret(self, user: User) -> str | None:
         query = select(User.otp_secret).where(User.id == user.id)
         result = await self.session.execute(query)

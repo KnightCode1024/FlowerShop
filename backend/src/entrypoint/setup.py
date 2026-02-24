@@ -4,13 +4,11 @@ from contextlib import asynccontextmanager
 
 from dishka import Provider, make_async_container
 from fastapi import APIRouter, FastAPI
-
 from prometheus_fastapi_instrumentator import Instrumentator
 
 from clients import RedisClient
-from entrypoint.config import Config, create_config
-
 from core import broker
+from entrypoint.config import Config, create_config
 
 
 @asynccontextmanager
@@ -33,6 +31,11 @@ async def lifespan(app: FastAPI):
 
 def create_app() -> FastAPI:
     app = FastAPI(lifespan=lifespan)
+    return app
+
+
+def create_mock_app() -> FastAPI:
+    app = FastAPI()
     return app
 
 

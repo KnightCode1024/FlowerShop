@@ -1,14 +1,15 @@
 from typing import Protocol
 
 from fastapi import HTTPException
-from sqlalchemy import select, desc, insert, update, outerjoin
+from sqlalchemy import desc, insert, outerjoin, select, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload, selectinload
+from starlette import status
 
 from models.order import Order, OrderProduct
-from schemas.order import OrderCreate, OrderUpdate, CartItem, OrderProductCreate
-from starlette import status
+from schemas.order import (CartItem, OrderCreate, OrderProductCreate,
+                           OrderUpdate)
 
 
 class IOrderRepository(Protocol):

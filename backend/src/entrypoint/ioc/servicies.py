@@ -1,25 +1,14 @@
 from dishka import Provider, Scope, provide
 
 from core.uow import UnitOfWork
-from repositories import (
-    ICategoryRepository,
-    IProductImageRepository,
-    IProductRepository,
-    IS3Repository,
-    IUserRepository,
-    IOrderRepository,
-    IPromocodeRepository,
-)
-from services import (
-    CategoryService,
-    ProductService,
-    UserService,
-    OrderService,
-    EmailService,
-)
-from interfaces import IEmailService
-from services.promocode import PromocodeService
 from entrypoint.config import Config
+from interfaces import IEmailService
+from repositories import (ICategoryRepository, IOrderRepository,
+                          IProductImageRepository, IProductRepository,
+                          IPromocodeRepository, IS3Repository, IUserRepository)
+from services import (CategoryService, EmailService, OrderService,
+                      ProductService, UserService)
+from services.promocode import PromocodeService
 
 
 class ServiceProvider(Provider):
@@ -58,7 +47,7 @@ class ServiceProvider(Provider):
         email_service: IEmailService,
     ) -> UserService:
         return UserService(uow, user_repository, email_service)
-    
+
     @provide
     def get_email_service(self, config: Config) -> IEmailService:
         return EmailService(config)
@@ -75,4 +64,4 @@ class ServiceProvider(Provider):
         uow: UnitOfWork,
         promocode_repository: IPromocodeRepository,
     ) -> PromocodeService:
-        return PromocodeService(uow, promocode_repository)   
+        return PromocodeService(uow, promocode_repository)

@@ -46,8 +46,8 @@ async def get_user_all_orders(
 
 @router.get("/{id}")
 async def get_order(
-    id: int, 
-    current_user: FromDishka[UserResponse], 
+    id: int,
+    current_user: FromDishka[UserResponse],
     service: FromDishka[OrderService],
 ):
     return await service.get_order_by_user(id, current_user)

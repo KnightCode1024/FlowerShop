@@ -1,7 +1,6 @@
 import asyncio
 import random
 
-import httpx
 import pytest
 
 

@@ -26,9 +26,7 @@ def ensure_outdir(path: Path):
 
 def generate_rsa_key():
     return rsa.generate_private_key(
-        public_exponent=PUBLIC_EXPONENT,
-        key_size=KEY_SIZE,
-        backend=default_backend()
+        public_exponent=PUBLIC_EXPONENT, key_size=KEY_SIZE, backend=default_backend()
     )
 
 
@@ -36,7 +34,7 @@ def write_private_key(path: Path, key):
     pem = key.private_bytes(
         encoding=serialization.Encoding.PEM,
         format=serialization.PrivateFormat.PKCS8,
-        encryption_algorithm=serialization.NoEncryption()
+        encryption_algorithm=serialization.NoEncryption(),
     )
     path.write_bytes(pem)
     try:
@@ -49,7 +47,7 @@ def write_public_key(path: Path, key):
     pub = key.public_key()
     pem = pub.public_bytes(
         encoding=serialization.Encoding.PEM,
-        format=serialization.PublicFormat.SubjectPublicKeyInfo
+        format=serialization.PublicFormat.SubjectPublicKeyInfo,
     )
     path.write_bytes(pem)
 
@@ -64,14 +62,7 @@ def build_jwk_from_public_key(pubkey, kid: str, alg: str = "RS256", use: str = "
     numbers = pubkey.public_numbers()
     n_b64 = int_to_base64url(numbers.n)
     e_b64 = int_to_base64url(numbers.e)
-    jwk = {
-        "kty": "RSA",
-        "use": use,
-        "alg": alg,
-        "kid": kid,
-        "n": n_b64,
-        "e": e_b64
-    }
+    jwk = {"kty": "RSA", "use": use, "alg": alg, "kid": kid, "n": n_b64, "e": e_b64}
     return jwk
 
 

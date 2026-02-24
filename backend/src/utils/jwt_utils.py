@@ -51,8 +51,8 @@ def decode_jwt(
 
 
 def create_access_token(
-        data: dict, 
-        expire_minutes: int = config.auth_jwt.ACCESS_TOKEN_EXPIRE_MINUTES,
+    data: dict,
+    expire_minutes: int = config.auth_jwt.ACCESS_TOKEN_EXPIRE_MINUTES,
 ) -> str:
     return encode_jwt(
         payload=data,

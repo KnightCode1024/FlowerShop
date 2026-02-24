@@ -1,8 +1,8 @@
 import logging
-
 from email.message import EmailMessage
 
 import aiosmtplib
+
 from core import broker
 from entrypoint.config import Config
 
@@ -19,16 +19,16 @@ async def send_verify_email(config: Config, to_email: str, token):
     message.set_content(f"Для активации перейдите по ссылке:\n\n{verify_link}")
 
     await aiosmtplib.send(
-            message,
-            sender=config.email.USERNAME,
-            hostname=config.email.HOST,
-            port=config.email.PORT,
-            username=config.email.USERNAME,
-            password=config.email.PASSWORD,
-            use_tls=True,
-            timeout=60,
-            tls_context=None,
-        )
+        message,
+        sender=config.email.USERNAME,
+        hostname=config.email.HOST,
+        port=config.email.PORT,
+        username=config.email.USERNAME,
+        password=config.email.PASSWORD,
+        use_tls=True,
+        timeout=60,
+        tls_context=None,
+    )
 
 
 @broker.task(task_name="send_otp_code")
@@ -41,13 +41,13 @@ async def send_otp_code(config: Config, to_email: str, otp_code: str):
     message.set_content(body)
 
     await aiosmtplib.send(
-            message,
-            sender=config.email.USERNAME,
-            hostname=config.email.HOST,
-            port=config.email.PORT,
-            username=config.email.USERNAME,
-            password=config.email.PASSWORD,
-            use_tls=True,
-            timeout=60,
-            tls_context=None,
-        )
+        message,
+        sender=config.email.USERNAME,
+        hostname=config.email.HOST,
+        port=config.email.PORT,
+        username=config.email.USERNAME,
+        password=config.email.PASSWORD,
+        use_tls=True,
+        timeout=60,
+        tls_context=None,
+    )

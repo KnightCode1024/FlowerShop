@@ -2,16 +2,8 @@ from dishka.integrations.fastapi import DishkaRoute, FromDishka
 from fastapi import APIRouter, HTTPException, Request, status
 
 from core.rate_limiter import RateLimiter, Strategy, rate_limit
-from schemas.user import (
-    RefreshToken,
-    TokenPair,
-    UserCreate,
-    UserLogin,
-    UserResponse,
-    UserUpdate,
-    OTPCode,
-    AccessToken,
-)
+from schemas.user import (AccessToken, OTPCode, RefreshToken, TokenPair,
+                          UserCreate, UserLogin, UserResponse, UserUpdate)
 from services import UserService
 
 router = APIRouter(
@@ -37,10 +29,10 @@ async def register(
 
 @router.get("/verify-email")
 async def verify_email(
-    token: str, 
+    token: str,
     service: FromDishka[UserService],
 ):
-    try: 
+    try:
         return await service.verify_email(token)
     except ValueError as e:
         raise HTTPException(

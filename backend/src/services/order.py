@@ -2,12 +2,8 @@ from core.permissions import require_roles
 from core.uow import UnitOfWork
 from models import RoleEnum
 from repositories.order import IOrderRepository
-from schemas.order import (
-    OrderCreate,
-    OrderCreateRequest,
-    OrderUpdateRequest,
-    OrderUpdate,
-)
+from schemas.order import (OrderCreate, OrderCreateRequest, OrderUpdate,
+                           OrderUpdateRequest)
 from schemas.user import UserResponse
 
 

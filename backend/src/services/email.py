@@ -1,6 +1,6 @@
-from tasks.email import send_otp_code, send_verify_email
 from entrypoint.config import Config
 from interfaces import IEmailService
+from tasks.email import send_otp_code, send_verify_email
 
 
 class EmailService(IEmailService):

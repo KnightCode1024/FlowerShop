@@ -2,14 +2,9 @@ from core.permissions import require_roles
 from core.uow import UnitOfWork
 from models import RoleEnum
 from repositories.promocode import IPromocodeRepository
-from schemas.promocode import (
-    PromoCreateRequest,
-    PromoCreate,
-    PromoUpdateRequest,
-    PromoActivateCreate,
-    PromoActivateRequest,
-    PromoUpdate,
-)
+from schemas.promocode import (PromoActivateCreate, PromoActivateRequest,
+                               PromoCreate, PromoCreateRequest, PromoUpdate,
+                               PromoUpdateRequest)
 
 
 class PromocodeService:

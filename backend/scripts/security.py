@@ -13,5 +13,3 @@ def generate_base32_key():
 
 print(f"SECRET_KEY = {generate_secret_key()}")
 print(f"OTP_SECRET = {generate_base32_key()}")
-
-

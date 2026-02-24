@@ -2,24 +2,12 @@ from dishka import Provider, Scope, provide
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.uow import UnitOfWork
-from repositories import (
-    IProductRepository,
-    ProductRepository,
-    ICategoryRepository,
-    CategoryRepository,
-    IProductImageRepository,
-    ProductImageRepository,
-    S3Repository,
-    IS3Repository,
-    OrderRepository,
-    IOrderRepository,
-    PromocodeRepository,
-    IPromocodeRepository,
-    UserRepository,
-    IUserRepository,
-    IPromocodeRepository,
-    PromocodeRepository,
-)
+from repositories import (CategoryRepository, ICategoryRepository,
+                          IOrderRepository, IProductImageRepository,
+                          IProductRepository, IPromocodeRepository,
+                          IS3Repository, IUserRepository, OrderRepository,
+                          ProductImageRepository, ProductRepository,
+                          PromocodeRepository, S3Repository, UserRepository)
 
 
 class RepositoryProvider(Provider):

@@ -1,19 +1,12 @@
 from dishka.integrations.fastapi import DishkaRoute, FromDishka
 from fastapi import APIRouter, HTTPException, Query, status
 
-from schemas.category import (
-    CategoriesListResponse,
-    CategoryCreate,
-    CategoryCreateResponse,
-    CategoryResponse,
-    CategoryUpdate,
-)
+from schemas.category import (CategoriesListResponse, CategoryCreate,
+                              CategoryCreateResponse, CategoryResponse,
+                              CategoryUpdate)
 from schemas.user import UserResponse
-from services.category import (
-    CategoryService,
-    CategoryHasProductsError,
-    CategoryNotFoundError,
-)
+from services.category import (CategoryHasProductsError, CategoryNotFoundError,
+                               CategoryService)
 
 router = APIRouter(
     prefix="/categories",

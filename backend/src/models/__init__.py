@@ -5,6 +5,10 @@ from models.product import Product
 from models.product_image import ProductImage
 from models.promocode import Promocode
 from models.user import RoleEnum, User
+<<<<<<< HEAD
+=======
+from models.promocode import Promocode
+>>>>>>> origin/main
 
 __all__ = [
     "Base",
@@ -14,5 +18,9 @@ __all__ = [
     "User",
     "RoleEnum",
     "Order",
+<<<<<<< HEAD
     "Promocode",
+=======
+    "Promocode"
+>>>>>>> origin/main
 ]

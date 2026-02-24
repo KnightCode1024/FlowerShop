@@ -1,0 +1,178 @@
+services:
+  backend:
+    container_name: backend
+    env_file: .env
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_NAME=${POSTGRES_NAME}
+      - POSTGRES_HOST=${POSTGRES_HOST}
+      - POSTGRES_PORT=${POSTGRES_PORT}
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    image: flowershop:latest
+    restart: always
+    volumes:
+      - ./backend:/backend
+      - ./backend/scripts/entrypoint-backend.sh:/entrypoint-backend.sh
+      - ./backend/certs:/backend/certs:ro
+    working_dir: /backend
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      minio:
+        condition: service_started
+    networks:
+      - flower_shop_net
+    command: sh -c "alembic upgrade head && PYTHONPATH=src uvicorn run:make_app --factory --host ${APP_HOST} --port ${APP_PORT} --reload"
+
+  tests:
+    container_name: tests
+    working_dir: /backend
+    build: ./backend
+    volumes:
+      - ./backend:/backend
+    env_file:
+      - .env
+    command: pytest tests -s
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - flower_shop_net
+
+  postgres:
+    env_file: .env
+    image: postgres:18-alpine
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=${POSTGRES_NAME}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_NAME}" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - flower_shop_net
+    ports:
+      - "5432:5432"
+    restart: always
+
+  minio:
+    env_file: .env
+    build:
+      context: ./backend
+      dockerfile: minio/Dockerfile
+    environment:
+      - MINIO_ROOT_USER=${S3_ACCESS_KEY}
+      - MINIO_ROOT_PASSWORD=${S3_SECRET_KEY}
+    ports:
+      - "9000:9000"
+    volumes:
+      - minio-data:/data
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:9000/minio/health/live" ]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+    networks:
+      - flower_shop_net
+
+  redis:
+    image: redis:8-alpine
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - flower_shop_net
+
+  redis_gui:
+    image: redis/redisinsight
+    ports:
+      - "5540:5540"
+    networks:
+      - flower_shop_net
+
+  frontend:
+    build: ./frontend
+    restart: always
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+    volumes:
+      - ./frontend:/frontend
+      - /frontend/node_modules
+    command: npm run dev
+    networks:
+      - flower_shop_net
+
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    volumes:
+      - prometheus-data:/prometheus
+      - ./infra/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--storage.tsdb.retention.time=7d"
+
+    networks:
+      - flower_shop_net
+
+  promtail:
+    image: grafana/promtail:latest
+    ports:
+      - "9080:9080"
+    volumes:
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./infra/promtail/promtail.yml:/etc/promtail/config.yml
+    command: -config.file=/etc/promtail/config.yml
+    privileged: true
+    networks:
+      - flower_shop_net
+
+  loki:
+    image: grafana/loki:latest
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./infra/loki/loki.yaml:/etc/loki/local-config.yaml
+    networks:
+      - flower_shop_net
+
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./infra/grafana/dashboards:/var/lib/grafana/dashboards
+      - ./infra/grafana/provisioning:/etc/grafana/provisioning
+    networks:
+      - flower_shop_net
+
+
+networks:
+  flower_shop_net:
+    driver: bridge
+
+volumes:
+  postgres-data:
+  minio-data:
+  redis-data:
+  prometheus-data:
+  grafana-data:

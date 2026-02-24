@@ -2,11 +2,13 @@ import pytest
 from decimal import Decimal
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from repositories import OrderRepository
+from models import RoleEnum
+from repositories import OrderRepository, PromocodeRepository
+from repositories.invoice import InvoiceRepository
 from repositories.user import UserRepository
 from repositories.category import CategoryRepository
 from repositories.product import ProductRepository
-from schemas.user import UserCreate, UserUpdate
+from schemas.user import UserCreate, UserUpdate, UserCreateConsole
 from schemas.category import CategoryCreate, CategoryUpdate
 from schemas.product import ProductCreate, ProductUpdate, ProductResponse
 
@@ -19,7 +21,7 @@ async def session(async_session_maker):
 
 
 @pytest.fixture
-async def user_repository(session: AsyncSession):
+async def user_repository(session: AsyncSession) -> UserRepository:
     return UserRepository(session=session)
 
 
@@ -39,11 +41,31 @@ async def order_repository(session: AsyncSession):
 
 
 @pytest.fixture
+async def promocodes_repository(session: AsyncSession):
+    return PromocodeRepository(session)
+
+
+@pytest.fixture
+async def invoices_repository(session: AsyncSession):
+    return InvoiceRepository(session)
+
+
+@pytest.fixture
 def test_user1():
     return UserCreate(
         email="test_user1@gmail.com",
         username="test_user1",
         password="Qwerty123!",
+    )
+
+
+@pytest.fixture
+def test_admin_user():
+    return UserCreateConsole(
+        email="test_user1@gmail.com",
+        username="test_user1",
+        password="Qwerty123!",
+        admin=RoleEnum.ADMIN
     )
 
 
@@ -71,12 +93,12 @@ def user_update_data():
 
 
 @pytest.fixture
-async def created_user(user_repository, test_user1):
+async def created_user(user_repository: UserRepository, test_user1):
     return await user_repository.create(test_user1)
 
 
 @pytest.fixture
-async def multiple_users(user_repository, test_user1, test_user2, test_user3):
+async def multiple_users(user_repository: UserRepository, test_user1, test_user2, test_user3):
     await user_repository.create(test_user1)
     await user_repository.create(test_user2)
     await user_repository.create(test_user3)
@@ -103,13 +125,13 @@ def category_update_data():
 
 
 @pytest.fixture
-async def created_category(category_repository, test_category1):
+async def created_category(category_repository: CategoryRepository, test_category1):
     return await category_repository.create(test_category1)
 
 
 @pytest.fixture
 async def multiple_categories(
-    category_repository, test_category1, test_category2, test_category3
+        category_repository: CategoryRepository, test_category1, test_category2, test_category3
 ):
     await category_repository.create(test_category1)
     await category_repository.create(test_category2)
@@ -117,7 +139,7 @@ async def multiple_categories(
 
 
 @pytest.fixture
-async def test_category_for_products(category_repository):
+async def test_category_for_products(category_repository: CategoryRepository):
     category_data = CategoryCreate(name="Flowers")
     return await category_repository.create(category_data)
 
@@ -166,13 +188,13 @@ def product_update_data():
 
 
 @pytest.fixture
-async def created_product(product_repository, test_product1):
+async def created_product(product_repository: ProductRepository, test_product1):
     return await product_repository.create(test_product1)
 
 
 @pytest.fixture
 async def multiple_products(
-    product_repository, test_product1, test_product2, test_product3
+        product_repository: ProductRepository, test_product1, test_product2, test_product3
 ):
     await product_repository.create(test_product1)
     await product_repository.create(test_product2)
@@ -180,7 +202,7 @@ async def multiple_products(
 
 
 @pytest.fixture
-async def created_multiply_products(product_repository, test_product1, test_product2, test_product3) -> list[ProductResponse]:
+async def created_multiply_products(product_repository: ProductRepository, test_product1, test_product2, test_product3) -> list[ProductResponse]:
     return [
         await product_repository.create(test_product1),
         await product_repository.create(test_product2),

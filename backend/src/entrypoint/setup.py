@@ -9,6 +9,7 @@ from prometheus_fastapi_instrumentator import Instrumentator
 from clients import RedisClient
 from core import broker
 from entrypoint.config import Config, create_config
+from middlewares.metrics import MetricsMiddleware
 
 
 @asynccontextmanager
@@ -52,5 +53,7 @@ def configure_app(app: FastAPI, root_router: APIRouter) -> None:
 
 
 def configure_middlewares(app: FastAPI) -> None:
-    instrument = Instrumentator().instrument(app)
-    instrument.expose(app, endpoint="/metrics")
+    # instrument = Instrumentator().instrument(app)
+    # instrument.expose(app, endpoint="/metrics")
+
+    app.add_middleware(MetricsMiddleware)

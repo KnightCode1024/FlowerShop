@@ -23,6 +23,8 @@ class CategoryUpdate(BaseModel):
 
 
 class CategoryResponse(CategoryBase):
+    id: int
+    name: str
     products: list[CategoryProductResponse] = Field(default_factory=list)
 
 

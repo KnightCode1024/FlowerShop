@@ -16,10 +16,16 @@ from utils.otp_utils import (generate_otp_code, generate_otp_secret,
 
 class UserService:
     def __init__(
+<<<<<<< HEAD
         self,
         uow: UnitOfWork,
         user_repository: IUserRepository,
         email_service: IEmailService,
+=======
+            self,
+            uow: UnitOfWork,
+            user_repository: IUserRepository,
+>>>>>>> origin/main
     ):
         self.uow = uow
         self.user_repository = user_repository
@@ -32,7 +38,7 @@ class UserService:
             user_data.email,
         )
         if existing_user is not None:
-            raise ValueError("Email already exist")
+            raise ValueError("Email already exists")
 
         async with self.uow:
             hashed_password = hash_password(user_data.password)
@@ -55,12 +61,22 @@ class UserService:
                 role=user.role,
             )
 
+<<<<<<< HEAD
     async def check_code(self, user: UserResponse, otp_code: OTPCode):
         otp_secret = await self.user_repository.get_otp_secret(user)
 
         if not verify_otp_code(otp_code.otp_code, otp_secret):
             raise ValueError("Not valid code")
 
+=======
+    async def login_user(self, user_data: UserLogin) -> TokenPair:
+        user = await self.user_repository.get_user_by_email(user_data.email)
+        if user is None or not validate_password(
+                user_data.password,
+                user.password,
+        ):
+            raise ValueError("Invalid credentials")
+>>>>>>> origin/main
         tokens = TokenPair(
             access_token=create_access_token({"sub": str(user.id)}),
             refresh_token=create_refresh_token({"sub": str(user.id)}),
@@ -119,10 +135,10 @@ class UserService:
 
     @require_roles([RoleEnum.ADMIN])
     async def update_user(
-        self,
-        user_id: int,
-        user_update: UserUpdate,
-        user: UserResponse,
+            self,
+            user_id: int,
+            user_update: UserUpdate,
+            user: UserResponse,
     ) -> UserResponse:
         update_data = user_update.model_dump(exclude_unset=True)
         if "password" in update_data and update_data["password"]:
@@ -143,9 +159,9 @@ class UserService:
 
     @require_roles([RoleEnum.ADMIN, RoleEnum.EMPLOYEE])
     async def get_user(
-        self,
-        user_id: int,
-        current_user,
+            self,
+            user_id: int,
+            current_user,
     ) -> UserResponse:
         user = await self.user_repository.get(user_id)
         if not user:
@@ -164,10 +180,10 @@ class UserService:
 
     @require_roles([RoleEnum.ADMIN])
     async def get_all_users(
-        self,
-        user: UserResponse,
-        offset: int = 0,
-        limit: int = 20,
+            self,
+            user: UserResponse,
+            offset: int = 0,
+            limit: int = 20,
     ):
         users = await self.user_repository.get_all(offset, limit)
         if not users:
@@ -175,8 +191,8 @@ class UserService:
         return users
 
     async def refresh_token(
-        self,
-        payload: RefreshToken,
+            self,
+            payload: RefreshToken,
     ) -> TokenPair:
         try:
             payload = decode_jwt(payload.refresh_token)
@@ -217,7 +233,7 @@ class UserService:
             return None
 
     async def create_user_for_console(
-        self, user_data: UserCreateConsole
+            self, user_data: UserCreateConsole
     ) -> UserResponse:
         try:
             user_role = RoleEnum(user_data.role.lower())

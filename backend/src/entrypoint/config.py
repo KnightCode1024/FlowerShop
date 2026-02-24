@@ -8,6 +8,13 @@ env_file = find_dotenv() or (Path(__file__).resolve().parents[1] / ".env")
 load_dotenv(env_file)
 
 
+class PaymentsConfig(BaseSettings):
+    YOOMONEY_CLIENT_ID: str
+    YOOMONEY_SECRET_KEY: str
+    YOOMONEY_REDIRECT_URI: str
+    YOOMONEY_ACCESS_TOKEN: str
+
+
 class DatabaseConfig(BaseSettings):
     USER: str
     PASSWORD: str
@@ -17,15 +24,15 @@ class DatabaseConfig(BaseSettings):
 
     model_config = SettingsConfigDict(
         env_prefix="POSTGRES_",
-        env_file_encoding="utf-8",
-        extra="ignore",
     )
 
-    def get_db_url(self) -> str:
-        return (
-            f"postgresql+asyncpg://{self.USER}:{self.PASSWORD}@"
-            f"{self.HOST}:{self.PORT}/{self.NAME}"
-        )
+    @property
+    def DATABASE_URI(self) -> str:
+        return f"postgresql+asyncpg://{self.USER}:{self.PASSWORD}@{self.HOST}:{self.PORT}/{self.NAME}"
+
+    @property
+    def ALEMBIC_DATABASE_URI(self) -> str:
+        return f"postgresql+psycopg://{self.USER}:{self.PASSWORD}@{self.HOST}:{self.PORT}/{self.NAME}"
 
 
 class AuthJWT(BaseSettings):
@@ -70,6 +77,7 @@ class RedisConfig(BaseSettings):
     HOST: str
 
 
+<<<<<<< HEAD
 class EmailConfig(BaseSettings):
     model_config = SettingsConfigDict(
         env_prefix="EMAIL_",
@@ -122,6 +130,14 @@ class APPConfig(BaseSettings):
     )
 
     SECRET_KEY: str
+=======
+class AppConfig(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_prefix="APP_"
+    )
+    MODE: str
+    NAME: str
+>>>>>>> origin/main
     HOST: str
     PORT: int
 
@@ -136,11 +152,16 @@ class Config(BaseSettings):
     s3: S3Config = S3Config()
     auth_jwt: AuthJWT = AuthJWT()
     redis: RedisConfig = RedisConfig()
+<<<<<<< HEAD
     email: EmailConfig = EmailConfig()
     rabbitmq: RabbitMQConfig = RabbitMQConfig()
     frontend: FrontendConfig = FrontendConfig()
     app: APPConfig = APPConfig()
     otp: OTPConfig = OTPConfig()
+=======
+    app: AppConfig = AppConfig()
+    payment: PaymentsConfig = PaymentsConfig()
+>>>>>>> origin/main
 
 
 def create_config() -> Config:

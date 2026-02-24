@@ -6,8 +6,13 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette import status
 
+<<<<<<< HEAD
 from models.promocode import Promocode, PromocodeActions
 from schemas.promocode import PromoActivateCreate, PromoCreate, PromoUpdate
+=======
+from models.promocode import Promocode, PromocodeAction
+from schemas.promocode import PromoUpdate, PromoCreate, PromoActivateCreate
+>>>>>>> origin/main
 
 
 class IPromocodeRepository(Protocol):
@@ -24,12 +29,16 @@ class IPromocodeRepository(Protocol):
     async def get_all(self) -> list[Promocode]:
         pass
 
-    async def activate_user_promo(self, data: PromoActivateCreate) -> PromocodeActions:
+    async def activate_user_promo(self, data: PromoActivateCreate) -> Promocode:
         pass
 
+<<<<<<< HEAD
     async def get_promo_is_activate(
         self, data: PromoActivateCreate
     ) -> PromocodeActions | None:
+=======
+    async def get_promo_is_activate(self, data: PromoActivateCreate) -> PromocodeAction | None:
+>>>>>>> origin/main
         pass
 
 
@@ -87,6 +96,7 @@ class PromocodeRepository(IPromocodeRepository):
         result = result.scalars().all()
         return result
 
+<<<<<<< HEAD
     async def get_promo_is_activate(
         self, data: PromoActivateCreate
     ) -> PromocodeActions:
@@ -96,6 +106,16 @@ class PromocodeRepository(IPromocodeRepository):
             .where(
                 Promocode.code == data.code, PromocodeActions.user_id == data.user_id
             )
+=======
+    async def get_promo_is_activate(self, data: PromoActivateCreate) -> PromocodeAction:
+        stmt = (
+            select(PromocodeAction)
+            .join(
+                Promocode, PromocodeAction.promo_id == Promocode.id
+            )
+            .where(Promocode.code == data.code,
+                   PromocodeAction.user_id == data.user_id)
+>>>>>>> origin/main
         )
 
         obj = (await self.session.execute(stmt)).scalars().one_or_none()
@@ -108,8 +128,16 @@ class PromocodeRepository(IPromocodeRepository):
 
         return None
 
+<<<<<<< HEAD
     async def activate_user_promo(self, data: PromoActivateCreate) -> PromocodeActions:
         stmt = select(Promocode).where(Promocode.code == data.code)
+=======
+    async def activate_user_promo(self, data: PromoActivateCreate) -> Promocode:
+        stmt = (
+            select(Promocode)
+            .where(Promocode.code == data.code)
+        )
+>>>>>>> origin/main
 
         obj = (await self.session.execute(stmt)).scalars().one_or_none()
 
@@ -118,9 +146,9 @@ class PromocodeRepository(IPromocodeRepository):
                 status_code=status.HTTP_409_CONFLICT, detail="Promocode not found"
             )
 
-        obj = PromocodeActions(promo_id=obj.id, **data.model_dump())
+        obj2 = PromocodeAction(promo_id=obj.id, user_id=data.user_id)
 
-        self.session.add(obj)
+        self.session.add(obj2)
 
         try:
             await self.session.flush()

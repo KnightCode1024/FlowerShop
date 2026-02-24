@@ -35,9 +35,4 @@ class CategoryAdmin(ModelView, model=Category):
 
 
 class OrderAdmin(ModelView, model=Order):
-    column_list = [
-        Order.id,
-        Order.user_id,
-        Order.status,
-        Order.amount
-    ]
+    column_list = [Order.id, Order.user_id, Order.status, Order.amount]

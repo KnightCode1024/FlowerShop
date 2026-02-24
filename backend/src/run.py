@@ -4,12 +4,8 @@ from fastapi import FastAPI
 
 from admins import create_admin
 from entrypoint.ioc.registry import get_providers
-from entrypoint.setup import (
-    configure_app,
-    create_app,
-    create_async_container,
-    configure_middlewares,
-)
+from entrypoint.setup import (configure_app, configure_middlewares, create_app,
+                              create_async_container)
 from routers.root_router import root_router
 
 

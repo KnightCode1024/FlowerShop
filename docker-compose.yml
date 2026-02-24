@@ -1,6 +1,6 @@
 services:
   backend:
-    container_name: backend
+    &backend
     env_file: .env
     build: ./backend
     restart: always
@@ -9,6 +9,42 @@ services:
       - ./backend/scripts/entrypoint-backend.sh:/entrypoint-backend.sh
       - ./backend/certs:/backend/certs:ro
     working_dir: /backend
+    environment:
+      - PYTHONPATH=src
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=${POSTGRES_PORT}
+      - POSTGRES_NAME=${POSTGRES_NAME}
+      - S3_ACCESS_KEY=${S3_ACCESS_KEY}
+      - S3_SECRET_KEY=${S3_SECRET_KEY}
+      - S3_BUCKET_NAME=${S3_BUCKET_NAME}
+      - S3_ENDPOINT=${S3_ENDPOINT}
+      - S3_PUBLIC_ENDPOINT=${S3_PUBLIC_ENDPOINT}
+      - S3_REGION=${S3_REGION}
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+      - EMAIL_PORT=${EMAIL_PORT}
+      - EMAIL_HOST=${EMAIL_HOST}
+      - EMAIL_USERNAME=${EMAIL_USERNAME}
+      - EMAIL_PASSWORD=${EMAIL_PASSWORD}
+      - EMAIL_USE_SSL=${EMAIL_USE_SSL}
+      - REDIS_PORT=${REDIS_PORT}
+      - REDIS_PORT=${REDIS_PORT}
+      - EMAIL_PORT=${EMAIL_PORT}
+      - EMAIL_HOST=${EMAIL_HOST}
+      - EMAIL_USERNAME=${EMAIL_USERNAME}
+      - EMAIL_PASSWORD=${EMAIL_PASSWORD}
+      - EMAIL_USE_SSL=${EMAIL_USE_SSL}
+      - RABBITMQ_URL=${RABBITMQ_URL}
+      - FRONTEND_URL=${FRONTEND_URL}
+      - YOOMONEY_CLIENT_ID=${YOOMONEY_CLIENT_ID}
+      - YOOMONEY_SECRET_KEY=${YOOMONEY_SECRET_KEY}
+      - YOOMONEY_REDIRECT_URI=${YOOMONEY_REDIRECT_URI}
+      - YOOMONEY_ACCESS_TOKEN=${YOOMONEY_ACCESS_TOKEN}
+      - APP_MODE=${APP_MODE}
+      - APP_NAME=${APP_NAME}
+    command: sh -c "alembic upgrade head && uvicorn run:make_app --factory --host ${APP_HOST} --port ${APP_PORT} --reload"
     ports:
       - "8000:8000"
     depends_on:
@@ -16,9 +52,59 @@ services:
         condition: service_healthy
       minio:
         condition: service_started
+      rabbitmq:
+        condition: service_healthy
     networks:
       - flower_shop_net
-    command: sh -c "alembic upgrade head && PYTHONPATH=src uvicorn run:make_app --factory --host ${APP_HOST} --port ${APP_PORT} --reload"
+
+  rabbitmq:
+    image: rabbitmq:4-management-alpine
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+      # - "61613:61613"
+    environment:
+      RABBITMQ_DEFAULT_USER: "guest"
+      RABBITMQ_DEFAULT_PASS: "guest"
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "check_running", "-q"]
+      interval: 10s
+      timeout: 5s
+      retries: 8
+
+    networks:
+      - flower_shop_net
+
+  worker:
+    <<: *backend
+    ports: []
+    command: taskiq worker core:broker --workers 1 --fs-discover --tasks-pattern **/tasks/*.py
+    environment:
+      - PYTHONPATH=src
+      - TASKIQ_ADMIN_URL=http://taskiq_admin:3000
+      - TASKIQ_ADMIN_API_TOKEN=supersecret
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+
+
+  # taskiq_admin:
+  #   image: ghcr.io/taskiq-python/taskiq-admin:latest
+  #   container_name: taskiq_admin
+  #   ports:
+  #     - 3000:3000
+  #   environment:
+  #     - TASKIQ_ADMIN_API_TOKEN=supersecret
+  #   volumes:
+  #     - taskiq-admin-data:/usr/database/
+  #   networks:
+  #     - flower_shop_net
 
   postgres:
     env_file: .env
@@ -63,6 +149,8 @@ services:
 
   redis:
     image: redis:8-alpine
+    ports:
+      - "6379:6379"
     volumes:
       - redis-data:/data
     healthcheck:
@@ -105,7 +193,6 @@ services:
       - "--config.file=/etc/prometheus/prometheus.yml"
       - "--storage.tsdb.path=/prometheus"
       - "--storage.tsdb.retention.time=7d"
-
     networks:
       - flower_shop_net
 
@@ -136,9 +223,8 @@ services:
     ports:
       - "3000:3000"
     volumes:
+      - ./infra/grafana/datasources.yaml:/etc/grafana/provisioning/datasources/datasources.yaml
       - grafana-data:/var/lib/grafana
-      - ./infra/grafana/dashboards:/var/lib/grafana/dashboards
-      - ./infra/grafana/provisioning:/etc/grafana/provisioning
     networks:
       - flower_shop_net
 
@@ -153,3 +239,5 @@ volumes:
   redis-data:
   prometheus-data:
   grafana-data:
+  rabbitmq-data:
+  taskiq-admin-data:

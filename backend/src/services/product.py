@@ -1,39 +1,27 @@
 from fastapi import HTTPException, UploadFile, status
 
-from core.exceptions import (
-    CategoryNotFoundError,
-    ProductNameNotUniqueError,
-    ProductNotFoundError,
-)
+from core.exceptions import (CategoryNotFoundError, ProductNameNotUniqueError,
+                             ProductNotFoundError)
 from core.permissions import require_roles
 from core.uow import UnitOfWork
 from models import RoleEnum
-from repositories import (
-    ICategoryRepository,
-    IProductImageRepository,
-    IProductRepository,
-    S3RepositoryI,
-)
-from schemas.product import (
-    CreateProductRequest,
-    ProductCreate,
-    ProductFilterParams,
-    ProductResponse,
-    ProductsListResponse,
-    ProductUpdate,
-    UpdateProductRequest,
-)
+from repositories import (ICategoryRepository, IProductImageRepository,
+                          IProductRepository, IS3Repository)
+from schemas.product import (CreateProductRequest, ProductCreate,
+                             ProductFilterParams, ProductResponse,
+                             ProductsListResponse, ProductUpdate,
+                             UpdateProductRequest)
 from schemas.user import UserResponse
 
 
-class ProductsService:
+class ProductService:
     def __init__(
         self,
         uow: UnitOfWork,
         product_repository: IProductRepository,
         category_repository: ICategoryRepository,
         image_repository: IProductImageRepository,
-        s3_repository: S3RepositoryI,
+        s3_repository: IS3Repository,
     ):
         self.uow = uow
         self.products = product_repository

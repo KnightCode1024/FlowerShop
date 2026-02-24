@@ -2,6 +2,22 @@ from dishka import Provider, Scope, provide
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.uow import UnitOfWork
+from repositories import (
+    CategoryRepository,
+    ICategoryRepository,
+    IOrderRepository,
+    IProductImageRepository,
+    IProductRepository,
+    IPromocodeRepository,
+    IS3Repository,
+    IUserRepository,
+    OrderRepository,
+    ProductImageRepository,
+    ProductRepository,
+    PromocodeRepository,
+    S3Repository,
+    UserRepository,
+)
 from repositories import *
 from repositories.invoice import InvoiceRepositoryI, InvoiceRepository
 
@@ -16,27 +32,27 @@ class RepositoryProvider(Provider):
 
     @provide
     def get_product_repository(
-            self,
-            session: AsyncSession,
+        self,
+        session: AsyncSession,
     ) -> IProductRepository:
         return ProductRepository(session)
 
     @provide
     def get_category_repository(
-            self,
-            session: AsyncSession,
+        self,
+        session: AsyncSession,
     ) -> ICategoryRepository:
         return CategoryRepository(session)
 
     @provide
     def get_image_repository(
-            self,
-            session: AsyncSession,
+        self,
+        session: AsyncSession,
     ) -> IProductImageRepository:
         return ProductImageRepository(session)
 
     @provide
-    def get_s3_repository(self) -> S3RepositoryI:
+    def get_s3_repository(self) -> IS3Repository:
         return S3Repository()
 
     @provide

@@ -1,18 +1,23 @@
 from collections.abc import AsyncGenerator
 
-from dishka import Provider, Scope, provide
-from sqlalchemy.ext.asyncio import (
-    AsyncSession,
-    async_sessionmaker,
-    create_async_engine,
-)
-
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 from entrypoint.config import config
-from entrypoint.ioc.engine import session_factory
+from dishka import Provider, Scope, provide
 
 
 class DatabaseProvider(Provider):
     scope = Scope.REQUEST
+
+    engine = create_async_engine(
+            config.database.DATABASE_URI,
+            future=True,
+        )
+    session_factory = async_sessionmaker(
+            engine,
+            expire_on_commit=False,
+            autoflush=False,
+        )
 
     @provide
     async def get_db_session(self) -> AsyncGenerator[AsyncSession]:

@@ -2,10 +2,12 @@ from core.permissions import require_roles
 from core.uow import UnitOfWork
 from models import RoleEnum
 from repositories.promocode import IPromocodeRepository
-from schemas.promocode import PromoCreateRequest, PromoCreate, PromoUpdateRequest, PromoActivateCreate, PromoActivateRequest, PromoUpdate
+from schemas.promocode import (PromoActivateCreate, PromoActivateRequest,
+                               PromoCreate, PromoCreateRequest, PromoUpdate,
+                               PromoUpdateRequest)
 
-class PromocodesService:
 
+class PromocodeService:
     def __init__(self, uow: UnitOfWork, promocode_repository: IPromocodeRepository):
         self.uow = uow
         self.repository = promocode_repository
@@ -19,7 +21,9 @@ class PromocodesService:
 
     @require_roles([RoleEnum.USER])
     async def activate_promo(self, promo_code_data: PromoActivateRequest, user_id: int):
-        promo_data = PromoActivateCreate(user_id=user_id, **promo_code_data.model_dump())
+        promo_data = PromoActivateCreate(
+            user_id=user_id, **promo_code_data.model_dump()
+        )
 
         async with self.uow:
             promo_operation = await self.repository.activate_user_promo(promo_data)

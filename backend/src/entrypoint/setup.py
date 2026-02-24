@@ -7,6 +7,7 @@ from fastapi import APIRouter, FastAPI
 from prometheus_fastapi_instrumentator import Instrumentator
 
 from clients import RedisClient
+from core import broker
 from entrypoint.config import Config, create_config
 from middlewares.metrics import MetricsMiddleware
 
@@ -19,14 +20,23 @@ async def lifespan(app: FastAPI):
     await redis.ping()
     logging.info("Redis is working")
 
+    await broker.startup()
+
     yield
+
+    await broker.shutdown()
+
     await redis.aclose()
     logging.info("Redis disconnected")
 
 
-
 def create_app() -> FastAPI:
     app = FastAPI(lifespan=lifespan)
+    return app
+
+
+def create_mock_app() -> FastAPI:
+    app = FastAPI()
     return app
 
 

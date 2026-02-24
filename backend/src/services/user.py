@@ -2,34 +2,28 @@ import re
 
 from core.permissions import require_roles
 from core.uow import UnitOfWork
+from interfaces import IEmailService
 from models import RoleEnum
 from repositories import IUserRepository
-from schemas.user import (
-    RefreshToken,
-    TokenPair,
-    UserCreate,
-    UserCreateConsole,
-    UserLogin,
-    UserResponse,
-    UserUpdate,
-)
-from utils.jwt_utils import (
-    create_access_token,
-    create_refresh_token,
-    decode_jwt,
-    hash_password,
-    validate_password,
-)
+from schemas.user import (AccessToken, OTPCode, RefreshToken, TokenPair,
+                          UserCreate, UserCreateConsole, UserLogin,
+                          UserResponse, UserUpdate)
+from utils.jwt_utils import (create_access_token, create_refresh_token,
+                             decode_jwt, hash_password, validate_password)
+from utils.otp_utils import (generate_otp_code, generate_otp_secret,
+                             verify_otp_code)
 
 
 class UserService:
     def __init__(
-            self,
-            uow: UnitOfWork,
-            user_repository: IUserRepository,
+        self,
+        uow: UnitOfWork,
+        user_repository: IUserRepository,
+        email_service: IEmailService,
     ):
         self.uow = uow
         self.user_repository = user_repository
+        self.email_service = email_service
 
     async def register_user(self, user_data: UserCreate) -> UserResponse:
         self._validate_password(user_data.password, RoleEnum.USER)
@@ -48,6 +42,12 @@ class UserService:
                 password=hashed_password,
             )
             user = await self.user_repository.create(user_create_data)
+
+            await self.email_service.send_verify_email(
+                to_email=user.email,
+                token=user.token,
+            )
+
             return UserResponse(
                 id=user.id,
                 email=user.email,
@@ -55,25 +55,68 @@ class UserService:
                 role=user.role,
             )
 
-    async def login_user(self, user_data: UserLogin) -> TokenPair:
+    async def check_code(self, user: UserResponse, otp_code: OTPCode):
+        otp_secret = await self.user_repository.get_otp_secret(user)
+
+        if not verify_otp_code(otp_code.otp_code, otp_secret):
+            raise ValueError("Not valid code")
+
+    async def verify_email(self, token: str):
+        user = await self.user_repository.get_user_by_email_token(token)
+        if user is None:
+            raise ValueError("User not found")
+        async with self.uow:
+            await self.user_repository.set_is_verify_user(user, token)
+            return True
+
+    async def resend_otp_code(self, user: UserResponse):
+        otp_secret = await self.user_repository.get_otp_secret(user)
+
+        if not otp_secret:
+            otp_secret = generate_otp_secret()
+            async with self.uow:
+                await self.user_repository.set_otp_secret(user, otp_secret)
+
+        otp_code = generate_otp_code(otp_secret)
+
+        await self.email_service.send_otp_code(
+            to_email=user.email,
+            otp_code=otp_code,
+        )
+        return True
+
+    async def login_user(self, user_data: UserLogin) -> AccessToken:
         user = await self.user_repository.get_user_by_email(user_data.email)
         if user is None or not validate_password(
-                user_data.password,
-                user.password,
+            user_data.password,
+            user.password,
         ):
-            raise ValueError("Invalid credentials")
-        tokens = TokenPair(
-            access_token=create_access_token({"sub": str(user.id)}),
-            refresh_token=create_refresh_token({"sub": str(user.id)}),
+            raise ValueError("Uncorrect login or password")
+        if not user.email_verified:
+            raise ValueError("Email not verify")
+
+        otp_secret = generate_otp_secret()
+        otp_code = generate_otp_code(otp_secret)
+
+        async with self.uow:
+            await self.user_repository.set_otp_secret(user, otp_secret)
+
+        await self.email_service.send_otp_code(
+            to_email=user.email,
+            otp_code=otp_code,
         )
-        return tokens
+
+        token = AccessToken(
+            access_token=create_access_token({"sub": str(user.id)}, 5),
+        )
+        return token
 
     @require_roles([RoleEnum.ADMIN])
     async def update_user(
-            self,
-            user_id: int,
-            user_update: UserUpdate,
-            user: UserResponse,
+        self,
+        user_id: int,
+        user_update: UserUpdate,
+        user: UserResponse,
     ) -> UserResponse:
         update_data = user_update.model_dump(exclude_unset=True)
         if "password" in update_data and update_data["password"]:

@@ -2,14 +2,8 @@ from dishka.integrations.fastapi import DishkaRoute, FromDishka
 from fastapi import APIRouter, HTTPException, Request, status
 
 from core.rate_limiter import RateLimiter, Strategy, rate_limit
-from schemas.user import (
-    RefreshToken,
-    TokenPair,
-    UserCreate,
-    UserLogin,
-    UserResponse,
-    UserUpdate,
-)
+from schemas.user import (AccessToken, OTPCode, RefreshToken, TokenPair,
+                          UserCreate, UserLogin, UserResponse, UserUpdate)
 from services import UserService
 
 router = APIRouter(
@@ -34,7 +28,50 @@ async def register(
         )
 
 
-@router.post("/login", response_model=TokenPair)
+@router.get("/verify-email")
+async def verify_email(
+    token: str,
+    service: FromDishka[UserService],
+):
+    try:
+        return await service.verify_email(token)
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=str(e),
+        )
+
+
+@router.post("/check-code", response_model=TokenPair)
+async def check_code(
+    code: OTPCode,
+    service: FromDishka[UserService],
+    current_user: FromDishka[UserResponse],
+):
+    try:
+        return await service.check_code(current_user, code)
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=str(e),
+        )
+
+
+@router.post("/resend-otp")
+async def resend_otp(
+    service: FromDishka[UserService],
+    current_user: FromDishka[UserResponse],
+):
+    try:
+        return await service.resend_otp_code(current_user)
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e),
+        )
+
+
+@router.post("/login", response_model=AccessToken)
 async def login(
     user_data: UserLogin,
     service: FromDishka[UserService],
@@ -50,7 +87,7 @@ async def login(
 
 
 @router.get("/me", response_model=UserResponse)
-@rate_limit(strategy=Strategy.USER, policy="3/s;10/m;100/h")
+# @rate_limit(strategy=Strategy.USER, policy="3/s;10/m;100/h")
 async def get_profile(
     request: Request,
     rate_limiter: FromDishka[RateLimiter],

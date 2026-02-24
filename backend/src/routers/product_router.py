@@ -1,21 +1,15 @@
 from decimal import Decimal
 
 from dishka.integrations.fastapi import DishkaRoute, FromDishka
-from fastapi import APIRouter, File, Form, HTTPException, Query, UploadFile, status
+from fastapi import (APIRouter, File, Form, HTTPException, Query, UploadFile,
+                     status)
 
-from core.exceptions import (
-    CategoryNotFoundError,
-    ProductNotFoundError,
-)
-from schemas.product import (
-    CreateProductRequest,
-    ProductFilterParams,
-    ProductResponse,
-    ProductsListResponse,
-    UpdateProductRequest,
-)
+from core.exceptions import CategoryNotFoundError, ProductNotFoundError
+from schemas.product import (CreateProductRequest, ProductFilterParams,
+                             ProductResponse, ProductsListResponse,
+                             UpdateProductRequest)
 from schemas.user import UserResponse
-from services import ProductsService
+from services import ProductService
 
 router = APIRouter(
     prefix="/products",
@@ -26,7 +20,7 @@ router = APIRouter(
 
 @router.get("/{product_id}", response_model=ProductResponse)
 async def get_product(
-    service: FromDishka[ProductsService],
+    service: FromDishka[ProductService],
     product_id: int,
 ):
     try:
@@ -37,7 +31,7 @@ async def get_product(
 
 @router.get("/", response_model=list[ProductsListResponse])
 async def get_products(
-    service: FromDishka[ProductsService],
+    service: FromDishka[ProductService],
     offset: int = Query(0, ge=0),
     limit: int = Query(20, ge=1, le=100),
     min_price: Decimal | None = Query(None, ge=0),
@@ -65,7 +59,7 @@ async def get_products(
 
 @router.post("/", response_model=ProductResponse)
 async def create_product(
-    service: FromDishka[ProductsService],
+    service: FromDishka[ProductService],
     current_user: FromDishka[UserResponse],
     product_data: str = Form(...),
     images: list[UploadFile] = File([]),
@@ -82,7 +76,7 @@ async def create_product(
 
 @router.put("/{product_id}", response_model=ProductResponse)
 async def update_product(
-    service: FromDishka[ProductsService],
+    service: FromDishka[ProductService],
     current_user: FromDishka[UserResponse],
     product_id: int,
     product_data: str = Form(...),
@@ -105,7 +99,7 @@ async def update_product(
 
 @router.delete("/{product_id}")
 async def delete_product(
-    service: FromDishka[ProductsService],
+    service: FromDishka[ProductService],
     current_user: FromDishka[UserResponse],
     product_id: int,
 ):

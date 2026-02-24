@@ -3,8 +3,7 @@ from typing import TYPE_CHECKING
 from sqlalchemy import String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from models import *
-
+from models import Base
 
 
 class Category(Base):

@@ -20,20 +20,20 @@ class ICategoryRepository(Protocol):
     async def delete(self, category_id: int): ...
 
     async def exists_by_name(
-            self, name: str, exclude_id: int | None = None
+        self, name: str, exclude_id: int | None = None
     ) -> bool: ...
 
 
 class CategoryRepository(ICategoryRepository):
     def __init__(
-            self,
-            session: AsyncSession,
+        self,
+        session: AsyncSession,
     ):
         self.session = session
 
     async def create(
-            self,
-            data: CategoryCreate,
+        self,
+        data: CategoryCreate,
     ) -> Category:
         category = Category(**data.model_dump())
         self.session.add(category)
@@ -41,8 +41,8 @@ class CategoryRepository(ICategoryRepository):
         return category
 
     async def get_by_id(
-            self,
-            category_id: int,
+        self,
+        category_id: int,
     ) -> Category | None:
         query = (
             select(Category)
@@ -56,9 +56,9 @@ class CategoryRepository(ICategoryRepository):
         return result.unique().scalar_one_or_none()
 
     async def get_all(
-            self,
-            offset: int = 0,
-            limit: int = 20,
+        self,
+        offset: int = 0,
+        limit: int = 20,
     ) -> list[Category]:
         query = (
             select(Category)
@@ -73,9 +73,9 @@ class CategoryRepository(ICategoryRepository):
         return result.unique().scalars().all()
 
     async def update(
-            self,
-            category_id: int,
-            data: CategoryUpdate,
+        self,
+        category_id: int,
+        data: CategoryUpdate,
     ) -> Category | None:
         category = await self._get_category_base(category_id)
         if not category:
@@ -89,8 +89,8 @@ class CategoryRepository(ICategoryRepository):
         return category
 
     async def delete(
-            self,
-            category_id: int,
+        self,
+        category_id: int,
     ) -> Category | None:
         category = await self._get_category_base(category_id)
         if not category:
@@ -100,9 +100,9 @@ class CategoryRepository(ICategoryRepository):
         return category
 
     async def exists_by_name(
-            self,
-            name: str,
-            exclude_id: int | None = None,
+        self,
+        name: str,
+        exclude_id: int | None = None,
     ) -> bool:
         query = select(Category).where(Category.name == name)
         if exclude_id is not None:
@@ -112,8 +112,8 @@ class CategoryRepository(ICategoryRepository):
         return result.scalar_one_or_none() is not None
 
     async def _get_category_base(
-            self,
-            category_id: int,
+        self,
+        category_id: int,
     ) -> Category | None:
         query = select(Category).where(Category.id == category_id)
         result = await self.session.execute(query)

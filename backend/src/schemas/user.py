@@ -30,8 +30,8 @@ class UserCreateConsole(UserBase):
     role: RoleEnum
 
 
-class UserLogin(BaseModel):
-    email: str = Field(..., max_length=64)
+class UserLogin(UserEmail):
+    # email: str = Field(..., max_length=64)
     password: str = Field(..., max_length=255)
 
 
@@ -48,6 +48,7 @@ class UserRequest(BaseModel):
 class UserResponse(UserEmail):
     id: int = Field(...)
     username: str = Field(..., max_length=30)
+    # email_verified: bool = Field(...)
     role: RoleEnum | str = Field(..., max_length=10)
 
 
@@ -58,3 +59,11 @@ class RefreshToken(BaseModel):
 class TokenPair(BaseModel):
     access_token: str = Field(...)
     refresh_token: str = Field(...)
+
+
+class OTPCode(BaseModel):
+    otp_code: str
+
+
+class AccessToken(BaseModel):
+    access_token: str = Field(...)

@@ -6,8 +6,8 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette import status
 
-from models.promocode import Promocode, PromocodeAction
-from schemas.promocode import PromoUpdate, PromoCreate, PromoActivateCreate
+from models import Promocode, PromocodeAction
+from schemas.promocode import PromoActivateCreate, PromoCreate, PromoUpdate
 
 
 class IPromocodeRepository(Protocol):
@@ -24,10 +24,16 @@ class IPromocodeRepository(Protocol):
     async def get_all(self) -> list[Promocode]:
         pass
 
-    async def activate_user_promo(self, data: PromoActivateCreate) -> Promocode:
+    async def activate_user_promo(
+        self,
+        data: PromoActivateCreate,
+    ) -> Promocode:
         pass
 
-    async def get_promo_is_activate(self, data: PromoActivateCreate) -> PromocodeAction | None:
+    async def get_promo_is_activate(
+            self,
+            data: PromoActivateCreate
+    ) -> PromocodeAction | None:
         pass
 
 
@@ -45,7 +51,7 @@ class PromocodeRepository(IPromocodeRepository):
         except IntegrityError:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
-                detail="PromocodeOrm already exists"
+                detail="PromocodeOrm already exists",
             )
 
         return obj
@@ -54,7 +60,10 @@ class PromocodeRepository(IPromocodeRepository):
         obj: Promocode | None = await self.session.get(Promocode, data.id)
 
         if not obj:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Promocode not found")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Promocode not found",
+            )
 
         for field, value in data.model_dump(exclude_none=True).items():
             setattr(obj, field, value)
@@ -67,7 +76,10 @@ class PromocodeRepository(IPromocodeRepository):
         obj: Promocode | None = await self.session.get(Promocode, id)
 
         if not obj:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Promocode not found")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Promocode not found",
+            )
 
         await self.session.delete(obj)
         await self.session.flush()
@@ -81,14 +93,16 @@ class PromocodeRepository(IPromocodeRepository):
         result = result.scalars().all()
         return result
 
-    async def get_promo_is_activate(self, data: PromoActivateCreate) -> PromocodeAction:
+    async def get_promo_is_activate(
+        self, data: PromoActivateCreate
+    ) -> PromocodeAction:
         stmt = (
             select(PromocodeAction)
-            .join(
-                Promocode, PromocodeAction.promo_id == Promocode.id
+            .join(Promocode, PromocodeAction.promo_id == Promocode.id)
+            .where(
+                Promocode.code == data.code,
+                PromocodeAction.user_id == data.user_id,
             )
-            .where(Promocode.code == data.code,
-                   PromocodeAction.user_id == data.user_id)
         )
 
         obj = (await self.session.execute(stmt)).scalars().one_or_none()
@@ -96,12 +110,14 @@ class PromocodeRepository(IPromocodeRepository):
         if obj:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
-                detail="Your already activated this promocode"
+                detail="Your already activated this promocode",
             )
 
         return None
 
-    async def activate_user_promo(self, data: PromoActivateCreate) -> Promocode:
+    async def activate_user_promo(
+            self, data: PromoActivateCreate,
+            ) -> Promocode:
         stmt = (
             select(Promocode)
             .where(Promocode.code == data.code)
@@ -112,7 +128,7 @@ class PromocodeRepository(IPromocodeRepository):
         if not obj:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
-                detail="Promocode not found"
+                detail="Promocode not found",
             )
 
         obj2 = PromocodeAction(promo_id=obj.id, user_id=data.user_id)
@@ -124,7 +140,7 @@ class PromocodeRepository(IPromocodeRepository):
         except IntegrityError:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
-                detail="Your already activated this promocode"
+                detail="Your already activated this promocode",
             )
 
         return obj

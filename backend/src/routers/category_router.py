@@ -1,19 +1,12 @@
 from dishka.integrations.fastapi import DishkaRoute, FromDishka
 from fastapi import APIRouter, HTTPException, Query, status
 
-from schemas.category import (
-    CategoriesListResponse,
-    CategoryCreate,
-    CategoryCreateResponse,
-    CategoryResponse,
-    CategoryUpdate,
-)
+from schemas.category import (CategoriesListResponse, CategoryCreate,
+                              CategoryCreateResponse, CategoryResponse,
+                              CategoryUpdate)
 from schemas.user import UserResponse
-from services.category import (
-    CategoriesService,
-    CategoryHasProductsError,
-    CategoryNotFoundError,
-)
+from services.category import (CategoryHasProductsError, CategoryNotFoundError,
+                               CategoryService)
 
 router = APIRouter(
     prefix="/categories",
@@ -25,7 +18,7 @@ router = APIRouter(
 @router.get("/{category_id}", response_model=CategoryResponse)
 async def get_category(
     category_id: int,
-    service: FromDishka[CategoriesService],
+    service: FromDishka[CategoryService],
 ):
     try:
         return await service.get_category(category_id)
@@ -38,7 +31,7 @@ async def get_category(
 
 @router.get("/", response_model=list[CategoriesListResponse])
 async def get_all_categories(
-    service: FromDishka[CategoriesService],
+    service: FromDishka[CategoryService],
     offset: int = Query(0, ge=0),
     limit: int = Query(20, ge=1, le=100),
 ):
@@ -48,7 +41,7 @@ async def get_all_categories(
 @router.post("/", response_model=CategoryCreateResponse)
 async def create_category(
     category_data: CategoryCreate,
-    service: FromDishka[CategoriesService],
+    service: FromDishka[CategoryService],
     current_user: FromDishka[UserResponse],
 ):
     try:
@@ -64,7 +57,7 @@ async def create_category(
 async def update_category(
     category_id: int,
     category_data: CategoryUpdate,
-    service: FromDishka[CategoriesService],
+    service: FromDishka[CategoryService],
     current_user: FromDishka[UserResponse],
 ):
     try:
@@ -88,7 +81,7 @@ async def update_category(
 @router.delete("/{category_id}")
 async def delete_category(
     category_id: int,
-    service: FromDishka[CategoriesService],
+    service: FromDishka[CategoryService],
     current_user: FromDishka[UserResponse],
 ):
     try:

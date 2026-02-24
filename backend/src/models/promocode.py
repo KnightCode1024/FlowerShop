@@ -3,7 +3,7 @@ from decimal import Decimal
 from sqlalchemy import String, Integer, Numeric, ForeignKey
 
 from models import Base
-from sqlalchemy.orm import *
+from sqlalchemy.orm import Mapped, mapped_column
 
 from utils.strings import generate_random_promo
 

@@ -8,13 +8,13 @@ from clients.s3_client import S3Client
 from entrypoint.config import config
 
 
-class S3RepositoryI(Protocol):
+class IS3Repository(Protocol):
     async def upload_image(self, file: UploadFile) -> str: ...
 
     async def delete_image(self, url: str) -> None: ...
 
 
-class S3Repository(S3RepositoryI):
+class S3Repository(IS3Repository):
     def __init__(self):
         self.s3_client = S3Client(
             access_key=config.s3.ACCESS_KEY,

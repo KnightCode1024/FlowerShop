@@ -1,21 +1,29 @@
 from dishka import Provider, Scope, provide
 
 from core.uow import UnitOfWork
-from providers import IPaymentProvider
-from providers.dependencies import yoomoney_factory
+from entrypoint.config import Config
+from interfaces import IEmailService
 from repositories import (
     ICategoryRepository,
+    IOrderRepository,
     IProductImageRepository,
     IProductRepository,
-    S3RepositoryI,
+    IPromocodeRepository,
+    IS3Repository,
     IUserRepository,
-    IOrderRepository, IPromocodeRepository
+    InvoiceRepositoryI,
+    )
+from services import (
+    CategoryService,
+    EmailService,
+    OrderService,
+    ProductService,
+    UserService,
+    PromocodeService,
+    InvoiceService,
 )
-from repositories.invoice import InvoiceRepositoryI
+from providers.dependencies import yoomoney_factory
 from schemas.invoice import Methods
-from services import CategoriesService, ProductsService, UserService, OrdersService
-from services.invoice import InvoiceService
-from services.promocode import PromocodesService
 
 
 class ServiceProvider(Provider):
@@ -23,14 +31,14 @@ class ServiceProvider(Provider):
 
     @provide
     def get_products_service(
-            self,
-            uow: UnitOfWork,
-            product_repository: IProductRepository,
-            category_repository: ICategoryRepository,
-            image_repository: IProductImageRepository,
-            s3_repository: S3RepositoryI,
-    ) -> ProductsService:
-        return ProductsService(
+        self,
+        uow: UnitOfWork,
+        product_repository: IProductRepository,
+        category_repository: ICategoryRepository,
+        image_repository: IProductImageRepository,
+        s3_repository: IS3Repository,
+    ) -> ProductService:
+        return ProductService(
             uow,
             product_repository,
             category_repository,
@@ -39,9 +47,11 @@ class ServiceProvider(Provider):
         )
 
     @provide
-    def get_invoices_service(self,
-                             uow: UnitOfWork,
-                             invoice_repository: InvoiceRepositoryI) -> InvoiceService:
+    def get_invoices_service(
+        self,
+        uow: UnitOfWork,
+        invoice_repository: InvoiceRepositoryI,
+    ) -> InvoiceService:
         return InvoiceService(uow, invoice_repository,
                               {
                                   Methods.YOOMONEY: yoomoney_factory
@@ -49,30 +59,35 @@ class ServiceProvider(Provider):
 
     @provide
     def get_categories_service(
-            self,
-            uow: UnitOfWork,
-            category_repository: ICategoryRepository,
-    ) -> CategoriesService:
-        return CategoriesService(uow, category_repository)
+        self,
+        uow: UnitOfWork,
+        category_repository: ICategoryRepository,
+    ) -> CategoryService:
+        return CategoryService(uow, category_repository)
 
     @provide
     def get_user_service(
-            self,
-            uow: UnitOfWork,
-            user_repository: IUserRepository,
+        self,
+        uow: UnitOfWork,
+        user_repository: IUserRepository,
+        email_service: IEmailService,
     ) -> UserService:
-        return UserService(uow, user_repository)
+        return UserService(uow, user_repository, email_service)
+
+    @provide
+    def get_email_service(self, config: Config) -> IEmailService:
+        return EmailService(config)
 
     @provide
     def get_order_service(
-            self,
-            uow: UnitOfWork,
-            order_repository: IOrderRepository
-    ) -> OrdersService:
-        return OrdersService(uow, order_repository)
+        self, uow: UnitOfWork, order_repository: IOrderRepository
+    ) -> OrderService:
+        return OrderService(uow, order_repository)
 
     @provide
-    def get_promocode_service(self,
-                              uow: UnitOfWork,
-                              promocode_repository: IPromocodeRepository) -> PromocodesService:
-        return PromocodesService(uow, promocode_repository)
+    def get_promocode_service(
+        self,
+        uow: UnitOfWork,
+        promocode_repository: IPromocodeRepository,
+    ) -> PromocodeService:
+        return PromocodeService(uow, promocode_repository)

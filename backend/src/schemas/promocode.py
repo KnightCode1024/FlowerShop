@@ -7,14 +7,12 @@ class PromoCreateRequest(BaseModel):
     percent: float
 
 
-
 class PromoUpdateRequest(BaseModel):
     id: int
     code: str | None = None
     count_activation: int | None = None
     max_count_activators: int | None = None
     percent: float | None = None
-
 
 
 class PromoActivateRequest(BaseModel):

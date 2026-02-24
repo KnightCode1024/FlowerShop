@@ -1,7 +1,7 @@
 from pathlib import Path
 
-from pydantic_settings import BaseSettings, SettingsConfigDict
 from dotenv import find_dotenv, load_dotenv
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 BASE_DIR = Path(__file__).parent.parent.parent
 env_file = find_dotenv() or (Path(__file__).resolve().parents[1] / ".env")
@@ -77,7 +77,45 @@ class RedisConfig(BaseSettings):
     HOST: str
 
 
-class AppConfig(BaseSettings):
+class EmailConfig(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_prefix="EMAIL_",
+        env_file_encoding="utf-8",
+        extra="ignore",
+    )
+
+    PORT: int
+    HOST: str
+    USE_SSL: bool
+    PASSWORD: str
+    USERNAME: str
+
+
+class FrontendConfig(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_prefix="FRONTEND_",
+        env_file_encoding="utf-8",
+        extra="ignore",
+    )
+
+    URL: str
+
+
+class OTPConfig(BaseSettings):
+    TTL: int = 300  # seconds
+
+
+class RabbitMQConfig(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_prefix="RABBITMQ_",
+        env_file_encoding="utf-8",
+        extra="ignore",
+    )
+
+    URL: str
+
+
+class APPConfig(BaseSettings):
     model_config = SettingsConfigDict(
         env_prefix="APP_"
     )
@@ -97,7 +135,11 @@ class Config(BaseSettings):
     s3: S3Config = S3Config()
     auth_jwt: AuthJWT = AuthJWT()
     redis: RedisConfig = RedisConfig()
-    app: AppConfig = AppConfig()
+    email: EmailConfig = EmailConfig()
+    rabbitmq: RabbitMQConfig = RabbitMQConfig()
+    frontend: FrontendConfig = FrontendConfig()
+    app: APPConfig = APPConfig()
+    otp: OTPConfig = OTPConfig()
     payment: PaymentsConfig = PaymentsConfig()
 
 

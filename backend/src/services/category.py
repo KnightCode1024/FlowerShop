@@ -1,22 +1,15 @@
-from core.exceptions import (
-    CategoryHasProductsError,
-    CategoryNameNotUniqueError,
-    CategoryNotFoundError,
-)
+from core.exceptions import (CategoryHasProductsError,
+                             CategoryNameNotUniqueError, CategoryNotFoundError)
 from core.permissions import require_roles
 from core.uow import UnitOfWork
 from models.user import RoleEnum
 from repositories import ICategoryRepository
-from schemas.category import (
-    CategoriesListResponse,
-    CategoryCreate,
-    CategoryResponse,
-    CategoryUpdate,
-)
+from schemas.category import (CategoriesListResponse, CategoryCreate,
+                              CategoryResponse, CategoryUpdate)
 from schemas.user import UserResponse
 
 
-class CategoriesService:
+class CategoryService:
     def __init__(
         self,
         uow: UnitOfWork,

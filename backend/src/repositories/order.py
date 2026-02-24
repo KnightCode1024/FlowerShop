@@ -1,14 +1,15 @@
 from typing import Protocol
 
 from fastapi import HTTPException
-from sqlalchemy import select, desc, insert, update, outerjoin
+from sqlalchemy import desc, insert, outerjoin, select, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload, selectinload
+from starlette import status
 
 from models.order import Order, OrderProduct
-from schemas.order import OrderCreate, OrderUpdate, CartItem, OrderProductCreate
-from starlette import status
+from schemas.order import (CartItem, OrderCreate, OrderProductCreate,
+                           OrderUpdate)
 
 
 class IOrderRepository(Protocol):
@@ -43,9 +44,11 @@ class OrderRepository(IOrderRepository):
         await self.session.flush()
         await self._update_products(obj, order_data.order_products)
 
-        stmt = select(Order).options(
-            joinedload(Order.order_products)
-        ).where(Order.id == obj.id)
+        stmt = (
+            select(Order)
+            .options(joinedload(Order.order_products))
+            .where(Order.id == obj.id)
+        )
 
         result = await self.session.execute(stmt)
         result = result.scalars().unique().one_or_none()
@@ -53,9 +56,11 @@ class OrderRepository(IOrderRepository):
         return result
 
     async def get(self, id: int, user_id: int = None) -> Order:
-        stmt = select(Order).options(
-            joinedload(Order.order_products)
-        ).where(Order.id == id)
+        stmt = (
+            select(Order)
+            .options(joinedload(Order.order_products))
+            .where(Order.id == id)
+        )
 
         if user_id:
             stmt.where(Order.user_id == user_id)
@@ -64,7 +69,9 @@ class OrderRepository(IOrderRepository):
         obj: Order | None = result.scalars().unique().one_or_none()
 
         if not obj:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Order {id} not found")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail=f"Order {id} not found"
+            )
 
         return obj
 
@@ -74,12 +81,16 @@ class OrderRepository(IOrderRepository):
         if order_data.order_products:
             await self._update_products(obj, order_data.order_products)
 
-        for name, value in order_data.model_dump(exclude_none=True, exclude={"order_products"}).items():
+        for name, value in order_data.model_dump(
+            exclude_none=True, exclude={"order_products"}
+        ).items():
             setattr(obj, name, value)
 
-        stmt = select(Order).options(
-            joinedload(Order.order_products)
-        ).where(Order.id == obj.id)
+        stmt = (
+            select(Order)
+            .options(joinedload(Order.order_products))
+            .where(Order.id == obj.id)
+        )
 
         result = await self.session.execute(stmt)
         result = result.scalars().unique().one_or_none()
@@ -87,20 +98,24 @@ class OrderRepository(IOrderRepository):
         return result
 
     async def get_all(self) -> list[Order]:
-        stmt = select(Order).order_by(
-            Order.created_at.desc(),
-        ).options(joinedload(
-            Order.order_products
-        ))
+        stmt = (
+            select(Order)
+            .order_by(
+                Order.created_at.desc(),
+            )
+            .options(joinedload(Order.order_products))
+        )
         result = await self.session.execute(stmt)
         result = result.scalars().unique().all()
         return result
 
     async def get_all_user(self, user_id: int) -> list[Order]:
-        stmt = select(Order).order_by(
-            Order.created_at.desc(),
-        ).where(
-            Order.user_id == user_id
+        stmt = (
+            select(Order)
+            .order_by(
+                Order.created_at.desc(),
+            )
+            .where(Order.user_id == user_id)
         )
         result = await self.session.execute(stmt)
         result = result.scalars().unique().all()
@@ -112,21 +127,25 @@ class OrderRepository(IOrderRepository):
         await self.session.flush()
         return None
 
-    async def _update_products(self, order: Order, order_products: list[CartItem]) -> Order:
+    async def _update_products(
+        self, order: Order, order_products: list[CartItem]
+    ) -> Order:
         new_order_products = []
 
         for o_prod in order_products:
-            op = OrderProduct(order_id=order.id,
-                              product_id=o_prod.product_id,
-                              quantity=o_prod.quantity,
-                              price=o_prod.price)
+            op = OrderProduct(
+                order_id=order.id,
+                product_id=o_prod.product_id,
+                quantity=o_prod.quantity,
+                price=o_prod.price,
+            )
             new_order_products.append(op)
 
         self.session.add_all(new_order_products)
 
-        order.amount = round(float(sum(
-            [i.quantity * i.price for i in order_products]
-        )), 2)
+        order.amount = round(
+            float(sum([i.quantity * i.price for i in order_products])), 2
+        )
 
         await self.session.flush()
         await self.session.refresh(order)

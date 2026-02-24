@@ -5,22 +5,23 @@ from decimal import Decimal
 
 import httpx
 import pytest
-import pytest_asyncio
 from dishka import FromDishka
 from sqlalchemy import event, StaticPool, create_engine
-from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
+from sqlalchemy.ext.asyncio import (
+    AsyncSession, 
+    create_async_engine,
+    async_sessionmaker,
+)
 from sqlalchemy.orm import sessionmaker
 
-from entrypoint.ioc.engine import session_factory
-from core.uow import UnitOfWork
-from entrypoint.ioc.engine import engine
-from models import Base, RoleEnum
-from repositories import UserRepository, ProductRepository, CategoryRepository
-from schemas.category import CategoryCreate
-from schemas.product import ProductCreate
-from schemas.user import UserCreate, UserLogin, UserResponse, UserCreateConsole
-from services import UserService
-from utils.strings import generate_random_token, generate_random_password, make_valid_password
+from src.core.uow import UnitOfWork
+from src.models import Base, RoleEnum
+from src.repositories import UserRepository, ProductRepository, CategoryRepository
+from src.schemas.category import CategoryCreate
+from src.schemas.product import ProductCreate
+from src.schemas.user import UserCreate, UserLogin, UserResponse, UserCreateConsole
+from src.services import UserService
+from src.utils.strings import generate_random_token, generate_random_password, make_valid_password
 
 
 @pytest.fixture

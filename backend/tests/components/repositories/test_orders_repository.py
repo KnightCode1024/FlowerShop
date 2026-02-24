@@ -3,14 +3,19 @@ import random
 import pytest
 from fastapi import HTTPException
 
-from models import User
-from models.order import OrderStatus
-from schemas.order import CartItem, OrderCreate, OrderUpdate
-from schemas.product import ProductFilterParams
+from src.models import User
+from src.models.order import OrderStatus
+from src.schemas.order import CartItem, OrderCreate, OrderUpdate
+from src.schemas.product import ProductFilterParams
 
 
 @pytest.mark.asyncio
-async def test_add_order_one(session, created_user, created_product, order_repository):
+async def test_add_order_one(
+    session,
+    created_user,
+    created_product,
+    order_repository,
+):
     order_create_data = OrderCreate(
         user_id=created_user.id,
         order_products=[

@@ -1,9 +1,9 @@
 import pytest
 from fastapi import HTTPException
 
-from models import User
-from repositories import PromocodeRepository, UserRepository
-from schemas.promocode import PromoCreateRequest, PromoCreate, PromoUpdate, PromoActivateCreate
+from src.models import User
+from src.repositories import PromocodeRepository, UserRepository
+from src.schemas.promocode import PromoCreateRequest, PromoCreate, PromoUpdate, PromoActivateCreate
 
 
 @pytest.mark.asyncio

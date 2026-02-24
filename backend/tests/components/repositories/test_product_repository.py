@@ -1,19 +1,14 @@
 from decimal import Decimal
 
-<<<<<<< HEAD
 import pytest
 
 from src.models import Product
 from src.schemas.category import CategoryCreate
 from src.schemas.product import ProductFilterParams, ProductUpdate
-=======
-from schemas.product import (
+from src.schemas.product import (
     ProductUpdate,
     ProductFilterParams,
 )
-from schemas.category import CategoryCreate
-from models import Product
->>>>>>> origin/main
 
 
 class TestProductRepository:

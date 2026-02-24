@@ -2,15 +2,15 @@ import pytest
 from decimal import Decimal
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from models import RoleEnum
-from repositories import OrderRepository, PromocodeRepository
-from repositories.invoice import InvoiceRepository
-from repositories.user import UserRepository
-from repositories.category import CategoryRepository
-from repositories.product import ProductRepository
-from schemas.user import UserCreate, UserUpdate, UserCreateConsole
-from schemas.category import CategoryCreate, CategoryUpdate
-from schemas.product import ProductCreate, ProductUpdate, ProductResponse
+from src.models import RoleEnum
+from src.repositories import OrderRepository, PromocodeRepository
+from src.repositories.invoice import InvoiceRepository
+from src.repositories.user import UserRepository
+from src.repositories.category import CategoryRepository
+from src.repositories.product import ProductRepository
+from src.schemas.user import UserCreate, UserUpdate, UserCreateConsole
+from src.schemas.category import CategoryCreate, CategoryUpdate
+from src.schemas.product import ProductCreate, ProductUpdate, ProductResponse
 
 
 @pytest.fixture

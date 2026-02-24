@@ -13,9 +13,12 @@ router = APIRouter(
 )
 
 
+@rate_limit(strategy=Strategy.IP, policy="3/m;10/h;20/d")
 @router.post("/register", response_model=UserResponse)
 async def register(
     user_data: UserCreate,
+    request: Request,
+    rate_limiter: FromDishka[RateLimiter],
     service: FromDishka[UserService],
 ):
     try:
@@ -29,8 +32,11 @@ async def register(
 
 
 @router.get("/verify-email")
+@rate_limit(strategy=Strategy.IP, policy="5/m;20/h")
 async def verify_email(
     token: str,
+    request: Request,
+    rate_limiter: FromDishka[RateLimiter],
     service: FromDishka[UserService],
 ):
     try:
@@ -43,8 +49,11 @@ async def verify_email(
 
 
 @router.post("/check-code", response_model=TokenPair)
+@rate_limit(strategy=Strategy.IP, policy="5/m;20/h")
 async def check_code(
     code: OTPCode,
+    request: Request,
+    rate_limiter: FromDishka[RateLimiter],
     service: FromDishka[UserService],
     current_user: FromDishka[UserResponse],
 ):
@@ -58,7 +67,10 @@ async def check_code(
 
 
 @router.post("/resend-otp")
+@rate_limit(strategy=Strategy.IP, policy="2/m;5/h")
 async def resend_otp(
+    request: Request,
+    rate_limiter: FromDishka[RateLimiter],
     service: FromDishka[UserService],
     current_user: FromDishka[UserResponse],
 ):
@@ -71,9 +83,12 @@ async def resend_otp(
         )
 
 
+@rate_limit(strategy=Strategy.IP, policy="5/m;20/h;50/d")
 @router.post("/login", response_model=AccessToken)
 async def login(
     user_data: UserLogin,
+    request: Request,
+    rate_limiter: FromDishka[RateLimiter],
     service: FromDishka[UserService],
 ):
     try:
@@ -87,18 +102,18 @@ async def login(
 
 
 @router.get("/me", response_model=UserResponse)
-# @rate_limit(strategy=Strategy.USER, policy="3/s;10/m;100/h")
 async def get_profile(
-    request: Request,
-    rate_limiter: FromDishka[RateLimiter],
     current_user: FromDishka[UserResponse],
 ):
     return current_user
 
 
 @router.post("/refresh", response_model=TokenPair)
+@rate_limit(strategy=Strategy.IP, policy="10/m;100/h")
 async def refresh_token(
     payload: RefreshToken,
+    request: Request,
+    rate_limiter: FromDishka[RateLimiter],
     service: FromDishka[UserService],
 ):
     try:

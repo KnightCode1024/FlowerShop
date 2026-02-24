@@ -46,7 +46,7 @@ def rate_limit(strategy: Strategy = Strategy.IP, policy: str | None = None):
             if rate_limiter is None:
                 raise ValueError("Not rate_limiter.")
 
-            endpoint = getattr(request.url, "path", None) or request.url.path
+            endpoint = request.url.path
 
             windows = []
             for rp in request_policy:

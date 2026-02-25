@@ -1,5 +1,5 @@
 from dishka.integrations.fastapi import DishkaRoute, FromDishka
-from fastapi import APIRouter, HTTPException, Request, status
+from fastapi import APIRouter, HTTPException, Request, status, Response
 
 from core.rate_limiter import RateLimiter, Strategy, rate_limit
 from schemas.user import (
@@ -25,6 +25,7 @@ router = APIRouter(
 @rate_limit(strategy=Strategy.IP, policy="3/m;10/h;20/d")
 async def register(
     request: Request,
+    response: Response,
     user_data: UserCreate,
     rate_limiter: FromDishka[RateLimiter],
     service: FromDishka[UserService],
@@ -43,6 +44,7 @@ async def register(
 @rate_limit(strategy=Strategy.IP, policy="5/m;20/h")
 async def verify_email(
     request: Request,
+    response: Response,
     token: str,
     rate_limiter: FromDishka[RateLimiter],
     service: FromDishka[UserService],
@@ -60,6 +62,7 @@ async def verify_email(
 @rate_limit(strategy=Strategy.IP, policy="5/m;20/h")
 async def check_code(
     request: Request,
+    response: Response,
     code: OTPCode,
     rate_limiter: FromDishka[RateLimiter],
     service: FromDishka[UserService],
@@ -67,6 +70,27 @@ async def check_code(
 ):
     try:
         return await service.check_code(current_user, code)
+        tokens = await service.check_code(current_user, code)
+        response.set_cookie(
+            key="access_token",
+            value=tokens.access_token,
+            httponly=True,
+            secure=False,  # True for https,
+            samesite="lax",
+            max_age=5 * 60,
+            path="/",
+        )
+        response.set_cookie(
+            key="refresh_token",
+            value=tokens.refresh_token,
+            httponly=True,
+            secure=False,  # True for https,
+            samesite="lax",
+            max_age=5 * 60,
+            path="/",
+        )
+
+
     except ValueError as e:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -78,6 +102,7 @@ async def check_code(
 @rate_limit(strategy=Strategy.IP, policy="2/m;5/h")
 async def resend_otp(
     request: Request,
+    response: Response,
     rate_limiter: FromDishka[RateLimiter],
     service: FromDishka[UserService],
     current_user: FromDishka[UserResponse],
@@ -95,12 +120,24 @@ async def resend_otp(
 @router.post("/login", response_model=AccessToken)
 async def login(
     request: Request,
+    response: Response,
     user_data: UserLogin,
     rate_limiter: FromDishka[RateLimiter],
     service: FromDishka[UserService],
 ):
     try:
+        access_token = await service.login_user(user_data)
+        response.set_cookie(
+            key="access_token",
+            value=access_token.access_token,
+            httponly=True,
+            secure=False,  # True for https,
+            samesite="lax",
+            max_age=5 * 60,
+            path="/",
+        )
         return await service.login_user(user_data)
+        # return {"message": "check your code on email/"}
     except ValueError as e:
         print(e)
         raise HTTPException(
@@ -120,6 +157,7 @@ async def get_profile(
 @rate_limit(strategy=Strategy.IP, policy="10/m;100/h")
 async def refresh_token(
     request: Request,
+    response: Response,
     payload: RefreshToken,
     rate_limiter: FromDishka[RateLimiter],
     service: FromDishka[UserService],

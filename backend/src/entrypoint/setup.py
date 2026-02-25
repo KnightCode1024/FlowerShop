@@ -4,11 +4,12 @@ from contextlib import asynccontextmanager
 
 from dishka import Provider, make_async_container
 from fastapi import APIRouter, FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from prometheus_fastapi_instrumentator import Instrumentator
 
 from clients import RedisClient
 from core import broker
-from entrypoint.config import Config, create_config
+from entrypoint.config import Config, create_config, config
 from middlewares.metrics import MetricsMiddleware
 
 
@@ -57,3 +58,10 @@ def configure_middlewares(app: FastAPI) -> None:
     # instrument.expose(app, endpoint="/metrics")
 
     app.add_middleware(MetricsMiddleware)
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=[config.frontend.URL],
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+)

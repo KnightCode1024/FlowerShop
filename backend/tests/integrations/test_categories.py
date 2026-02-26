@@ -21,7 +21,9 @@ async def test_create_category(created_admin_client):
 async def test_delete_category(created_admin_client):
     category = await test_create_category(created_admin_client)
 
+
     response = await created_admin_client.delete(f"/categories/{category.id}")
+
 
     assert response.status_code == 200
     assert response.json() == None
@@ -31,9 +33,12 @@ async def test_delete_category(created_admin_client):
 async def test_update_category(created_admin_client):
     category_data = CategoryUpdate(name="Архидеи")
 
+
     category = await test_create_category(created_admin_client)
 
+
     response = await created_admin_client.put(f"/categories/{category.id}", json=category_data.json())
+
 
     category_updated = CategoryResponse(**response.json())
 

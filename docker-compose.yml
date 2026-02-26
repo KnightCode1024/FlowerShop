@@ -58,11 +58,10 @@ services:
       - flower_shop_net
 
   rabbitmq:
-    image: rabbitmq:4-management-alpine
+    image: rabbitmq:3.10.7-management
     ports:
       - "5672:5672"
       - "15672:15672"
-      # - "61613:61613"
     environment:
       RABBITMQ_DEFAULT_USER: "guest"
       RABBITMQ_DEFAULT_PASS: "guest"

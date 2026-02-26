@@ -1,13 +1,8 @@
 import pytest
 from sqlalchemy.exc import IntegrityError
 
-<<<<<<< HEAD
-from src.models import RoleEnum, User
-from src.schemas.user import UserCreate, UserUpdate
-=======
 from schemas.user import UserCreate, UserUpdate
 from models import RoleEnum, User
->>>>>>> origin/main
 
 
 class TestUserRepository:

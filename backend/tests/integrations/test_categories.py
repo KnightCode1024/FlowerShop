@@ -1,8 +1,6 @@
 import pytest
 
 from schemas.category import CategoryCreate, CategoryResponse, CategoryUpdate, CategoriesListResponse
-from schemas.invoice import InvoiceCreateRequest, InvoiceResponse
-from schemas.order import OrderCreate, OrderCreateRequest, CartItem, OrderResponse
 
 
 @pytest.mark.asyncio

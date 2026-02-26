@@ -1,26 +1,19 @@
-import asyncio
-import os
 import random
 from decimal import Decimal
 
 import httpx
 import pytest
-import pytest_asyncio
-from dishka import FromDishka
-from sqlalchemy import event, StaticPool, create_engine
-from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from entrypoint.ioc.engine import session_factory
 from core.uow import UnitOfWork
-from entrypoint.ioc.engine import engine
-from models import Base, RoleEnum
+from entrypoint.ioc.engine import session_factory
+from models import RoleEnum
 from repositories import UserRepository, ProductRepository, CategoryRepository
 from schemas.category import CategoryCreate
 from schemas.product import ProductCreate
 from schemas.user import UserCreate, UserLogin, UserResponse, UserCreateConsole
 from services import UserService
-from utils.strings import generate_random_token, generate_random_password, make_valid_password
+from utils.strings import make_valid_password
 
 
 @pytest.fixture

@@ -1,12 +1,7 @@
 import pytest
-<<<<<<< HEAD
 
-from src.models import Category
-from src.schemas.category import CategoryUpdate
-=======
 from schemas.category import CategoryUpdate
 from models import Category
->>>>>>> origin/main
 
 
 class TestCategoryRepository:

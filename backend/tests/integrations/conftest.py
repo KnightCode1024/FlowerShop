@@ -6,13 +6,14 @@ import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.uow import UnitOfWork
+from entrypoint.config import config
 from entrypoint.ioc.engine import session_factory
 from models import RoleEnum
 from repositories import UserRepository, ProductRepository, CategoryRepository
 from schemas.category import CategoryCreate
 from schemas.product import ProductCreate
 from schemas.user import UserCreate, UserLogin, UserResponse, UserCreateConsole
-from services import UserService
+from services import UserService, EmailService
 from utils.strings import make_valid_password
 
 
@@ -94,8 +95,13 @@ async def created_product(product_repository, test_product1):
 
 
 @pytest.fixture
-async def user_service(user_repository, session: AsyncSession) -> UserService:
-    return UserService(UnitOfWork(session), user_repository)
+async def email_service(session: AsyncSession):
+    return EmailService(config)
+
+
+@pytest.fixture
+async def user_service(user_repository, session: AsyncSession, email_service) -> UserService:
+    return UserService(UnitOfWork(session), user_repository, email_service)
 
 
 @pytest.fixture

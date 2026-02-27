@@ -1,4 +1,10 @@
-class IEmailService:
-    async def send_otp_code(to_email: str, otp_code: str): ...
+import abc
 
-    async def send_verify_email(to_email: str, token: str): ...
+
+class IEmailService(abc.ABC):
+
+    @abc.abstractmethod
+    async def send_otp_code(self, to_email: str, otp_code: str): ...
+
+    @abc.abstractmethod
+    async def send_verify_email(self, to_email: str, token: str): ...

@@ -55,29 +55,25 @@ class UserService:
                 role=user.role,
             )
 
-    async def check_code(self, user: UserResponse, otp_code: OTPCode):
+    async def check_code(
+        self,
+        user: UserResponse,
+        otp_code: OTPCode,
+    ) -> TokenPair:
         otp_secret = await self.user_repository.get_otp_secret(user)
 
         if not verify_otp_code(otp_code.otp_code, otp_secret):
             raise ValueError("Not valid code")
-        
+     
+        await self.user_repository.set_otp_secret(user, None)
+    
         tokens = TokenPair(
             access_token=create_access_token({"sub": str(user.id)}),
             refresh_token=create_refresh_token({"sub": str(user.id)}),
         )
         return tokens
-        
 
-        # if not verify_otp_code(otp_code.otp_code, otp_secret):
-        #     raise ValueError("Not valid code")
-        
-        # tokens = TokenPair(
-        #     access_token=create_access_token({"sub": str(user.id)}),
-        #     refresh_token=create_refresh_token({"sub": str(user.id)}),
-        # )
-        # return tokens
-
-    async def verify_email(self, token: str):
+    async def verify_email(self, token: str) -> bool:
         user = await self.user_repository.get_user_by_email_token(token)
         if user is None:
             raise ValueError("User not found")
@@ -85,7 +81,7 @@ class UserService:
             await self.user_repository.set_is_verify_user(user, token)
             return True
 
-    async def resend_otp_code(self, user: UserResponse):
+    async def resend_otp_code(self, user: UserResponse) -> bool:
         otp_secret = await self.user_repository.get_otp_secret(user)
 
         if not otp_secret:

@@ -13,6 +13,7 @@ from schemas.user import (
     UserUpdate,
     )
 from services import UserService
+from entrypoint.config import Config
 
 router = APIRouter(
     prefix="/users",
@@ -65,11 +66,12 @@ async def check_code(
     response: Response,
     code: OTPCode,
     rate_limiter: FromDishka[RateLimiter],
+    config: FromDishka[Config],
     service: FromDishka[UserService],
     current_user: FromDishka[UserResponse],
 ):
     try:
-        return await service.check_code(current_user, code)
+        # return await service.check_code(current_user, code)
         tokens = await service.check_code(current_user, code)
         response.set_cookie(
             key="access_token",
@@ -77,7 +79,7 @@ async def check_code(
             httponly=True,
             secure=False,  # True for https,
             samesite="lax",
-            max_age=5 * 60,
+            max_age=config.auth_jwt.ACCESS_TOKEN_EXPIRE_MINUTES,
             path="/",
         )
         response.set_cookie(
@@ -86,11 +88,10 @@ async def check_code(
             httponly=True,
             secure=False,  # True for https,
             samesite="lax",
-            max_age=5 * 60,
+            max_age=config.auth_jwt.REFRESH_TOKEN_EXPIRE_DAYS * 24 * 60 * 60,
             path="/",
         )
-
-
+        return {"message": "Login success"}
     except ValueError as e:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -136,8 +137,8 @@ async def login(
             max_age=5 * 60,
             path="/",
         )
-        return await service.login_user(user_data)
-        # return {"message": "check your code on email/"}
+        # return await service.login_user(user_data)
+        return {"message": "check your code on email."}
     except ValueError as e:
         print(e)
         raise HTTPException(
@@ -158,12 +159,31 @@ async def get_profile(
 async def refresh_token(
     request: Request,
     response: Response,
-    payload: RefreshToken,
+    config: FromDishka[Config],
     rate_limiter: FromDishka[RateLimiter],
     service: FromDishka[UserService],
 ):
     try:
-        return await service.refresh_token(payload)
+        refresh_token = request.cookies.get("refresh_token")
+        new_tokens = service.refresh_token(refresh_token)
+        response.set_cookie(
+            key="access_token",
+            value=new_tokens.access_token,
+            httponly=True,
+            secure=False,  # True for https,
+            samesite="lax",
+            max_age=config.auth_jwt.ACCESS_TOKEN_EXPIRE_MINUTES,
+            path="/",
+        )
+        response.set_cookie(
+            key="refresh_token",
+            value=new_tokens.refresh_token,
+            httponly=True,
+            secure=False,  # True for https,
+            samesite="lax",
+            max_age=config.auth_jwt.REFRESH_TOKEN_EXPIRE_DAYS * 24 * 60 * 60,
+            path="/",
+        )
     except ValueError as e:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -171,7 +191,7 @@ async def refresh_token(
         )
     except LookupError as e:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
+            status_code=status.HTTP_401_UNAUTHORIZED,
             detail=str(e),
         )
 
@@ -188,14 +208,9 @@ async def update_profile(
             user_data,
             current_user,
         )
-    except LookupError as e:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=str(e),
-        )
     except ValueError as e:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
+            status_code=status.HTTP_401_UNAUTHORIZED,
             detail=str(e),
         )
 
@@ -227,3 +242,11 @@ async def get_user_by_id(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"{e}",
         )
+
+
+@router.post("/logout")
+async def logout(
+    response: Response,
+):
+    response.delete_cookie()
+    return {"message": "Logout success"}

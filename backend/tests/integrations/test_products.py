@@ -10,11 +10,14 @@ async def test_success_create_product(created_admin_client):
     category_data = CategoryCreate(
         name=f"category_name_{random.randint(1, 1000)}"
     )
+
     response1 = await created_admin_client.post(
         "/categories/",
         json=category_data.model_dump(),
     )
+
     category = CategoryResponse(**response1.json())
+
 
     product_data = CreateProductRequest(
         name=f'product_{random.randint(1, 10000)}',

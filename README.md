@@ -130,7 +130,10 @@ alembic upgrade head
 ### 5) Сборка и запуск через Docker
 ```bash
 # Запуск и сборка
-docker-compose up --build -d
+docker compose up --build -d
+
+# Запуск стидии тестирования
+docker compose -f docker-compose.tests.yml -p flower_tests up -d --build
 ```
 
 ### 6) Создание пользователей

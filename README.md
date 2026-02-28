@@ -133,7 +133,7 @@ alembic upgrade head
 docker compose up --build -d
 
 # Запуск стидии тестирования
-docker compose -f docker-compose.tests.yml -p flower_tests up -d --build
+docker compose -f docker-compose.tests.yml -p flowers_tests up -d --build
 ```
 
 ### 6) Создание пользователей

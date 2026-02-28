@@ -123,6 +123,7 @@ class APPConfig(BaseSettings):
     NAME: str
     HOST: str
     PORT: int
+    BACKEND_URL: str
 
 
 class Config(BaseSettings):

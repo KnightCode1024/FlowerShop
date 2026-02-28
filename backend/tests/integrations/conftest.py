@@ -24,41 +24,16 @@ async def session() -> AsyncSession:
 
 
 @pytest.fixture
-async def client(base_url="http://backend:8000/api"):
+async def client(base_url=config.app.BACKEND_URL):
     async with httpx.AsyncClient(base_url=base_url) as client:
         yield client
 
 
-@pytest.fixture
-def user_factory(client):
-    async def _create():
-        register_data = UserCreate(email=f"test{random.randint(10000, 99999999)}@test.com", password="12345678A@", username="Alex")
 
-        created_user = await client.post("/users/register", json=register_data.model_dump())
-
-        assert created_user.status_code == 200
-        assert created_user.json()["email"] == register_data.email
-
-        login_data = UserLogin(email=register_data.email, password=register_data.password)
-
-        response2 = await client.post("/users/login", json=login_data.model_dump())
-
-        assert response2.status_code == 200
-
-        client.cookies.set("access_token", response2.json()["access_token"])
-        client.headers["Authorization"] = f"Bearer {response2.json()["access_token"]}"
-        client.cookies.set("refresh_token", response2.json()["access_token"])
-
-        assert response2.json()["access_token"] is not None
-        assert response2.json()["refresh_token"] is not None
-
-        return UserResponse(**created_user.json())
-
-    return _create
 
 
 @pytest.fixture
-def test_product1(test_category_for_products):
+def test_product1():
     return ProductCreate(
         name="Rose Bouquet",
         description="Beautiful red roses",
@@ -100,8 +75,38 @@ async def email_service(session: AsyncSession):
 
 
 @pytest.fixture
-async def user_service(user_repository, session: AsyncSession, email_service) -> UserService:
+async def user_service(user_repository: UserRepository, session: AsyncSession, email_service: EmailService) -> UserService:
     return UserService(UnitOfWork(session), user_repository, email_service)
+
+
+@pytest.fixture
+def user_factory(client):
+    async def _create():
+        register_data = UserCreate(email=f"test{random.randint(10000, 99999999)}@test.com",
+                                   password=make_valid_password(16),
+                                   username="Alex")
+
+        created_user = await client.post("/users/register", json=register_data.model_dump())
+
+        assert created_user.status_code == 200
+        assert created_user.json()["email"] == register_data.email
+
+        login_data = UserLogin(email=register_data.email, password=register_data.password)
+
+        response2 = await client.post("/users/login", json=login_data.model_dump())
+
+        assert response2.status_code == 200
+
+        client.cookies.set("access_token", response2.json()["access_token"])
+        client.headers["Authorization"] = f"Bearer {response2.json()["access_token"]}"
+        client.cookies.set("refresh_token", response2.json()["access_token"])
+
+        assert response2.json()["access_token"] is not None
+        assert response2.json()["refresh_token"] is not None
+
+        return UserResponse(**created_user.json())
+
+    return _create
 
 
 @pytest.fixture
@@ -111,6 +116,7 @@ async def created_admin_client(client, user_service: UserService):
         username="admin",
         password=make_valid_password(12),
         role=RoleEnum.ADMIN,
+        email_verified=True
     )
     user = await user_service.create_user_for_console(user_create_data)
 
@@ -137,7 +143,8 @@ async def created_user_client(client, user_service: UserService):
         email=f"User{random.randint(1, 10000)}@test.com",
         username="user",
         password=make_valid_password(12),
-        role=RoleEnum.USER
+        role=RoleEnum.USER,
+        email_verified=True
     )
     user = await user_service.create_user_for_console(user_create_data)
 
@@ -164,7 +171,8 @@ async def created_employee_client(client, user_service: UserService):
         email=f"employee{random.randint(1, 10000)}@test.com",
         username="employee",
         password=make_valid_password(12),
-        role=RoleEnum.EMPLOYEE
+        role=RoleEnum.EMPLOYEE,
+        email_verified=True
     )
     user = await user_service.create_user_for_console(user_create_data)
 

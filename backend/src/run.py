@@ -1,3 +1,5 @@
+import logging
+
 from dishka import AsyncContainer, Provider
 from dishka.integrations.fastapi import setup_dishka
 from fastapi import FastAPI
@@ -7,6 +9,8 @@ from entrypoint.ioc.registry import get_providers
 from entrypoint.setup import (configure_app, configure_middlewares, create_app,
                               create_async_container)
 from routers.root_router import root_router
+
+logging.getLogger("sqlalchemy.engine").setLevel(logging.INFO)
 
 
 def make_app(*di_providers: Provider) -> FastAPI:

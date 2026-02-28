@@ -32,7 +32,6 @@ async def register(
     try:
         return await service.register_user(user_data)
     except ValueError as e:
-        print(e)
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"{e}",

@@ -50,9 +50,8 @@ services:
         condition: service_healthy
     networks:
       - flower_shop_net
+
   tests:
-    image: flowershop-tests:latest
-    container_name: tests
     build:
       context: ./backend
       dockerfile: Dockerfile.test
@@ -160,7 +159,6 @@ services:
 
   frontend:
     build: ./frontend
-    restart: always
     ports:
       - "5173:5173"
     depends_on:
@@ -171,6 +169,8 @@ services:
     command: npm run dev
     networks:
       - flower_shop_net
+    restart: always
+
 
   prometheus:
     image: prom/prometheus:latest

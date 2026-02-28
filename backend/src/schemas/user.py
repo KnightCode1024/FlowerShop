@@ -28,10 +28,10 @@ class UserCreate(UserBase):
 
 class UserCreateConsole(UserBase):
     role: RoleEnum
+    email_verified: bool
 
 
 class UserLogin(UserEmail):
-    # email: str = Field(..., max_length=64)
     password: str = Field(..., max_length=255)
 
 

@@ -87,11 +87,13 @@ class UserService:
 
     async def login_user(self, user_data: UserLogin) -> AccessToken:
         user = await self.user_repository.get_user_by_email(user_data.email)
+
         if user is None or not validate_password(
             user_data.password,
             user.password,
         ):
             raise ValueError("Uncorrect login or password")
+
         if not user.email_verified:
             raise ValueError("Email not verify")
 
@@ -128,6 +130,7 @@ class UserService:
         )
         if not updated:
             raise LookupError("User not found")
+
         return UserResponse(
             id=updated.id,
             email=updated.email,

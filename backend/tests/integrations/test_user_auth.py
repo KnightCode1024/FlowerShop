@@ -33,5 +33,3 @@ async def test_register_user_not_verified(client):
 
     assert created_user.status_code == 400
     assert created_user.json()["detail"] == "Email already exists"
-
-

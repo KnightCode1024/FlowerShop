@@ -2,7 +2,7 @@ services:
   backend:
     &backend
     image: flowershop:latest
-    env_file: .env
+    env_file: .env.test
     build: ./backend
     restart: always
     volumes:
@@ -57,13 +57,13 @@ services:
       dockerfile: Dockerfile.test
     working_dir: /backend
     env_file:
-      - .env
+      - .env.test
     command: sh -c "pytest tests"
     networks:
       - flower_shop_net
 
   postgres:
-    env_file: .env
+    env_file: .env.test
     image: postgres:18-alpine
     volumes:
       - postgres-data:/var/lib/postgresql/data
@@ -119,7 +119,7 @@ services:
 
 
   minio:
-    env_file: .env
+    env_file: .env.test
     build:
       context: ./backend
       dockerfile: minio/Dockerfile

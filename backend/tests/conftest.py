@@ -53,7 +53,7 @@ async def async_engine(postgres_url):
     engine = create_async_engine(
         postgres_url,
         connect_args={"check_same_thread": False},
-        poolclass=StaticPool,  # обязательно для общей памяти
+        poolclass=StaticPool,
     )
 
     async with engine.begin() as conn:

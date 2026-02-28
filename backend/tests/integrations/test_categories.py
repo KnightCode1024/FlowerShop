@@ -18,7 +18,7 @@ async def test_create_category(created_admin_client):
 
 
 @pytest.mark.asyncio
-async def test_delete_category(created_admin_client):
+async def test_delete_category(clear_db, created_admin_client):
     category = await test_create_category(created_admin_client)
 
 
@@ -30,7 +30,7 @@ async def test_delete_category(created_admin_client):
 
 
 @pytest.mark.asyncio
-async def test_update_category(created_admin_client):
+async def test_update_category(clear_db, created_admin_client):
     category_data = CategoryUpdate(name="Архидеи")
 
 

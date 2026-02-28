@@ -233,14 +233,10 @@ class UserService:
             raise ValueError("User with this email already exists")
 
         async with self.uow:
-            hashed_password = hash_password(user_data.password)
-            user_create_data = UserCreateConsole(
-                email=user_data.email,
-                username=user_data.username,
-                password=hashed_password,
-                role=user_role,
-            )
-            user = await self.user_repository.create(user_create_data)
+            user_data.password = hash_password(user_data.password)
+            print(user_data)
+
+            user = await self.user_repository.create(user_data)
             return UserResponse(
                 id=user.id,
                 email=user.email,

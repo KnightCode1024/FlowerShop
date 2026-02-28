@@ -1,13 +1,11 @@
+import importlib
 import random
 from decimal import Decimal
 
 import httpx
-import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.uow import UnitOfWork
-from entrypoint.config import config
-from entrypoint.ioc.engine import session_factory
 from models import RoleEnum
 from repositories import UserRepository, ProductRepository, CategoryRepository
 from schemas.category import CategoryCreate
@@ -16,20 +14,44 @@ from schemas.user import UserCreate, UserLogin, UserResponse, UserCreateConsole
 from services import UserService, EmailService
 from utils.strings import make_valid_password
 
+import pytest
+
+from entrypoint.config import config
+
+engine_mod = importlib.import_module("entrypoint.ioc.engine")
+
+
+@pytest.fixture(scope="session")
+def app_engine():
+    return getattr(engine_mod, "engine")
+
+
+@pytest.fixture(scope="session")
+def app_session_factory():
+    return getattr(engine_mod, "session_factory")
+
 
 @pytest.fixture
-async def session() -> AsyncSession:
-    async with session_factory() as s:
+async def session(app_session_factory) -> AsyncSession:
+    async with app_session_factory() as s:
         yield s
+
+
+TABLES = ["categories", "users", "orders", "products", "promocodes", "product_images"]
+
+
+@pytest.fixture(autouse=True)
+async def clear_db(app_engine):
+    async with app_engine.begin() as conn:
+        for t in TABLES:
+            await conn.exec_driver_sql(f"TRUNCATE TABLE {t} RESTART IDENTITY CASCADE")
+    yield
 
 
 @pytest.fixture
 async def client(base_url=config.app.BACKEND_URL):
     async with httpx.AsyncClient(base_url=base_url) as client:
         yield client
-
-
-
 
 
 @pytest.fixture
@@ -44,7 +66,7 @@ def test_product1():
 
 
 @pytest.fixture
-async def user_repository(session):
+async def user_repository(session: AsyncSession):
     return UserRepository(session=session)
 
 
@@ -60,7 +82,7 @@ async def category_for_products(category_repository: CategoryRepository):
 
 
 @pytest.fixture
-async def product_repository(session):
+async def product_repository(session: AsyncSession):
     return ProductRepository(session=session)
 
 

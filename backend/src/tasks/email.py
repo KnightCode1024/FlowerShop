@@ -1,8 +1,7 @@
 import logging
-from email.message import EmailMessage
-
 import aiosmtplib
 
+from email.message import EmailMessage
 from core import broker
 from entrypoint.config import Config
 

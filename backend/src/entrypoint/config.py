@@ -84,9 +84,9 @@ class EmailConfig(BaseSettings):
         extra="ignore",
     )
 
-    PORT: int = 8080
+    PORT: int
     HOST: str
-    USE_SSL: bool = False
+    USE_SSL: bool
     PASSWORD: str
     USERNAME: str
 

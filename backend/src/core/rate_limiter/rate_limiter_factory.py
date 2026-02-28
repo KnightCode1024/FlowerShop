@@ -45,6 +45,9 @@ def rate_limit(strategy: Strategy = Strategy.IP, policy: str | None = None):
                 else:
                     identifier = request.client.host if request.client else "unknown"
 
+
+                print(f"IP = {identifier}")
+
             elif strategy == Strategy.USER:
                 user = kwargs.get("current_user") or kwargs.get("user")
                 if user is not None and hasattr(user, "id"):

@@ -1,24 +1,39 @@
+import asyncio
 import importlib
 import random
-from decimal import Decimal
-
 import httpx
+import pytest
+from httpx import ASGITransport
+
 from sqlalchemy.ext.asyncio import AsyncSession
+from decimal import Decimal
 
 from core.uow import UnitOfWork
 from models import RoleEnum
 from repositories import UserRepository, ProductRepository, CategoryRepository
+from run import make_app
 from schemas.category import CategoryCreate
 from schemas.product import ProductCreate
 from schemas.user import UserCreate, UserLogin, UserResponse, UserCreateConsole
 from services import UserService, EmailService
+from entrypoint.config import config
 from utils.strings import make_valid_password
 
-import pytest
-
-from entrypoint.config import config
-
 engine_mod = importlib.import_module("entrypoint.ioc.engine")
+TABLES = ["categories", "users", "orders", "products", "promocodes", "product_images"]
+
+
+@pytest.fixture(scope="session")
+def event_loop():
+    policy = asyncio.get_event_loop_policy()
+    loop = policy.new_event_loop()
+    yield loop
+    loop.close()
+
+
+@pytest.fixture(scope="session")
+def app_instance():
+    return make_app()
 
 
 @pytest.fixture(scope="session")
@@ -37,10 +52,7 @@ async def session(app_session_factory) -> AsyncSession:
         yield s
 
 
-TABLES = ["categories", "users", "orders", "products", "promocodes", "product_images"]
-
-
-@pytest.fixture(autouse=True)
+@pytest.fixture()
 async def clear_db(app_engine):
     async with app_engine.begin() as conn:
         for t in TABLES:
@@ -49,8 +61,9 @@ async def clear_db(app_engine):
 
 
 @pytest.fixture
-async def client(base_url=config.app.BACKEND_URL):
-    async with httpx.AsyncClient(base_url=base_url) as client:
+async def client(app_instance, base_url="http://test"):
+    transport = ASGITransport(app=app_instance)
+    async with httpx.AsyncClient(base_url=base_url, transport=transport) as client:
         yield client
 
 
@@ -99,36 +112,6 @@ async def email_service(session: AsyncSession):
 @pytest.fixture
 async def user_service(user_repository: UserRepository, session: AsyncSession, email_service: EmailService) -> UserService:
     return UserService(UnitOfWork(session), user_repository, email_service)
-
-
-@pytest.fixture
-def user_factory(client):
-    async def _create():
-        register_data = UserCreate(email=f"test{random.randint(10000, 99999999)}@test.com",
-                                   password=make_valid_password(16),
-                                   username="Alex")
-
-        created_user = await client.post("/users/register", json=register_data.model_dump())
-
-        assert created_user.status_code == 200
-        assert created_user.json()["email"] == register_data.email
-
-        login_data = UserLogin(email=register_data.email, password=register_data.password)
-
-        response2 = await client.post("/users/login", json=login_data.model_dump())
-
-        assert response2.status_code == 200
-
-        client.cookies.set("access_token", response2.json()["access_token"])
-        client.headers["Authorization"] = f"Bearer {response2.json()["access_token"]}"
-        client.cookies.set("refresh_token", response2.json()["access_token"])
-
-        assert response2.json()["access_token"] is not None
-        assert response2.json()["refresh_token"] is not None
-
-        return UserResponse(**created_user.json())
-
-    return _create
 
 
 @pytest.fixture

@@ -26,7 +26,7 @@ from providers.dependencies import yoomoney_factory
 from schemas.invoice import Methods
 
 
-class ServiceProvider(Provider):
+class  ServiceProvider(Provider):
     scope = Scope.REQUEST
 
     @provide

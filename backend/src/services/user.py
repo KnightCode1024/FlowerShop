@@ -48,12 +48,12 @@ class UserService:
                 token=user.token,
             )
 
-            return UserResponse(
-                id=user.id,
-                email=user.email,
-                username=user.username,
-                role=user.role,
-            )
+        return UserResponse(
+            id=user.id,
+            email=user.email,
+            username=user.username,
+            role=user.role,
+        )
 
     async def check_code(self, user: UserResponse, otp_code: OTPCode):
         otp_secret = await self.user_repository.get_otp_secret(user)
@@ -234,15 +234,14 @@ class UserService:
 
         async with self.uow:
             user_data.password = hash_password(user_data.password)
-            print(user_data)
 
             user = await self.user_repository.create(user_data)
-            return UserResponse(
-                id=user.id,
-                email=user.email,
-                username=user.username,
-                role=user.role,
-            )
+        return UserResponse(
+            id=user.id,
+            email=user.email,
+            username=user.username,
+            role=user.role,
+        )
 
     def _validate_password(self, password: str, role: RoleEnum) -> None:
 

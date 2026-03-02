@@ -58,7 +58,7 @@ services:
     working_dir: /backend
     env_file:
       - .env.test
-    command: sh -c "pytest tests"
+    command: sh -c "pytest tests -s"
     networks:
       - flower_shop_net
 

@@ -1,74 +1,54 @@
 import asyncio
-import importlib
 import random
 import httpx
 import pytest
 from httpx import ASGITransport
 
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
 from decimal import Decimal
 
 from core.uow import UnitOfWork
+from entrypoint.config import config
+from entrypoint.ioc.engine import session_factory, engine
 from models import RoleEnum
 from repositories import UserRepository, ProductRepository, CategoryRepository
 from run import make_app
 from schemas.category import CategoryCreate
 from schemas.product import ProductCreate
-from schemas.user import UserCreate, UserLogin, UserResponse, UserCreateConsole
+from schemas.user import UserLogin, UserCreateConsole, UserCreate
 from services import UserService, EmailService
-from entrypoint.config import config
 from utils.strings import make_valid_password
+from run import make_app
 
-engine_mod = importlib.import_module("entrypoint.ioc.engine")
-TABLES = ["categories", "users", "orders", "products", "promocodes", "product_images"]
-
-
-@pytest.fixture(scope="session")
-def event_loop():
-    policy = asyncio.get_event_loop_policy()
-    loop = policy.new_event_loop()
-    yield loop
-    loop.close()
-
-
-@pytest.fixture(scope="session")
-def app_instance():
-    return make_app()
-
-
-@pytest.fixture(scope="session")
-def app_engine():
-    return getattr(engine_mod, "engine")
-
-
-@pytest.fixture(scope="session")
-def app_session_factory():
-    return getattr(engine_mod, "session_factory")
-
-
-@pytest.fixture
-async def session(app_session_factory) -> AsyncSession:
-    async with app_session_factory() as s:
-        yield s
+TABLES = ["categories",
+          "users",
+          "orders",
+          "products",
+          "promocodes",
+          "product_images"]
 
 
 @pytest.fixture()
-async def clear_db(app_engine):
-    async with app_engine.begin() as conn:
+async def clear_db():
+    async with engine.begin() as conn:
         for t in TABLES:
             await conn.exec_driver_sql(f"TRUNCATE TABLE {t} RESTART IDENTITY CASCADE")
     yield
 
 
 @pytest.fixture
-async def client(app_instance, base_url="http://test"):
-    transport = ASGITransport(app=app_instance)
-    async with httpx.AsyncClient(base_url=base_url, transport=transport) as client:
+async def app():
+    return make_app()
+
+
+@pytest.fixture
+async def client(app):
+    async with httpx.AsyncClient(base_url="http://backend:8000/api") as client:
         yield client
 
 
 @pytest.fixture
-def test_product1():
+def test_product1(category_for_products):
     return ProductCreate(
         name="Rose Bouquet",
         description="Beautiful red roses",
@@ -105,30 +85,33 @@ async def created_product(product_repository, test_product1):
 
 
 @pytest.fixture
+async def session() -> AsyncSession:
+    async with session_factory() as s:
+        yield s
+
+
+@pytest.fixture
 async def email_service(session: AsyncSession):
     return EmailService(config)
 
 
 @pytest.fixture
-async def user_service(user_repository: UserRepository, session: AsyncSession, email_service: EmailService) -> UserService:
-    return UserService(UnitOfWork(session), user_repository, email_service)
-
-
-@pytest.fixture
-async def created_admin_client(client, user_service: UserService):
-    user_create_data = UserCreateConsole(
+async def created_admin_client(client, user_repository: UserRepository):
+    user_create_data = UserCreate(
         email=f"ADMIN_adminov{random.randint(1, 10000)}@test.com",
         username="admin",
         password=make_valid_password(12),
         role=RoleEnum.ADMIN,
         email_verified=True
     )
-    user = await user_service.create_user_for_console(user_create_data)
+    user = await user_repository.create(user_create_data)
 
     assert user_create_data.email == user.email
 
     login_data = UserLogin(email=user_create_data.email, password=user_create_data.password)
-    response = await client.post("/users/login", json=login_data.model_dump())
+    response = await client.post("http://backend:8000/api/users/login", json=login_data.model_dump())
+
+    print(response.text, response.headers, login_data)
 
     assert response.status_code == 200
 
@@ -143,15 +126,15 @@ async def created_admin_client(client, user_service: UserService):
 
 
 @pytest.fixture
-async def created_user_client(client, user_service: UserService):
-    user_create_data = UserCreateConsole(
+async def created_user_client(client, user_repository: UserRepository):
+    user_create_data = UserCreate(
         email=f"User{random.randint(1, 10000)}@test.com",
         username="user",
         password=make_valid_password(12),
         role=RoleEnum.USER,
         email_verified=True
     )
-    user = await user_service.create_user_for_console(user_create_data)
+    user = await user_repository.create(user_create_data)
 
     assert user_create_data.email == user.email
 
@@ -171,15 +154,15 @@ async def created_user_client(client, user_service: UserService):
 
 
 @pytest.fixture
-async def created_employee_client(client, user_service: UserService):
-    user_create_data = UserCreateConsole(
-        email=f"employee{random.randint(1, 10000)}@test.com",
-        username="employee",
+async def created_employee_client(client, user_repository: UserRepository):
+    user_create_data = UserCreate(
+        email=f"User{random.randint(1, 10000)}@test.com",
+        username="user",
         password=make_valid_password(12),
-        role=RoleEnum.EMPLOYEE,
+        role=RoleEnum.USER,
         email_verified=True
     )
-    user = await user_service.create_user_for_console(user_create_data)
+    user = await user_repository.create(user_create_data)
 
     assert user_create_data.email == user.email
 

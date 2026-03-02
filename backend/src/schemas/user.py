@@ -23,7 +23,8 @@ class UserBase(UserEmail):
 
 
 class UserCreate(UserBase):
-    pass
+    role: RoleEnum = RoleEnum.USER
+    email_verified: bool = False
 
 
 class UserCreateConsole(UserBase):

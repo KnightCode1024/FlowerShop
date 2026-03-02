@@ -13,6 +13,9 @@ from routers.root_router import root_router
 
 def make_app(*di_providers: Provider) -> FastAPI:
     app: FastAPI = create_app()
+    logging.basicConfig(
+        level=logging.DEBUG
+    )
     configure_middlewares(app=app)
     configure_app(app=app, root_router=root_router)
 

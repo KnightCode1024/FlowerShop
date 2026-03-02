@@ -27,9 +27,11 @@ async def test_login_user_success(created_user_client, client):
 
 
 @pytest.mark.asyncio
-async def test_register_user_not_verified(client):
+async def test_register_user_success(client):
     register_data = UserCreate(email=f"test1@test.com", password=make_valid_password(), username="Alex")
     created_user = await client.post("/users/register", json=register_data.model_dump())
 
-    assert created_user.status_code == 400
-    assert created_user.json()["detail"] == "Email already exists"
+    assert created_user.status_code == 200
+
+    user = User(**created_user.json())
+    assert user.email == user.email

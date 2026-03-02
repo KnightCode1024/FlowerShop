@@ -1,20 +1,19 @@
-from contextlib import asynccontextmanager
-from collections.abc import AsyncGenerator
 from typing import AsyncIterable
 
-from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, AsyncEngine
-from dishka import Provider, Scope, provide
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from entrypoint.config import config
+from core.uow import UnitOfWork
+from dishka import provide, Scope, Provider
+
 from entrypoint.ioc.engine import session_factory
 
 
 class DatabaseProvider(Provider):
-    @provide(scope=Scope.APP)
-    def engine(self) -> AsyncEngine:
-        return create_async_engine(config.database.DATABASE_URI)
+    @provide(scope=Scope.REQUEST)
+    async def session(self) -> AsyncIterable[AsyncSession]:
+        async with session_factory() as session:
+            yield session
 
     @provide(scope=Scope.REQUEST)
-    async def session(self, engine: AsyncEngine) -> AsyncIterable[AsyncSession]:
-        async with AsyncSession(engine, expire_on_commit=False, autoflush=False) as session:
-            yield session
+    def uow(self, session: AsyncSession) -> UnitOfWork:
+        return UnitOfWork(session)

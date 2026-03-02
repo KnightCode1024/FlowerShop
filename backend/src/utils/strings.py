@@ -12,16 +12,6 @@ def generate_random_promo(length: int = 5):
     return generate_random_token(length)
 
 
-def generate_random_password(length: int = 16):
-    rand_pass_list = random.sample(ascii_letters, k=length)
-
-    rand_pass_list.append(random.choice(["@", "!", "+", "="]))
-
-    rand_pass_list.append(str(random.randint(1, 9)))
-
-    return "".join(rand_pass_list)
-
-
 def make_valid_password(min_length=12):
     specials = '!@#$%^&*(),.?":{}|<>'
     while True:

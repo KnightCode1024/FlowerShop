@@ -5,7 +5,7 @@ from models import User
 from schemas.user import UserLogin, UserCreate, UserResponse
 import random
 
-from utils.strings import generate_random_password, make_valid_password
+from utils.strings import make_valid_password
 
 
 @pytest.mark.asyncio

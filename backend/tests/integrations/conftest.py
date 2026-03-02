@@ -156,10 +156,10 @@ async def created_user_client(client, user_repository: UserRepository):
 @pytest.fixture
 async def created_employee_client(client, user_repository: UserRepository):
     user_create_data = UserCreate(
-        email=f"User{random.randint(1, 10000)}@test.com",
-        username="user",
+        email=f"employee_{random.randint(1, 10000)}@test.com",
+        username="employee",
         password=make_valid_password(12),
-        role=RoleEnum.USER,
+        role=RoleEnum.EMPLOYEE,
         email_verified=True
     )
     user = await user_repository.create(user_create_data)

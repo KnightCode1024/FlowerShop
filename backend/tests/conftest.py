@@ -1,3 +1,4 @@
+from typing import AsyncGenerator
 from unittest.mock import MagicMock
 
 import pytest
@@ -15,6 +16,7 @@ from dishka import (
     make_async_container,
 )
 
+from entrypoint.ioc.engine import session_factory
 from models import (
     Base,
     # User,
@@ -78,8 +80,10 @@ async def async_session_maker(
 def database_provider(session: AsyncSession):
     class TestDatabaseProvider(Provider):
         @provide(scope=Scope.REQUEST)
-        async def get_session(self):
-            return session
+        async def get_session(self) -> AsyncGenerator[AsyncSession, None]:
+            # session_fixture в тестах — это фабрика/мастер; но здесь нам нужно выдавать новый session на каждый запрос
+            async with session_factory() as s:
+                yield s
 
     return TestDatabaseProvider()
 

@@ -13,14 +13,14 @@ class PromocodeService:
         self.repository = promocode_repository
 
     @require_roles([RoleEnum.ADMIN, RoleEnum.EMPLOYEE])
-    async def create_promo(self, data: PromoCreateRequest):
+    async def create_promo(self, user, data: PromoCreateRequest):
         promo_data = PromoCreate(**data.model_dump())
 
         async with self.uow:
             return await self.repository.add(promo_data)
 
     @require_roles([RoleEnum.USER])
-    async def activate_promo(self, promo_code_data: PromoActivateRequest, user_id: int):
+    async def activate_promo(self, user, promo_code_data: PromoActivateRequest, user_id: int):
         promo_data = PromoActivateCreate(
             user_id=user_id, **promo_code_data.model_dump()
         )
@@ -30,12 +30,12 @@ class PromocodeService:
             return promo_operation
 
     @require_roles([RoleEnum.ADMIN, RoleEnum.ADMIN])
-    async def delete_promo(self, id: int):
+    async def delete_promo(self, user, id: int):
         async with self.uow:
             await self.repository.delete(id)
 
     @require_roles([RoleEnum.EMPLOYEE, RoleEnum.ADMIN])
-    async def update_promo(self, id: int, data: PromoUpdateRequest):
+    async def update_promo(self, user, id: int, data: PromoUpdateRequest):
         promo_data = PromoUpdate(id=id, **data.model_dump())
         async with self.uow:
             updated_promo = await self.repository.update(promo_data)
@@ -43,6 +43,6 @@ class PromocodeService:
         return updated_promo
 
     @require_roles([RoleEnum.ADMIN, RoleEnum.EMPLOYEE])
-    async def get_promos(self):
+    async def get_promos(self, user):
         async with self.uow:
             return await self.repository.get_all()

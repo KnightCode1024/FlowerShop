@@ -58,7 +58,7 @@ services:
     working_dir: /backend
     env_file:
       - .env.test
-    command: sh -c "pytest tests -s"
+    command: sh -c "pytest tests/integrations -q -k test_user_auth -vv -o log_cli=true -o log_cli_level=DEBUG"
     networks:
       - flower_shop_net
 

@@ -7,7 +7,6 @@ from schemas.promocode import (PromoActivateRequest, PromoCreateRequest,
 from schemas.user import UserResponse
 from services.promocode import PromocodeService
 
-
 router = APIRouter(
     prefix="/promocodes",
     tags=["Promocodes"],
@@ -16,31 +15,39 @@ router = APIRouter(
 
 
 @router.get("/")
-async def get_promos(service: FromDishka[PromocodeService]):
-    return await service.get_promos()
+async def get_promos(current_user: FromDishka[UserResponse],
+                     service: FromDishka[PromocodeService]):
+    return await service.get_promos(current_user)
 
 
 @router.post("/activate")
 async def activate_promo(
-    promo: PromoActivateRequest,
-    current_user: FromDishka[UserResponse],
-    service: FromDishka[PromocodeService],
+        promo: PromoActivateRequest,
+        current_user: FromDishka[UserResponse],
+        service: FromDishka[PromocodeService],
 ):
     return await service.activate_promo(promo, current_user.id)
 
 
 @router.post("/")
-async def create_promo(data: PromoCreateRequest, service: FromDishka[PromocodeService]):
-    return await service.create_promo(data)
+async def create_promo(data: PromoCreateRequest,
+                       service: FromDishka[PromocodeService],
+                       current_user: FromDishka[UserResponse]):
+    return await service.create_promo(current_user, data)
 
 
 @router.delete("/{id}")
-async def delete_promo(id: int, service: FromDishka[PromocodeService]):
-    return await service.delete_promo(id)
+async def delete_promo(id: int,
+                       service: FromDishka[PromocodeService],
+                       current_user: FromDishka[UserResponse]):
+    return await service.delete_promo(current_user, id)
 
 
 @router.patch("/{id}")
 async def update_promo(
-    id: int, data: PromoUpdateRequest, service: FromDishka[PromocodeService]
+        id: int,
+        data: PromoUpdateRequest,
+        service: FromDishka[PromocodeService],
+        current_user: FromDishka[UserResponse]
 ):
-    return await service.update_promo(id, data)
+    return await service.update_promo(current_user, id, data)

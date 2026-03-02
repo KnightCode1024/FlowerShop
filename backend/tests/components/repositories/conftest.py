@@ -14,6 +14,9 @@ from schemas.category import CategoryCreate, CategoryUpdate
 from schemas.product import ProductCreate, ProductUpdate, ProductResponse
 
 
+
+
+
 @pytest.fixture
 async def session(async_session_maker):
     async with async_session_maker() as session:

@@ -1,11 +1,10 @@
-import React from 'react';
 import mainFlower from "../assets/images/main_flower.png";
 import flower1 from "../assets/images/flower1.png";
 
 import "../styles/App.css";
 
 
-function Home(props) {
+function Home() {
     return (
         <div className="flex flex-col gap-6 my-9">
             <div className="font-bold text-5xl sm:text-7xl md:text-9xl">

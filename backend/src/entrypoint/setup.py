@@ -4,6 +4,7 @@ from contextlib import asynccontextmanager
 
 from dishka import Provider, make_async_container
 from fastapi import APIRouter, FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from prometheus_fastapi_instrumentator import Instrumentator
 
 from clients import RedisClient
@@ -53,6 +54,21 @@ def configure_app(app: FastAPI, root_router: APIRouter) -> None:
 
 
 def configure_middlewares(app: FastAPI) -> None:
+    config = create_config()
+    allow_origins = [
+        config.frontend.URL.rstrip("/"),
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+    ]
+
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=allow_origins,
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+
     # instrument = Instrumentator().instrument(app)
     # instrument.expose(app, endpoint="/metrics")
 

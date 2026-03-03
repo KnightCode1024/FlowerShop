@@ -1,9 +1,3 @@
-import React from 'react';
-
-function About(props) {
-    return (
-        <div></div>
-    );
+export default function About() {
+  return <div />;
 }
-
-export default About;

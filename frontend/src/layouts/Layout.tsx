@@ -1,22 +1,19 @@
-import React from "react";
 import { Outlet } from "react-router-dom";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
 
-const Layout: React.FC = () => {
-    return (
-        <div className="flex flex-col mx-auto min-h-screen max-w-screen-lg">
-            <Navbar />
+export default function Layout() {
+  return (
+    <div className="mx-auto flex min-h-screen max-w-screen-lg flex-col">
+      <Navbar />
 
-            <main className="flex-1 overflow-auto p-3">
-                <div className="w-full h-full">
-                    <Outlet />
-                </div>
-            </main>
-
-            <Footer />
+      <main className="flex-1 overflow-auto p-3">
+        <div className="h-full w-full">
+          <Outlet />
         </div>
-    );
-};
+      </main>
 
-export default Layout;
+      <Footer />
+    </div>
+  );
+}

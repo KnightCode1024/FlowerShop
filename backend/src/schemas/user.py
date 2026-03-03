@@ -54,7 +54,7 @@ class UserResponse(UserEmail):
 
 
 class RefreshToken(BaseModel):
-    refresh_token: str = Field(...)
+    refresh_token: str | None = Field(default=None)
 
 
 class TokenPair(BaseModel):

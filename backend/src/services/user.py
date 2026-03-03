@@ -55,11 +55,16 @@ class UserService:
             role=user.role,
         )
 
-    async def check_code(self, user: UserResponse, otp_code: OTPCode):
+    async def check_code(self, user: UserResponse, otp_code: OTPCode) -> TokenPair:
         otp_secret = await self.user_repository.get_otp_secret(user)
 
         if not verify_otp_code(otp_code.otp_code, otp_secret):
             raise ValueError("Not valid code")
+
+        return TokenPair(
+            access_token=create_access_token({"sub": str(user.id)}),
+            refresh_token=create_refresh_token({"sub": str(user.id)}),
+        )
 
     async def verify_email(self, token: str):
         user = await self.user_repository.get_user_by_email_token(token)

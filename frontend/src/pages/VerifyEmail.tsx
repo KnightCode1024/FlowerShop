@@ -66,7 +66,7 @@ export default function VerifyEmail() {
   }, [token]);
 
   return (
-    <section className="mx-auto mt-10 w-full max-w-md rounded-xl border border-gray-700 p-6">
+    <section className="mx-auto mt-10 w-full max-w-md rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
       <h1 className="mb-4 text-2xl font-bold">Email verification</h1>
 
       {status === "loading" ? (

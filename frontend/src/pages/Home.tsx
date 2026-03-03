@@ -1,60 +1,92 @@
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import mainFlower from "../assets/images/main_flower.png";
-import flower1 from "../assets/images/flower1.png";
+import { ApiError } from "../api/authApi";
+import { getProducts, type ProductListItem } from "../api/catalogApi";
+import ProductCard from "../components/ProductCard";
 
-import "../styles/App.css";
+export default function Home() {
+  const [products, setProducts] = useState<ProductListItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
+  useEffect(() => {
+    let isActive = true;
+    (async () => {
+      try {
+        const data = await getProducts({ offset: 0, limit: 8, in_stock: true });
+        if (isActive) {
+          setProducts(data);
+        }
+      } catch (err) {
+        if (isActive) {
+          setError(err instanceof ApiError ? err.message : "Не удалось загрузить товары");
+        }
+      } finally {
+        if (isActive) {
+          setIsLoading(false);
+        }
+      }
+    })();
 
-function Home() {
-    return (
-        <div className="flex flex-col gap-6 my-9">
-            <div className="font-bold text-5xl sm:text-7xl md:text-9xl">
-                Our Blooms R
-            </div>
+    return () => {
+      isActive = false;
+    };
+  }, []);
 
-            <img src={mainFlower} alt="Main Image" className="image"/>
+  return (
+    <div className="my-8 flex flex-col gap-10">
+      <section className="grid grid-cols-1 items-center gap-6 lg:grid-cols-2">
+        <div className="flex flex-col gap-5">
+          <h1 className="text-5xl font-bold sm:text-6xl">Our Blooms R</h1>
+          <p className="max-w-xl text-slate-600">
+            Доставляем свежие цветы и авторские композиции по городу. Выбирайте
+            букет для любого случая в нашем каталоге.
+          </p>
+          <div className="flex gap-3">
+            <Link
+              to="/catalog"
+              className="rounded bg-yellow-500 px-5 py-3 font-semibold text-black"
+            >
+              Перейти в каталог
+            </Link>
+            <Link
+              to="/about"
+              className="rounded border border-slate-300 bg-white px-5 py-3 text-slate-700"
+            >
+              О магазине
+            </Link>
+          </div>
+        </div>
+        <img
+          src={mainFlower}
+          alt="Flowers"
+          className="h-[420px] w-full rounded-2xl object-cover"
+        />
+      </section>
 
-            <div className="flex flex-col gap-9 my-18 font-bold items-center">
-                <p className="text-sm text-gray-500">Who We Are</p>
-                <p className="text-3xl">We're Our Blooms® and we're here to help you find your floral story.</p>
-
-                <a href="/about" className="p-3 flex flex-row items-center gap-3 bg-yellow-500 text-black items-center rounded">
-                    <p>◾</p>
-                    <p className="text-xl font-bold">ABOUT US</p>
-                </a>
-            </div>
-
-            <div className="flex flex-col gap-9 ">
-                <div className="flex flex-row gap-3">
-                    <img src={flower1} alt="" className="image"/>
-                    <img src={flower1} alt="" className="image"/>
-                    <img src={flower1} alt="" className="image"/>
-                    <img src={flower1} alt="" className="image"/>
-                </div>
-
-                <div className="flex flex-col gap-6 items-center">
-                    <h1 className="text-4xl font-bold">What We Do</h1>
-                    <h4 className="font-medium text-sm">We bring a touch of that simple magic into your world.</h4>
-                </div>
-            </div>
-
-            <div className="flex flex-col gap-9">
-                <div className="text-center p-6 flex flex-col gap-6 border-b border-t border-gray-700 pb-4">
-                    <p className="text-3xl font-bold">1</p>
-                    <img src="" alt="photo1"/>
-                </div>
-                <div className="text-center p-6 flex flex-col gap-6 border-b border-gray-700 pb-4">
-                    <p className="text-3xl font-bold">2</p>
-                    <img src="" alt="photo2"/>
-                </div>
-                <div className="text-center p-6 flex flex-col gap-6 border-b border-gray-700 pb-4">
-                    <p className="text-3xl font-bold">3</p>
-                    <img src="" alt="photo3"/>
-                </div>
-            </div>
+      <section className="flex flex-col gap-5">
+        <div className="flex items-center justify-between gap-3">
+          <h2 className="text-3xl font-bold">Популярные товары</h2>
+          <Link to="/catalog" className="text-sm font-semibold text-yellow-400">
+            Смотреть все
+          </Link>
         </div>
 
+        {error ? (
+          <p className="rounded bg-red-100 p-3 text-sm text-red-800">{error}</p>
+        ) : null}
 
-    );
+        {isLoading ? (
+          <p className="py-6 text-center text-slate-500">Загрузка...</p>
+        ) : (
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            {products.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </div>
+        )}
+      </section>
+    </div>
+  );
 }
-
-export default Home;

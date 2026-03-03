@@ -1,50 +1,139 @@
+import { useState } from "react";
 import { NavLink } from "react-router-dom";
 import { useAuth } from "../auth/useAuth";
 
 const navLinkClass = ({ isActive }: { isActive: boolean }) =>
-  isActive ? "text-yellow-400" : "text-gray-200";
+  isActive ? "text-slate-900" : "text-slate-600";
 
 export default function Navbar() {
-  const { isAuthenticated, logout } = useAuth();
+  const { isAuthenticated, user, logout } = useAuth();
+  const [isOpen, setIsOpen] = useState(false);
+  const role = user?.role?.toLowerCase?.() ?? "";
+  const canOpenAdmin = role === "admin" || role === "employee";
+
+  const apiBase = import.meta.env.VITE_API_BASE_URL as string | undefined;
+  const adminUrl = apiBase
+    ? apiBase.replace(/\/+$/, "").replace(/\/api$/, "/admin")
+    : "http://localhost:8000/admin";
+
+  function closeMenu() {
+    setIsOpen(false);
+  }
 
   return (
-    <header className="flex w-full items-center gap-6 border-b border-gray-800 p-4">
-      <NavLink to="/" className="w-full text-2xl font-bold">
-        Our Blooms R
-      </NavLink>
-
-      <nav className="ml-auto flex flex-row gap-5 text-sm font-semibold sm:text-base">
-        <NavLink to="/" className={navLinkClass}>
-          HOME
-        </NavLink>
-        <NavLink to="/about" className={navLinkClass}>
-          ABOUT
+    <header className="relative border-b border-slate-200 bg-white p-4">
+      <div className="flex items-center gap-4">
+        <NavLink to="/" className="w-full text-2xl font-bold" onClick={closeMenu}>
+          Our Blooms R
         </NavLink>
 
-        {isAuthenticated ? (
-          <>
-            <NavLink to="/profile" className={navLinkClass}>
-              PROFILE
-            </NavLink>
-            <button
-              type="button"
-              onClick={logout}
-              className="cursor-pointer text-red-300"
-            >
-              LOGOUT
-            </button>
-          </>
-        ) : (
-          <>
-            <NavLink to="/login" className={navLinkClass}>
-              LOGIN
-            </NavLink>
-            <NavLink to="/register" className={navLinkClass}>
-              REGISTER
-            </NavLink>
-          </>
-        )}
-      </nav>
+        <button
+          type="button"
+          aria-label="Toggle menu"
+          className="rounded border border-slate-300 px-3 py-2 text-sm font-semibold md:hidden"
+          onClick={() => setIsOpen((prev) => !prev)}
+        >
+          {isOpen ? "Close" : "Menu"}
+        </button>
+
+        <nav className="ml-auto hidden flex-row gap-5 text-sm font-semibold md:flex md:text-base">
+          <NavLink to="/" className={navLinkClass}>
+            HOME
+          </NavLink>
+          <NavLink to="/about" className={navLinkClass}>
+            ABOUT
+          </NavLink>
+          <NavLink to="/catalog" className={navLinkClass}>
+            CATALOG
+          </NavLink>
+
+          {isAuthenticated ? (
+            <>
+              {canOpenAdmin ? (
+                <a
+                  href={adminUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-slate-600"
+                >
+                  ADMIN
+                </a>
+              ) : null}
+              <NavLink to="/profile" className={navLinkClass}>
+                PROFILE
+              </NavLink>
+              <button
+                type="button"
+                onClick={logout}
+                className="cursor-pointer text-slate-600"
+              >
+                LOGOUT
+              </button>
+            </>
+          ) : (
+            <>
+              <NavLink to="/login" className={navLinkClass}>
+                LOGIN
+              </NavLink>
+              <NavLink to="/register" className={navLinkClass}>
+                REGISTER
+              </NavLink>
+            </>
+          )}
+        </nav>
+      </div>
+
+      {isOpen ? (
+        <nav className="mt-3 flex flex-col gap-3 border-t border-slate-200 pt-3 text-sm font-semibold md:hidden">
+          <NavLink to="/" className={navLinkClass} onClick={closeMenu}>
+            HOME
+          </NavLink>
+          <NavLink to="/about" className={navLinkClass} onClick={closeMenu}>
+            ABOUT
+          </NavLink>
+          <NavLink to="/catalog" className={navLinkClass} onClick={closeMenu}>
+            CATALOG
+          </NavLink>
+
+          {isAuthenticated ? (
+            <>
+              {canOpenAdmin ? (
+                <a
+                  href={adminUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-slate-600"
+                  onClick={closeMenu}
+                >
+                  ADMIN
+                </a>
+              ) : null}
+              <NavLink to="/profile" className={navLinkClass} onClick={closeMenu}>
+                PROFILE
+              </NavLink>
+              <button
+                type="button"
+                onClick={() => {
+                  closeMenu();
+                  logout();
+                }}
+                className="w-fit cursor-pointer text-red-500"
+              >
+                LOGOUT
+              </button>
+            </>
+          ) : (
+            <>
+              <NavLink to="/login" className={navLinkClass} onClick={closeMenu}>
+                LOGIN
+              </NavLink>
+              <NavLink to="/register" className={navLinkClass} onClick={closeMenu}>
+                REGISTER
+              </NavLink>
+            </>
+          )}
+        </nav>
+      ) : null}
     </header>
   );
 }

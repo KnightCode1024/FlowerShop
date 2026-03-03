@@ -32,7 +32,7 @@ export default function Register() {
   }
 
   return (
-    <section className="mx-auto mt-10 w-full max-w-md rounded-xl border border-gray-700 p-6">
+    <section className="mx-auto mt-10 w-full max-w-md rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
       <h1 className="mb-6 text-2xl font-bold">Create account</h1>
 
       {error ? (
@@ -47,37 +47,37 @@ export default function Register() {
 
       <form onSubmit={onSubmit} className="flex flex-col gap-4">
         <label className="flex flex-col gap-1">
-          <span className="text-sm text-gray-300">Email</span>
+          <span className="text-sm text-slate-600">Email</span>
           <input
             type="email"
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="rounded border border-gray-600 bg-transparent px-3 py-2"
+            className="rounded border border-slate-300 bg-white px-3 py-2 outline-none focus:border-slate-500"
             placeholder="you@example.com"
           />
         </label>
 
         <label className="flex flex-col gap-1">
-          <span className="text-sm text-gray-300">Username</span>
+          <span className="text-sm text-slate-600">Username</span>
           <input
             type="text"
             required
             value={username}
             onChange={(e) => setUsername(e.target.value)}
-            className="rounded border border-gray-600 bg-transparent px-3 py-2"
+            className="rounded border border-slate-300 bg-white px-3 py-2 outline-none focus:border-slate-500"
             placeholder="username"
           />
         </label>
 
         <label className="flex flex-col gap-1">
-          <span className="text-sm text-gray-300">Password</span>
+          <span className="text-sm text-slate-600">Password</span>
           <input
             type="password"
             required
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="rounded border border-gray-600 bg-transparent px-3 py-2"
+            className="rounded border border-slate-300 bg-white px-3 py-2 outline-none focus:border-slate-500"
             placeholder="Password"
           />
         </label>
@@ -91,7 +91,7 @@ export default function Register() {
         </button>
       </form>
 
-      <p className="mt-4 text-sm text-gray-400">
+      <p className="mt-4 text-sm text-slate-500">
         Already registered?{" "}
         <Link to="/login" className="text-yellow-400 underline">
           Sign in

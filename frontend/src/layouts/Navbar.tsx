@@ -1,21 +1,50 @@
-import React, { useEffect, useRef, useState } from "react";
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink } from "react-router-dom";
+import { useAuth } from "../auth/useAuth";
 
+const navLinkClass = ({ isActive }: { isActive: boolean }) =>
+  isActive ? "text-yellow-400" : "text-gray-200";
 
-const Navbar: React.FC = () => {
+export default function Navbar() {
+  const { isAuthenticated, logout } = useAuth();
 
-    return (
-        <div className="flex flex-row w-full items-center justify-center p-4 border-b border-gray-800 pb-4">
+  return (
+    <header className="flex w-full items-center gap-6 border-b border-gray-800 p-4">
+      <NavLink to="/" className="w-full text-2xl font-bold">
+        Our Blooms R
+      </NavLink>
 
-            <a href="/" className="font-bold text-2xl w-full">Our Blooms R</a>
+      <nav className="ml-auto flex flex-row gap-5 text-sm font-semibold sm:text-base">
+        <NavLink to="/" className={navLinkClass}>
+          HOME
+        </NavLink>
+        <NavLink to="/about" className={navLinkClass}>
+          ABOUT
+        </NavLink>
 
-            <div className="flex flex-row flex-1 font-semibold gap-5 flex-1 ml-auto">
-                <a href="/gallery">GALLERY</a>
-                <a href="/about">ABOUT</a>
-                <a href="/contact">CONTACT</a>
-            </div>
-        </div>
-    );
-};
-
-export default Navbar;
+        {isAuthenticated ? (
+          <>
+            <NavLink to="/profile" className={navLinkClass}>
+              PROFILE
+            </NavLink>
+            <button
+              type="button"
+              onClick={logout}
+              className="cursor-pointer text-red-300"
+            >
+              LOGOUT
+            </button>
+          </>
+        ) : (
+          <>
+            <NavLink to="/login" className={navLinkClass}>
+              LOGIN
+            </NavLink>
+            <NavLink to="/register" className={navLinkClass}>
+              REGISTER
+            </NavLink>
+          </>
+        )}
+      </nav>
+    </header>
+  );
+}

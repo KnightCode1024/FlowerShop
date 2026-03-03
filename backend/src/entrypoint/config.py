@@ -9,6 +9,10 @@ load_dotenv(env_file)
 
 
 class PaymentsConfig(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_prefix="YOOMONEY_",
+    )
+
     YOOMONEY_CLIENT_ID: str
     YOOMONEY_SECRET_KEY: str
     YOOMONEY_REDIRECT_URI: str
@@ -116,9 +120,7 @@ class RabbitMQConfig(BaseSettings):
 
 
 class APPConfig(BaseSettings):
-    model_config = SettingsConfigDict(
-        env_prefix="APP_"
-    )
+    model_config = SettingsConfigDict(env_prefix="APP_")
     MODE: str
     NAME: str
     HOST: str

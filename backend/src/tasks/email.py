@@ -14,7 +14,8 @@ async def send_verify_email(config: Config, to_email: str, token):
     message["From"] = config.email.USERNAME
     message["To"] = to_email
     message["Subject"] = "Verify Email"
-    verify_link = config.frontend.URL + f"verify-email?{token}"
+    frontend_url = config.frontend.URL.rstrip("/")
+    verify_link = f"{frontend_url}/verify-email?token={token}"
     message.set_content(f"Для активации перейдите по ссылке:\n\n{verify_link}")
 
     await aiosmtplib.send(

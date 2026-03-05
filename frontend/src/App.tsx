@@ -10,6 +10,8 @@ import Profile from "./pages/Profile";
 import Register from "./pages/Register";
 import VerifyEmail from "./pages/VerifyEmail";
 
+
+
 function App(): JSX.Element {
   return (
     <Routes>

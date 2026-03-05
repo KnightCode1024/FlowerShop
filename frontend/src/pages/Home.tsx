@@ -2,7 +2,7 @@ import mainFlower from "../assets/images/main_flower.png";
 import flower1 from "../assets/images/flower1.png";
 
 import "../styles/App.css";
-
+import About from "../components/buttons/About.tsx";
 
 function Home() {
     return (
@@ -17,10 +17,7 @@ function Home() {
                 <p className="text-sm text-gray-500">Who We Are</p>
                 <p className="text-3xl">We're Our Blooms® and we're here to help you find your floral story.</p>
 
-                <a href="/about" className="p-3 flex flex-row items-center gap-3 bg-yellow-500 text-black items-center rounded">
-                    <p>◾</p>
-                    <p className="text-xl font-bold">ABOUT US</p>
-                </a>
+                <About/>
             </div>
 
             <div className="flex flex-col gap-9 ">
@@ -38,18 +35,44 @@ function Home() {
             </div>
 
             <div className="flex flex-col gap-9">
-                <div className="text-center p-6 flex flex-col gap-6 border-b border-t border-gray-700 pb-4">
-                    <p className="text-3xl font-bold">1</p>
-                    <img src="" alt="photo1"/>
+                <div className="my-12 border-b border-t border-gray-700 pb-4">
+                    <div className="my-18 text-center p-6 flex flex-col gap-6 ">
+                        <p className="text-3xl font-bold">1</p>
+                        <img src="" alt="photo1"/>
+                        <h2 className="text-xl font-bold">FLORAL INSTALLATIONS</h2>
+                        <h4 className="font-medium text-xs">Living art for homes, businesses, and events.</h4>
+                    </div>
                 </div>
-                <div className="text-center p-6 flex flex-col gap-6 border-b border-gray-700 pb-4">
-                    <p className="text-3xl font-bold">2</p>
-                    <img src="" alt="photo2"/>
+                <div className="my-12 border-b border-t border-gray-700 pb-4">
+                    <div className="my-18 text-center p-6 flex flex-col gap-6 ">
+                        <p className="text-3xl font-bold">2</p>
+                        <img src="" alt="photo1"/>
+                        <h2 className="text-xl font-bold">FLORAL INSTALLATIONS</h2>
+                        <h4 className="font-medium text-xs">Whether it’s a private retreat or a public space, we craft floral experiences that bloom
+                            beyond expectations.</h4>
+                    </div>
                 </div>
-                <div className="text-center p-6 flex flex-col gap-6 border-b border-gray-700 pb-4">
-                    <p className="text-3xl font-bold">3</p>
-                    <img src="" alt="photo3"/>
+                <div className="my-12 border-b border-t border-gray-700 pb-4">
+                    <div className="my-18 text-center p-6 flex flex-col gap-6 ">
+                        <p className="text-3xl font-bold">3</p>
+                        <img src="" alt="photo1"/>
+                        <h2 className="text-xl font-bold">CUSTOM FLORAL CONCEPTS</h2>
+                        <h4 className="font-medium text-xs">Your vision, our blooms. We build arrangements that are both personal and exquisitely
+                            simple. Whether it’s a private retreat or a public space, we craft floral experiences that bloom beyond expectations.</h4>
+                    </div>
                 </div>
+
+                <img src={mainFlower} alt="Main Image" className="image"/>
+
+                <div className="my-18">
+
+                    <div className="flex flex-col gap-6"><h1>Work with us</h1>
+                        <h1>Discover how we can add a touch of natural beauty to your next event</h1>
+                        <About/></div>
+                </div>
+
+                <img src={mainFlower} alt="Main Image" className="image"/>
+
             </div>
         </div>
 

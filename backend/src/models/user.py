@@ -52,3 +52,6 @@ class User(Base):
         String(),
         nullable=True,
     )
+
+    def __str__(self) -> str:
+        return f"{self.email} ({self.role})"

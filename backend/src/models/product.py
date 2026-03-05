@@ -50,3 +50,6 @@ class Product(Base):
         back_populates="products",
     )
     # quantity: Mapped[int] = mapped_column(default=1)
+
+    def __str__(self) -> str:
+        return f"{self.name} ({self.price})"

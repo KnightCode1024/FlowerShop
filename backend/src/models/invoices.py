@@ -1,3 +1,5 @@
+import uuid
+
 from sqlalchemy import ForeignKey, Numeric, String, Enum, Uuid
 
 from models import Base
@@ -7,6 +9,11 @@ from schemas.invoice import InvoiceStatus, Methods
 
 
 class Invoice(Base):
+    uid: Mapped[Uuid] = mapped_column(
+        Uuid(as_uuid=True),
+        primary_key=False,
+        default=uuid.uuid4
+    )
     method: Mapped[Methods] = mapped_column(Enum(Methods), nullable=False)
     link: Mapped[str] = mapped_column(String(length=256), nullable=True)
     name: Mapped[str] = mapped_column(String(length=64))

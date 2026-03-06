@@ -3,16 +3,11 @@ from pathlib import Path
 from dotenv import find_dotenv, load_dotenv
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-BASE_DIR = Path(__file__).parent.parent.parent
-env_file = find_dotenv() or (Path(__file__).resolve().parents[1] / ".env")
+env_file = find_dotenv() or (Path(__file__).resolve().parents[0] / ".env")
 load_dotenv(env_file)
 
 
 class PaymentsConfig(BaseSettings):
-    model_config = SettingsConfigDict(
-        env_prefix="YOOMONEY_",
-    )
-
     YOOMONEY_CLIENT_ID: str
     YOOMONEY_SECRET_KEY: str
     YOOMONEY_REDIRECT_URI: str
@@ -28,6 +23,8 @@ class DatabaseConfig(BaseSettings):
 
     model_config = SettingsConfigDict(
         env_prefix="POSTGRES_",
+        env_file_encoding="utf-8",
+        extra="ignore",
     )
 
     @property
@@ -43,7 +40,7 @@ class AuthJWT(BaseSettings):
     if Path("/backend/certs").exists():
         _certs_dir = Path("/backend/certs")
     else:
-        _certs_dir = BASE_DIR / "certs"
+        _certs_dir = "certs"
 
     PRIVATE_KEY: Path = _certs_dir / "jwt-private.pem"
     PUBLIC_KEY: Path = _certs_dir / "jwt-public.pem"
@@ -72,6 +69,7 @@ class S3Config(BaseSettings):
 
 class RedisConfig(BaseSettings):
     model_config = SettingsConfigDict(
+        env_file=env_file,
         env_prefix="REDIS_",
         env_file_encoding="utf-8",
         extra="ignore",
@@ -83,6 +81,7 @@ class RedisConfig(BaseSettings):
 
 class EmailConfig(BaseSettings):
     model_config = SettingsConfigDict(
+        env_file=env_file,
         env_prefix="EMAIL_",
         env_file_encoding="utf-8",
         extra="ignore",
@@ -97,6 +96,7 @@ class EmailConfig(BaseSettings):
 
 class FrontendConfig(BaseSettings):
     model_config = SettingsConfigDict(
+        env_file=env_file,
         env_prefix="FRONTEND_",
         env_file_encoding="utf-8",
         extra="ignore",
@@ -106,7 +106,7 @@ class FrontendConfig(BaseSettings):
 
 
 class OTPConfig(BaseSettings):
-    TTL: int = 300  # seconds
+    TTL: int = 300
 
 
 class RabbitMQConfig(BaseSettings):
@@ -120,12 +120,15 @@ class RabbitMQConfig(BaseSettings):
 
 
 class APPConfig(BaseSettings):
-    model_config = SettingsConfigDict(env_prefix="APP_")
+    model_config = SettingsConfigDict(
+        env_prefix="APP_",
+        env_file_encoding="utf-8",
+        extra="ignore",
+    )
     MODE: str
     NAME: str
     HOST: str
     PORT: int
-    BACKEND_URL: str
 
 
 class Config(BaseSettings):

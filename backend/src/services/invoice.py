@@ -40,7 +40,6 @@ class InvoiceService:
 
         async with self.uow:
             invoice = await self.invoices.get(uid, current_user.id)
-
             is_payed = await self.provider.process(uid)
 
             invoice_data_update = InvoiceUpdate(uid=invoice.uid, status=InvoiceStatus.payed if is_payed else InvoiceStatus.processing)

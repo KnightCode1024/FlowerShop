@@ -57,6 +57,8 @@ services:
       dockerfile: Dockerfile.test
     env_file:
       - .env.test
+    environment:
+      - USE_MOCK_BROKER=true
     command: sh -c "pytest tests/integrations -s"
     networks:
       - flower_shop_net

@@ -11,7 +11,6 @@ from utils.strings import make_valid_password
 @pytest.mark.asyncio
 async def test_login_user_not_found(client: AsyncClient):
     login_data = UserLogin(email=f"test{random.randint(10000, 99999999)}@test.com", password=make_valid_password(16))
-
     response = await client.post("/api/users/login", json=login_data.model_dump())
 
     assert response.status_code == 401
@@ -24,6 +23,17 @@ async def test_login_user_success(created_user_client, client):
     user_me = UserResponse(**resp.json())
 
     assert user_me
+
+
+@pytest.mark.asyncio
+async def test_register_sends_verification_email(client, get_executed_tasks):
+    register_data = UserCreate(email="test@test.com", password=make_valid_password(), username="Alex")
+    response = await client.post("/api/users/register", json=register_data.model_dump())
+
+    assert response.status_code == 200
+
+    tasks = get_executed_tasks()
+    assert any('send_verify_email' in str(t) for t in tasks)
 
 
 @pytest.mark.asyncio

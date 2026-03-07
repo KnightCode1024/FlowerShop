@@ -46,7 +46,7 @@ async def test_update_category(clear_db, created_admin_client):
 
 
 @pytest.mark.asyncio
-async def test_get_all_categories(created_admin_client):
+async def test_get_all_categories(clear_db, created_admin_client):
     cats: list[CategoryResponse] = []
     for i in range(3):
         category = CategoryCreate(name=f"Розы{i}")
@@ -65,7 +65,7 @@ async def test_get_all_categories(created_admin_client):
 
 
 @pytest.mark.asyncio
-async def test_get_one_category(created_admin_client):
+async def test_get_one_category(clear_db, created_admin_client):
     category = CategoryCreate(name=f"Розы")
     response = await created_admin_client.post("/categories/", json=category)
 

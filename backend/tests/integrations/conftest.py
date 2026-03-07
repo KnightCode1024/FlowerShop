@@ -1,5 +1,6 @@
 import random
 from typing import AsyncGenerator
+from unittest.mock import patch
 
 import pytest
 from httpx import ASGITransport, AsyncClient
@@ -13,6 +14,8 @@ from sqlalchemy.ext.asyncio import (
 from sqlalchemy.ext.asyncio import async_sessionmaker as AsyncSessionMaker
 
 from decimal import Decimal
+
+from taskiq import InMemoryBroker
 
 from entrypoint.config import config
 from models import RoleEnum, Base
@@ -29,6 +32,39 @@ from dishka import Provider, provide, Scope
 TEST_DATABASE_DSN = config.database.DATABASE_URI
 
 TABLES = ["categories", "users", "orders", "products", "promocodes", "product_images"]
+
+test_broker = InMemoryBroker()
+
+
+@pytest.fixture(autouse=True)
+def setup_test_broker():
+    global test_broker
+    test_broker = InMemoryBroker()
+
+    with patch('core.broker', test_broker):
+        with patch('tasks.email.broker', test_broker):
+            yield test_broker
+
+
+@pytest.fixture
+def get_executed_tasks():
+    def _get_tasks():
+        return test_broker.get_all_tasks()
+
+    return _get_tasks
+
+
+@pytest.fixture(scope="session")
+async def clear_db():
+    engine = create_async_engine(
+        TEST_DATABASE_DSN,
+        pool_pre_ping=True,
+        echo=False,
+        future=True,
+    )
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.drop_all)
+        await conn.run_sync(Base.metadata.create_all)
 
 
 @pytest.fixture(scope="session")
@@ -81,7 +117,6 @@ async def session(async_session_maker) -> AsyncGenerator[AsyncSession, None]:
         yield s
 
 
-
 @pytest.fixture
 async def user_repository(session: AsyncSession):
     return UserRepository(session=session)
@@ -124,7 +159,6 @@ async def email_service():
     return EmailService(config)
 
 
-
 @pytest.fixture
 async def created_admin_client(client: AsyncClient, user_repository: UserRepository, session: AsyncSession):
     user_create_data = UserCreate(
@@ -140,7 +174,7 @@ async def created_admin_client(client: AsyncClient, user_repository: UserReposit
     assert user.email == user_create_data.email
 
     login_data = UserLogin(email=user_create_data.email, password=user_create_data.password)
-    response = await client.post("/users/login", json=login_data.model_dump())
+    response = await client.post("/api/users/login", json=login_data.model_dump())
     assert response.status_code == 200, f"login failed: {response.text}"
 
     client.cookies.set("access_token", response.json()["access_token"])
@@ -165,7 +199,7 @@ async def created_user_client(client: AsyncClient, user_repository: UserReposito
     assert user.email == user_create_data.email
 
     login_data = UserLogin(email=user_create_data.email, password=user_create_data.password)
-    response = await client.post("/users/login", json=login_data.model_dump())
+    response = await client.post("/api/users/login", json=login_data.model_dump())
     assert response.status_code == 200
 
     client.cookies.set("access_token", response.json()["access_token"])
@@ -190,7 +224,7 @@ async def created_employee_client(client: AsyncClient, user_repository: UserRepo
     assert user.email == user_create_data.email
 
     login_data = UserLogin(email=user_create_data.email, password=user_create_data.password)
-    response = await client.post("/users/login", json=login_data.model_dump())
+    response = await client.post("/api/users/login", json=login_data.model_dump())
     assert response.status_code == 200
 
     client.cookies.set("access_token", response.json()["access_token"])

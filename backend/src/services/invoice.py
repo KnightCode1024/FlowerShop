@@ -5,10 +5,10 @@ from core.uow import UnitOfWork
 from models import RoleEnum
 from models.invoices import Invoice
 from providers import IPaymentProvider
-from providers.yoomoney import YoomoneyProvider
 from repositories.invoice import InvoiceRepositoryI
-from schemas.invoice import InvoiceCreateRequest, InvoiceCreate, Methods, InvoiceStatus, InvoiceUpdate
+from schemas.invoice import InvoiceCreateRequest, InvoiceCreate, Methods, InvoiceStatus, InvoiceUpdate, InvoiceResponse
 from schemas.user import UserResponse
+from tasks.notify import send_notify_admins
 
 
 class InvoiceService:
@@ -20,7 +20,7 @@ class InvoiceService:
         self.provider: IPaymentProvider = None
 
     @require_roles([RoleEnum.USER])
-    async def create_invoice(self, invoice_data: InvoiceCreateRequest, current_user: UserResponse) -> Invoice:
+    async def create_invoice(self, invoice_data: InvoiceCreateRequest, current_user: UserResponse) -> InvoiceResponse:
         self.provider = self.provider_factories.get(Methods(invoice_data.method))()
 
         async with self.uow:
@@ -35,7 +35,7 @@ class InvoiceService:
         return invoice
 
     @require_roles([RoleEnum.USER])
-    async def process_invoice(self, uid: str, method: str, current_user: UserResponse) -> Invoice:
+    async def process_invoice(self, uid: str, method: str, current_user: UserResponse) -> InvoiceResponse:
         self.provider = self.provider_factories.get(Methods(method))()
 
         async with self.uow:
@@ -44,5 +44,8 @@ class InvoiceService:
 
             invoice_data_update = InvoiceUpdate(uid=invoice.uid, status=InvoiceStatus.payed if is_payed else InvoiceStatus.processing)
             await self.invoices.update(invoice_data_update)
+
+            if is_payed:
+                await send_notify_admins.kiq(invoice.model_dump())
 
         return invoice

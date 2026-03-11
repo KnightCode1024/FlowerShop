@@ -5,7 +5,7 @@ from sqlalchemy import ForeignKey, Numeric, String, Enum, Uuid
 from models import Base
 from sqlalchemy.orm import Mapped, mapped_column
 
-from schemas.invoice import InvoiceStatus, Methods
+from schemas.invoice import InvoiceStatus, Methods, InvoiceResponse
 
 
 class Invoice(Base):
@@ -21,3 +21,16 @@ class Invoice(Base):
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     amount: Mapped[float] = mapped_column(Numeric(precision=10, scale=2), nullable=False)
     status: Mapped[InvoiceStatus] = mapped_column(Enum(InvoiceStatus), default=InvoiceStatus.created)
+
+
+    def to_entity(self):
+        return InvoiceResponse(
+            uid=self.uid,
+            name=self.name,
+            order_id=self.order_id,
+            user_id=self.user_id,
+            link=self.link,
+            amount=self.amount,
+            status=self.status,
+            method=self.method,
+        )

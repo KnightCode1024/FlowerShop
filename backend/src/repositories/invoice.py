@@ -6,21 +6,21 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from models.invoices import Invoice
-from schemas.invoice import InvoiceCreate, InvoiceUpdate
+from schemas.invoice import InvoiceCreate, InvoiceUpdate, InvoiceResponse
 
 
 class InvoiceRepositoryI(abc.ABC):
 
     @abc.abstractmethod
-    async def add(self, invoice: InvoiceCreate) -> Invoice:
+    async def add(self, invoice: InvoiceCreate) -> InvoiceResponse:
         pass
 
     @abc.abstractmethod
-    async def get(self, uid: str, user_id: int) -> Invoice:
+    async def get(self, uid: str, user_id: int) -> InvoiceResponse:
         pass
 
     @abc.abstractmethod
-    async def update(self, invoice_data: InvoiceUpdate) -> Invoice:
+    async def update(self, invoice_data: InvoiceUpdate) -> InvoiceResponse:
         pass
 
 
@@ -29,7 +29,7 @@ class InvoiceRepository(InvoiceRepositoryI):
     def __init__(self, session: AsyncSession):
         self.session = session
 
-    async def add(self, invoice: InvoiceCreate) -> Invoice:
+    async def add(self, invoice: InvoiceCreate) -> InvoiceResponse:
         obj = Invoice(**invoice.model_dump())
         self.session.add(obj)
 
@@ -43,7 +43,7 @@ class InvoiceRepository(InvoiceRepositoryI):
 
         return obj
 
-    async def get(self, uid: str, user_id: int) -> Invoice:
+    async def get(self, uid: str, user_id: int) -> InvoiceResponse:
         stmt = select(Invoice).where(Invoice.uid == uid, Invoice.user_id == user_id)
         obj: Invoice | None = (await self.session.execute(stmt)).scalar_one_or_none()
 
@@ -55,7 +55,7 @@ class InvoiceRepository(InvoiceRepositoryI):
 
         return obj
 
-    async def update(self, invoice_data: InvoiceUpdate) -> Invoice:
+    async def update(self, invoice_data: InvoiceUpdate) -> InvoiceResponse:
         stmt = select(Invoice).where(Invoice.uid == invoice_data.uid)
 
         obj: Invoice | None = (await self.session.execute(stmt)).scalar_one_or_none()
@@ -71,4 +71,4 @@ class InvoiceRepository(InvoiceRepositoryI):
 
         await self.session.flush()
 
-        return obj
+        return obj.to_entity()

@@ -1,7 +1,6 @@
 services:
   backend:
     &backend
-    image: flowershop:latest
     env_file: .env.test
     build: ./backend
     restart: always
@@ -59,7 +58,7 @@ services:
       - .env.test
     environment:
       - USE_MOCK_BROKER=true
-    command: sh -c "pytest tests/integrations -s"
+    command: sh -c "pytest tests/components -s"
     networks:
       - flower_shop_net
 

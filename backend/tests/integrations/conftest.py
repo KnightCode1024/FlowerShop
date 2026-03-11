@@ -26,12 +26,16 @@ from schemas.user import UserLogin, UserCreate
 from services import EmailService
 from utils.strings import make_valid_password
 from run import make_app
-
 from dishka import Provider, provide, Scope
 
 TEST_DATABASE_DSN = config.database.DATABASE_URI
 
-TABLES = ["categories", "users", "orders", "products", "promocodes", "product_images"]
+TABLES = ["categories",
+          "users",
+          "orders",
+          "products",
+          "promocodes",
+          "product_images"]
 
 test_broker = InMemoryBroker()
 

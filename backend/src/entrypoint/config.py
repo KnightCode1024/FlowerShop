@@ -131,6 +131,16 @@ class APPConfig(BaseSettings):
     PORT: int
 
 
+class BotConfig(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_prefix="BOT_",
+        env_file_encoding="utf-8",
+        extra="ignore",
+    )
+    TOKEN: str
+    ADMINS_IDS: list[int]
+
+
 class Config(BaseSettings):
     model_config = SettingsConfigDict(
         env_file_encoding="utf-8",
@@ -147,6 +157,7 @@ class Config(BaseSettings):
     app: APPConfig = APPConfig()
     otp: OTPConfig = OTPConfig()
     payment: PaymentsConfig = PaymentsConfig()
+    bot: BotConfig = BotConfig()
 
 
 def create_config() -> Config:

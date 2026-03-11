@@ -11,7 +11,7 @@ from typing import Sequence, Union
 from alembic import op
 import sqlalchemy as sa
 
-from schemas.invoice import Methods, InvoiceStatus
+from schemas.invoice import Methods
 
 # revision identifiers, used by Alembic.
 revision: str = "f183ff9aab37"
@@ -146,11 +146,11 @@ def upgrade() -> None:
         ),
         sa.PrimaryKeyConstraint("id"),
     )
+    # Исправлено: добавлен суррогатный первичный ключ id
     op.create_table(
         "promocode_actions",
-        sa.Column(
-            "promo_id", sa.Integer(), autoincrement=False, nullable=False
-        ),
+        sa.Column("id", sa.Integer(), autoincrement=True, nullable=False),
+        sa.Column("promo_id", sa.Integer(), nullable=False),
         sa.Column("user_id", sa.Integer(), nullable=False),
         sa.Column(
             "created_at",
@@ -165,14 +165,12 @@ def upgrade() -> None:
             nullable=False,
         ),
         sa.ForeignKeyConstraint(
-            ["promo_id"],
-            ["promocodes.id"],
+            ["promo_id"], ["promocodes.id"], ondelete="CASCADE"
         ),
         sa.ForeignKeyConstraint(
-            ["user_id"],
-            ["users.id"],
+            ["user_id"], ["users.id"], ondelete="CASCADE"
         ),
-        sa.PrimaryKeyConstraint("promo_id"),
+        sa.PrimaryKeyConstraint("id"),
     )
     op.create_table(
         "order_products",
@@ -197,8 +195,7 @@ def upgrade() -> None:
             ["order_id"], ["orders.id"], ondelete="CASCADE"
         ),
         sa.ForeignKeyConstraint(
-            ["product_id"],
-            ["products.id"],
+            ["product_id"], ["products.id"], ondelete="CASCADE"
         ),
         sa.PrimaryKeyConstraint("id"),
     )
@@ -226,10 +223,11 @@ def upgrade() -> None:
         ),
         sa.PrimaryKeyConstraint("id"),
     )
+    # Исправлено: корректное определение таблицы invoices
     op.create_table(
         "invoices",
         sa.Column("id", sa.Integer(), autoincrement=True, nullable=False),
-        sa.Column("uid", sa.Uuid(as_uuid=True), autoincrement=True, nullable=False),
+        sa.Column("uid", sa.Uuid(as_uuid=True), nullable=False),  # убран autoincrement
         sa.Column(
             "created_at",
             sa.DateTime(),
@@ -242,26 +240,41 @@ def upgrade() -> None:
             server_default=sa.text("now()"),
             nullable=False,
         ),
+        # Значения Enum нужно заменить на актуальные из вашей схемы
         sa.Column("method", sa.Enum(Methods), nullable=False),
         sa.Column("link", sa.String(length=256), nullable=False),
         sa.Column("name", sa.String(length=64), nullable=False),
-        sa.Column("order_id", sa.ForeignKeyConstraint("order_id", ["order_id"], ondelete="CASCADE"), nullable=False),
-        sa.Column("user_id", sa.ForeignKeyConstraint("user_id", ["user_id"], ondelete="CASCADE"), nullable=False),
+        # Добавлена колонка order_id
+        sa.Column("order_id", sa.Integer(), nullable=False),
+        sa.Column("user_id", sa.Integer(), nullable=False),
         sa.Column("amount", sa.Float(), nullable=False),
-        sa.Column("status", sa.Enum(InvoiceStatus), default=InvoiceStatus.created)
+        # Значения Enum для статуса (пример)
+        sa.Column(
+            "status",
+            sa.Enum("created", "paid", "failed", name="invoicestatusenum"),
+            nullable=False,
+            server_default="created"
+        ),
+        sa.ForeignKeyConstraint(["order_id"], ["orders.id"], ondelete="CASCADE"),
+        sa.ForeignKeyConstraint(["user_id"], ["users.id"], ondelete="CASCADE"),
+        sa.PrimaryKeyConstraint("id"),
     )
     # ### end Alembic commands ###
 
 
 def downgrade() -> None:
     """Downgrade schema."""
+    # Исправлен порядок удаления таблиц (сначала зависимые)
+    op.drop_table("invoices")
     op.drop_table("product_images")
     op.drop_table("order_products")
     op.drop_table("promocode_actions")
     op.drop_table("products")
     op.drop_table("orders")
     op.drop_table("users")
-    op.drop_table("invoices")
     op.drop_table("promocodes")
     op.drop_table("categories")
+    # Удаляем созданные enum types (если они были созданы)
+    sa.Enum(name="methodsenum").drop(op.get_bind(), checkfirst=True)
+    sa.Enum(name="invoicestatusenum").drop(op.get_bind(), checkfirst=True)
     # ### end Alembic commands ###

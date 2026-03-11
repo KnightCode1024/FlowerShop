@@ -11,12 +11,14 @@ load_dotenv(env_file)
 class PaymentsConfig(BaseSettings):
     model_config = SettingsConfigDict(
         env_prefix="YOOMONEY_",
+        env_file_encoding="utf-8",
+        extra="ignore",
     )
 
-    YOOMONEY_CLIENT_ID: str
-    YOOMONEY_SECRET_KEY: str
-    YOOMONEY_REDIRECT_URI: str
-    YOOMONEY_ACCESS_TOKEN: str
+    CLIENT_ID: str
+    SECRET_KEY: str
+    REDIRECT_URI: str
+    ACCESS_TOKEN: str
 
 
 class DatabaseConfig(BaseSettings):
@@ -28,6 +30,8 @@ class DatabaseConfig(BaseSettings):
 
     model_config = SettingsConfigDict(
         env_prefix="POSTGRES_",
+        env_file_encoding="utf-8",
+        extra="ignore",
     )
 
     @property
@@ -120,12 +124,26 @@ class RabbitMQConfig(BaseSettings):
 
 
 class APPConfig(BaseSettings):
-    model_config = SettingsConfigDict(env_prefix="APP_")
+    model_config = SettingsConfigDict(
+        env_prefix="APP_",
+        env_file_encoding="utf-8",
+        extra="ignore",
+        )
+
     MODE: str
     NAME: str
     HOST: str
     PORT: int
-    BACKEND_URL: str
+
+
+class BackendConfig(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_prefix="BACKEND_",
+        env_file_encoding="utf-8",
+        extra="ignore",
+        )
+
+    URL: str
 
 
 class Config(BaseSettings):
@@ -141,6 +159,7 @@ class Config(BaseSettings):
     email: EmailConfig = EmailConfig()
     rabbitmq: RabbitMQConfig = RabbitMQConfig()
     frontend: FrontendConfig = FrontendConfig()
+    backend: BackendConfig = BackendConfig()
     app: APPConfig = APPConfig()
     otp: OTPConfig = OTPConfig()
     payment: PaymentsConfig = PaymentsConfig()

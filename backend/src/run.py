@@ -4,7 +4,6 @@ from dishka import AsyncContainer, Provider
 from dishka.integrations.fastapi import setup_dishka
 from fastapi import FastAPI
 
-from admin import create_admin
 from entrypoint.ioc.registry import get_providers
 from entrypoint.setup import (
     configure_app,
@@ -31,5 +30,4 @@ def make_app(*di_providers: Provider) -> FastAPI:
     setup_dishka(container=async_container, app=app)
     print(async_container, providers)
     app.state.dishka_container = async_container
-    create_admin(app)
     return app

@@ -23,6 +23,10 @@ class InvoiceRepositoryI(abc.ABC):
     async def update(self, invoice_data: InvoiceUpdate) -> Invoice:
         pass
 
+    @abc.abstractmethod
+    async def get_all(self) -> list[Invoice]:
+        pass
+
 
 class InvoiceRepository(InvoiceRepositoryI):
 
@@ -72,3 +76,8 @@ class InvoiceRepository(InvoiceRepositoryI):
         await self.session.flush()
 
         return obj
+
+    async def get_all(self) -> list[Invoice]:
+        stmt = select(Invoice)
+        result = await self.session.execute(stmt)
+        return result.scalars().all()

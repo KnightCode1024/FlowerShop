@@ -11,11 +11,6 @@ export default function Navbar() {
   const role = user?.role?.toLowerCase?.() ?? "";
   const canOpenAdmin = role === "admin" || role === "employee";
 
-  const apiBase = import.meta.env.VITE_API_BASE_URL as string | undefined;
-  const adminUrl = apiBase
-    ? apiBase.replace(/\/+$/, "").replace(/\/api$/, "/admin")
-    : "http://localhost:8000/admin";
-
   function closeMenu() {
     setIsOpen(false);
   }
@@ -50,14 +45,9 @@ export default function Navbar() {
           {isAuthenticated ? (
             <>
               {canOpenAdmin ? (
-                <a
-                  href={adminUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-slate-600"
-                >
+                <NavLink to="/admin/products" className={navLinkClass}>
                   ADMIN
-                </a>
+                </NavLink>
               ) : null}
               <NavLink to="/profile" className={navLinkClass}>
                 PROFILE
@@ -98,15 +88,13 @@ export default function Navbar() {
           {isAuthenticated ? (
             <>
               {canOpenAdmin ? (
-                <a
-                  href={adminUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-slate-600"
+                <NavLink
+                  to="/admin/products"
+                  className={navLinkClass}
                   onClick={closeMenu}
                 >
                   ADMIN
-                </a>
+                </NavLink>
               ) : null}
               <NavLink to="/profile" className={navLinkClass} onClick={closeMenu}>
                 PROFILE

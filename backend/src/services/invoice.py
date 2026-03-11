@@ -47,3 +47,8 @@ class InvoiceService:
             await self.invoices.update(invoice_data_update)
 
         return invoice
+
+    @require_roles([RoleEnum.ADMIN, RoleEnum.EMPLOYEE])
+    async def get_all_invoices(self, user: UserResponse) -> list[Invoice]:
+        async with self.uow:
+            return await self.invoices.get_all()

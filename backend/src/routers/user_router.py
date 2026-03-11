@@ -1,5 +1,5 @@
 from dishka.integrations.fastapi import DishkaRoute, FromDishka
-from fastapi import APIRouter, HTTPException, Request, Response, status
+from fastapi import APIRouter, HTTPException, Query, Request, Response, status
 
 from core.rate_limiter import RateLimiter, Strategy, rate_limit
 from entrypoint.config import create_config
@@ -219,9 +219,11 @@ async def update_profile(
 async def get_all_users(
     service: FromDishka[UserService],
     current_user: FromDishka[UserResponse],
+    offset: int = Query(0, ge=0),
+    limit: int = Query(20, ge=1, le=100),
 ):
     try:
-        return await service.get_all_users(current_user)
+        return await service.get_all_users(current_user, offset, limit)
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -241,4 +243,29 @@ async def get_user_by_id(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"{e}",
+        )
+
+
+@router.put("/{user_id}", response_model=UserResponse)
+async def update_user_by_id(
+    user_id: int,
+    user_data: UserUpdate,
+    service: FromDishka[UserService],
+    current_user: FromDishka[UserResponse],
+):
+    try:
+        return await service.update_user(
+            user_id,
+            user_data,
+            current_user,
+        )
+    except LookupError as e:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=str(e),
+        )
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e),
         )

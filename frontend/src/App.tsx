@@ -11,6 +11,16 @@ import Product from "./pages/Product";
 import Profile from "./pages/Profile";
 import Register from "./pages/Register";
 import VerifyEmail from "./pages/VerifyEmail";
+import AdminRoute from "./components/AdminRoute";
+import AdminLayout from "./layouts/AdminLayout";
+import AdminProducts from "./pages/admin/AdminProducts";
+import AdminProductEdit from "./pages/admin/AdminProductEdit";
+import AdminCategories from "./pages/admin/AdminCategories";
+import AdminPromocodes from "./pages/admin/AdminPromocodes";
+import AdminUsers from "./pages/admin/AdminUsers";
+import AdminUserEdit from "./pages/admin/AdminUserEdit";
+import AdminOrders from "./pages/admin/AdminOrders";
+import AdminInvoices from "./pages/admin/AdminInvoices";
 
 function App(): JSX.Element {
   return (
@@ -27,6 +37,20 @@ function App(): JSX.Element {
 
         <Route element={<ProtectedRoute />}>
           <Route path="profile" element={<Profile />} />
+        </Route>
+      </Route>
+
+      <Route path="admin" element={<AdminLayout />}>
+        <Route element={<AdminRoute />}>
+          <Route path="products" element={<AdminProducts />} />
+          <Route path="products/new" element={<AdminProductEdit />} />
+          <Route path="products/:productId" element={<AdminProductEdit />} />
+          <Route path="categories" element={<AdminCategories />} />
+          <Route path="promocodes" element={<AdminPromocodes />} />
+          <Route path="users" element={<AdminUsers />} />
+          <Route path="users/:userId" element={<AdminUserEdit />} />
+          <Route path="orders" element={<AdminOrders />} />
+          <Route path="invoices" element={<AdminInvoices />} />
         </Route>
       </Route>
     </Routes>

@@ -28,5 +28,5 @@ def make_app(*di_providers: Provider) -> FastAPI:
         ]
     )
     setup_dishka(container=async_container, app=app)
-    create_admin(app)
+    # create_admin(app)
     return app

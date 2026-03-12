@@ -132,7 +132,6 @@ class APPConfig(BaseSettings):
         extra="ignore",
         )
 
-    )
     MODE: str
     NAME: str
     HOST: str

@@ -1,4 +1,5 @@
 import uuid
+import inspect
 from pathlib import Path
 from typing import Protocol
 
@@ -9,7 +10,7 @@ from entrypoint.config import config
 
 
 class IS3Repository(Protocol):
-    async def upload_image(self, file: UploadFile) -> str: ...
+    async def upload_image(self, file: UploadFile, product_id: int | None = None) -> str: ...
 
     async def delete_image(self, url: str) -> None: ...
 
@@ -26,13 +27,20 @@ class S3Repository(IS3Repository):
     async def upload_image(
         self,
         image: UploadFile,
-        product_id: int,
+        product_id: int | None = None,
     ) -> str:
         file_extention = Path(image.filename).suffix
-        s3_key = f"products/{product_id}/{uuid.uuid4()}{file_extention}"
+        folder = str(product_id) if product_id is not None else "unassigned"
+        s3_key = f"products/{folder}/{uuid.uuid4()}{file_extention}"
 
         async with self.s3_client.get_client() as client:
-            content = await image.read()
+            content_reader = getattr(image, "read", None)
+            if content_reader is None:
+                raise ValueError("Uploaded file object does not support read()")
+
+            content = content_reader()
+            if inspect.isawaitable(content):
+                content = await content
 
             await client.put_object(
                 Bucket=self.s3_client.bucket_name,

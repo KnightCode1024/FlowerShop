@@ -45,12 +45,12 @@ class OrderService:
             return order
 
     @require_roles([RoleEnum.ADMIN])
-    async def delete_order(self, id: int):
+    async def delete_order(self, id: int, user: UserResponse):
         async with self.uow:
             await self.orders.delete(id)
 
     @require_roles([RoleEnum.ADMIN])
-    async def get_all_orders(self):
+    async def get_all_orders(self, user: UserResponse):
         async with self.uow:
             orders = await self.orders.get_all()
             return orders

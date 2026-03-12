@@ -21,3 +21,6 @@ class Invoice(Base):
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     amount: Mapped[float] = mapped_column(Numeric(precision=10, scale=2), nullable=False)
     status: Mapped[InvoiceStatus] = mapped_column(Enum(InvoiceStatus), default=InvoiceStatus.created)
+
+    def __str__(self) -> str:
+        return f"Invoice #{self.id} ({self.status})"

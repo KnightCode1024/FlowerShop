@@ -1,15 +1,17 @@
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import mainFlower from "../assets/images/main_flower.png";
-import flower1 from "../assets/images/flower1.png";
+import { ApiError } from "../api/authApi";
+import { getProducts, type ProductListItem } from "../api/catalogApi";
+import ProductCard from "../components/ProductCard";
 
 import "../styles/App.css";
 import About from "../components/buttons/About.tsx";
 
-function Home() {
-    return (
-        <div className="flex flex-col gap-6 my-9">
-            <div className="font-bold text-5xl sm:text-7xl md:text-9xl">
-                Our Blooms R
-            </div>
+    return () => {
+      isActive = false;
+    };
+  }, []);
 
             <img src={mainFlower} alt="Main Image" className="image"/>
 
@@ -76,8 +78,20 @@ function Home() {
             </div>
         </div>
 
+        {error ? (
+          <p className="rounded bg-red-100 p-3 text-sm text-red-800">{error}</p>
+        ) : null}
 
-    );
+        {isLoading ? (
+          <p className="py-6 text-center text-slate-500">Загрузка...</p>
+        ) : (
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            {products.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </div>
+        )}
+      </section>
+    </div>
+  );
 }
-
-export default Home;

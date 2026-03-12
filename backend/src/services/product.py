@@ -44,7 +44,7 @@ class ProductService:
                 raise CategoryNotFoundError(filters.category_id)
 
         products = await self.products.get_filtered(filters)
-        return products
+        return [self._to_products_list_item(product) for product in products]
 
     @require_roles([RoleEnum.ADMIN, RoleEnum.EMPLOYEE])
     async def create_product(
@@ -144,3 +144,29 @@ class ProductService:
         exists = await self.products.exists_by_name(name, exclude_id)
         if exists:
             raise ProductNameNotUniqueError(name)
+
+    def _to_products_list_item(self, product) -> ProductsListResponse:
+        # Repository may return ORM Product instances for list queries.
+        if isinstance(product, ProductsListResponse):
+            return product
+
+        images = getattr(product, "images", []) or []
+        primary_image = next(
+            (img for img in images if getattr(img, "is_primary", False)),
+            images[0] if images else None,
+        )
+        main_image_url = getattr(primary_image, "url", None) if primary_image else None
+
+        category = getattr(product, "category", None)
+        category_name = getattr(category, "name", "")
+
+        return ProductsListResponse(
+            id=product.id,
+            name=product.name,
+            description=product.description,
+            price=product.price,
+            in_stock=product.in_stock,
+            category_id=product.category_id,
+            main_image_url=main_image_url,
+            category_name=category_name,
+        )

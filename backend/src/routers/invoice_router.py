@@ -1,11 +1,12 @@
-from fastapi import APIRouter
 from dishka import FromDishka
 from schemas.invoice import InvoiceCreateRequest, InvoiceResponse
 from schemas.user import UserResponse
 from services.invoice import InvoiceService
 
 router = APIRouter(
-    prefix="/invoices", tags=["Invoices"]
+    prefix="/invoices",
+    tags=["Invoices"],
+    route_class=DishkaRoute,
 )
 
 
@@ -22,3 +23,11 @@ async def get_invoice(method: str,
                       service: FromDishka[InvoiceService],
                       current_user: FromDishka[UserResponse]):
     return await service.process_invoice(uid, method, current_user)
+
+
+@router.get("/all")
+async def get_all_invoices(
+    service: FromDishka[InvoiceService],
+    current_user: FromDishka[UserResponse],
+):
+    return await service.get_all_invoices(current_user)

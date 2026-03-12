@@ -36,3 +36,6 @@ class ProductImage(Base):
         "Product",
         back_populates="images",
     )
+
+    def __str__(self) -> str:
+        return f"Image #{self.id} for product {self.product_id}"

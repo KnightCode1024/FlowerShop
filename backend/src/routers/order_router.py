@@ -28,13 +28,20 @@ async def patch_order(
 
 
 @router.delete("/{id}")
-async def delete_order(id: int, service: FromDishka[OrderService]):
-    return await service.delete_order(id)
+async def delete_order(
+    id: int,
+    service: FromDishka[OrderService],
+    current_user: FromDishka[UserResponse],
+):
+    return await service.delete_order(id, current_user)
 
 
 @router.get("/all")
-async def get_all_orders(service: FromDishka[OrderService]):
-    return await service.get_all_orders()
+async def get_all_orders(
+    service: FromDishka[OrderService],
+    current_user: FromDishka[UserResponse],
+):
+    return await service.get_all_orders(current_user)
 
 
 @router.get("/")

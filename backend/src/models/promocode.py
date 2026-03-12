@@ -14,8 +14,14 @@ class Promocode(Base):
     max_count_activators: Mapped[int] = mapped_column(Integer(), nullable=False)
     percent: Mapped[float] = mapped_column(Numeric(10, 2), nullable=False)
 
+    def __str__(self) -> str:
+        return f"{self.code} ({self.percent}%)"
+
 
 class PromocodeAction(Base):
     id = None
     promo_id: Mapped[int] = mapped_column(ForeignKey("promocodes.id"), primary_key=True, autoincrement=False)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), primary_key=False)
+
+    def __str__(self) -> str:
+        return f"PromocodeAction(promo={self.promo_id}, user={self.user_id})"

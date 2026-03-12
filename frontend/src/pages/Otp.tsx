@@ -68,9 +68,9 @@ export default function Otp() {
   }
 
   return (
-    <section className="mx-auto mt-10 w-full max-w-md rounded-xl border border-gray-700 p-6">
+    <section className="mx-auto mt-10 w-full max-w-md rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
       <h1 className="mb-2 text-2xl font-bold">OTP verification</h1>
-      <p className="mb-6 text-sm text-gray-300">
+      <p className="mb-6 text-sm text-slate-600">
         Enter OTP code sent to {otpEmail ?? "your email"}.
       </p>
 
@@ -86,13 +86,13 @@ export default function Otp() {
 
       <form onSubmit={onSubmit} className="flex flex-col gap-4">
         <label className="flex flex-col gap-1">
-          <span className="text-sm text-gray-300">Code</span>
+          <span className="text-sm text-slate-600">Code</span>
           <input
             type="text"
             required
             value={otpCode}
             onChange={(e) => setOtpCode(e.target.value)}
-            className="rounded border border-gray-600 bg-transparent px-3 py-2"
+            className="rounded border border-slate-300 bg-white px-3 py-2 outline-none focus:border-slate-500"
             placeholder="123456"
           />
         </label>

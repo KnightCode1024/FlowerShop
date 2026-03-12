@@ -1,6 +1,7 @@
 from models.base import Base
 from models.category import Category
-from models.order import Order
+from models.invoices import Invoice
+from models.order import Order, OrderProduct
 from models.product import Product
 from models.product_image import ProductImage
 from models.promocode import Promocode, PromocodeAction
@@ -14,6 +15,8 @@ __all__ = [
     "User",
     "RoleEnum",
     "Order",
+    "OrderProduct",
+    "Invoice",
     "Promocode",
     "PromocodeAction",
 ]

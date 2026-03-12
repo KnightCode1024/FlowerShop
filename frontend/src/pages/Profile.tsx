@@ -8,21 +8,21 @@ export default function Profile() {
   }
 
   return (
-    <section className="mx-auto mt-10 w-full max-w-xl rounded-xl border border-gray-700 p-6">
+    <section className="mx-auto mt-10 w-full max-w-xl rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
       <h1 className="mb-6 text-2xl font-bold">Profile</h1>
 
       <div className="space-y-3 text-sm sm:text-base">
         <p>
-          <span className="text-gray-400">ID:</span> {user.id}
+          <span className="text-slate-500">ID:</span> {user.id}
         </p>
         <p>
-          <span className="text-gray-400">Email:</span> {user.email}
+          <span className="text-slate-500">Email:</span> {user.email}
         </p>
         <p>
-          <span className="text-gray-400">Username:</span> {user.username}
+          <span className="text-slate-500">Username:</span> {user.username}
         </p>
         <p>
-          <span className="text-gray-400">Role:</span> {user.role}
+          <span className="text-slate-500">Role:</span> {user.role}
         </p>
       </div>
 

@@ -49,3 +49,4 @@ class InvoiceService:
                 await send_notify_admins.kiq(invoice.model_dump())
 
         return invoice
+

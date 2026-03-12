@@ -27,6 +27,9 @@ class OrderProduct(Base):
     quantity: Mapped[int] = mapped_column(Integer(), nullable=False)
     price: Mapped[float] = mapped_column(Float(), nullable=False)
 
+    def __str__(self) -> str:
+        return f"OrderItem(order={self.order_id}, product={self.product_id}, qty={self.quantity})"
+
 
 class Order(Base):
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
@@ -43,3 +46,6 @@ class Order(Base):
         Enum(OrderStatus), default=OrderStatus.IN_CART
     )
     amount: Mapped[float] = mapped_column(Float(), default=0.00)
+
+    def __str__(self) -> str:
+        return f"Order #{self.id} ({self.status})"

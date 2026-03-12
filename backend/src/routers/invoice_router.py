@@ -1,6 +1,6 @@
-from dishka.integrations.fastapi import DishkaRoute
+from dishka.integrations.fastapi import FromDishka, DishkaRoute
 from fastapi import APIRouter
-from dishka import FromDishka
+
 from schemas.invoice import InvoiceCreateRequest, InvoiceResponse
 from schemas.user import UserResponse
 from services.invoice import InvoiceService

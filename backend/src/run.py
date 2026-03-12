@@ -4,18 +4,19 @@ from dishka import AsyncContainer, Provider
 from dishka.integrations.fastapi import setup_dishka
 from fastapi import FastAPI
 
-from admins import create_admin
 from entrypoint.ioc.registry import get_providers
-from entrypoint.setup import (configure_app, configure_middlewares, create_app,
-                              create_async_container)
+from entrypoint.setup import (
+    configure_app,
+    configure_middlewares,
+    create_app,
+    create_async_container,
+)
 from routers.root_router import root_router
 
 
 def make_app(*di_providers: Provider) -> FastAPI:
     app: FastAPI = create_app()
-    logging.basicConfig(
-        level=logging.DEBUG
-    )
+    logging.basicConfig(level=logging.DEBUG)
     configure_middlewares(app=app)
     configure_app(app=app, root_router=root_router)
 
@@ -27,5 +28,5 @@ def make_app(*di_providers: Provider) -> FastAPI:
         ]
     )
     setup_dishka(container=async_container, app=app)
-    create_admin(app)
+    # create_admin(app)
     return app

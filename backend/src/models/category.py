@@ -18,3 +18,6 @@ class Category(Base):
         "Product",
         back_populates="category",
     )
+
+    def __str__(self) -> str:
+        return self.name

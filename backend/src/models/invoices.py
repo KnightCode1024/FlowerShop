@@ -22,7 +22,6 @@ class Invoice(Base):
     amount: Mapped[float] = mapped_column(Numeric(precision=10, scale=2), nullable=False)
     status: Mapped[InvoiceStatus] = mapped_column(Enum(InvoiceStatus), default=InvoiceStatus.created)
 
-
     def to_entity(self):
         return InvoiceResponse(
             uid=self.uid,
@@ -34,3 +33,4 @@ class Invoice(Base):
             status=self.status,
             method=self.method,
         )
+

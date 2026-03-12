@@ -40,7 +40,6 @@ class InvoiceRepository(InvoiceRepositoryI):
                 status_code=400,
                 detail="Invoice already exists"
             )
-
         return obj
 
     async def get(self, uid: str, user_id: int) -> InvoiceResponse:

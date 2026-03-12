@@ -55,6 +55,7 @@ async def invoices_repository(session: AsyncSession):
     return InvoiceRepository(session)
 
 
+
 @pytest.fixture
 def test_user1():
     return UserCreate(

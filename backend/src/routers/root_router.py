@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 
-from routers import (category_router, dev_router, invoice_router, order_router,
-                     product_router, promocode_router, user_router)
+from routers import (category_router, dev_router, order_router, product_router,
+                     promocode_router, user_router, invoice_router)
 
 root_router = APIRouter(prefix="/api", tags=["API"])
 

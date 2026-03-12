@@ -19,11 +19,6 @@ from dishka import (
 from entrypoint.ioc.engine import session_factory
 from models import (
     Base,
-    # User,
-    # Category,
-    # Product,
-    # ProductImage,
-    # RoleEnum,
 )
 from entrypoint.config import Config
 
@@ -81,7 +76,6 @@ def database_provider(session: AsyncSession):
     class TestDatabaseProvider(Provider):
         @provide(scope=Scope.REQUEST)
         async def get_session(self) -> AsyncGenerator[AsyncSession, None]:
-            # session_fixture в тестах — это фабрика/мастер; но здесь нам нужно выдавать новый session на каждый запрос
             async with session_factory() as s:
                 yield s
 

@@ -1,10 +1,7 @@
-# tests/integrations/conftest.py
 import random
-import asyncio
 from typing import AsyncGenerator
 
 import pytest
-import httpx
 from httpx import ASGITransport, AsyncClient
 
 from sqlalchemy.ext.asyncio import (
@@ -22,7 +19,7 @@ from models import RoleEnum, Base
 from repositories import UserRepository, ProductRepository, CategoryRepository
 from schemas.category import CategoryCreate
 from schemas.product import ProductCreate
-from schemas.user import UserLogin, UserCreate, UserCreateConsole
+from schemas.user import UserLogin, UserCreate
 from services import EmailService
 from utils.strings import make_valid_password
 from run import make_app

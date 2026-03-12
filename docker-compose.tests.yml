@@ -55,7 +55,6 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile.test
-    working_dir: /backend
     env_file:
       - .env.test
     command: sh -c "pytest tests/integrations -s"

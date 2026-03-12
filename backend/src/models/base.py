@@ -19,11 +19,6 @@ class Base(AsyncAttrs, DeclarativeBase):
         primary_key=True,
         autoincrement=True,
     )
-    # uid: Mapped[Uuid] = mapped_column(
-    #     Uuid(as_uuid=True),
-    #     primary_key=False,
-    #     default=uuid.uuid4
-    # )
     created_at: Mapped[datetime] = mapped_column(
         server_default=func.now(),
     )

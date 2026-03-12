@@ -9,15 +9,15 @@ class RateLimiter:
         self._redis = redis
 
     async def is_limited(
-        self,
-        identifier: str,
-        endpoint: str,
-        windows: list[tuple[int, int]],
+            self,
+            identifier: str,
+            endpoint: str,
+            windows: list[tuple[int, int]],
     ) -> bool:
         key = f"rate_limiter:{endpoint}:{identifier}"
 
         current_ms = time() * 1000
-        current_request = f"{current_ms}--{random.randint(0, 100_000)}"
+        current_request = f"{current_ms}--{random.randint(0, 100_000_000)}"
 
         max_window_seconds = max(ws for (_, ws) in windows)
         oldest_window_start_ms = current_ms - max_window_seconds * 1000

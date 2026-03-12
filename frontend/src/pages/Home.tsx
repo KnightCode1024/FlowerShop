@@ -5,72 +5,77 @@ import { ApiError } from "../api/authApi";
 import { getProducts, type ProductListItem } from "../api/catalogApi";
 import ProductCard from "../components/ProductCard";
 
-export default function Home() {
-  const [products, setProducts] = useState<ProductListItem[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    let isActive = true;
-    (async () => {
-      try {
-        const data = await getProducts({ offset: 0, limit: 8, in_stock: true });
-        if (isActive) {
-          setProducts(data);
-        }
-      } catch (err) {
-        if (isActive) {
-          setError(err instanceof ApiError ? err.message : "Не удалось загрузить товары");
-        }
-      } finally {
-        if (isActive) {
-          setIsLoading(false);
-        }
-      }
-    })();
+import "../styles/App.css";
+import About from "../components/buttons/About.tsx";
 
     return () => {
       isActive = false;
     };
   }, []);
 
-  return (
-    <div className="my-8 flex flex-col gap-10">
-      <section className="grid grid-cols-1 items-center gap-6 lg:grid-cols-2">
-        <div className="flex flex-col gap-5">
-          <h1 className="text-5xl font-bold sm:text-6xl">Our Blooms R</h1>
-          <p className="max-w-xl text-slate-600">
-            Доставляем свежие цветы и авторские композиции по городу. Выбирайте
-            букет для любого случая в нашем каталоге.
-          </p>
-          <div className="flex gap-3">
-            <Link
-              to="/catalog"
-              className="rounded bg-yellow-500 px-5 py-3 font-semibold text-black"
-            >
-              Перейти в каталог
-            </Link>
-            <Link
-              to="/about"
-              className="rounded border border-slate-300 bg-white px-5 py-3 text-slate-700"
-            >
-              О магазине
-            </Link>
-          </div>
-        </div>
-        <img
-          src={mainFlower}
-          alt="Flowers"
-          className="h-[420px] w-full rounded-2xl object-cover"
-        />
-      </section>
+            <img src={mainFlower} alt="Main Image" className="image"/>
 
-      <section className="flex flex-col gap-5">
-        <div className="flex items-center justify-between gap-3">
-          <h2 className="text-3xl font-bold">Популярные товары</h2>
-          <Link to="/catalog" className="text-sm font-semibold text-yellow-400">
-            Смотреть все
-          </Link>
+            <div className="flex flex-col gap-9 my-18 font-bold items-center">
+                <p className="text-sm text-gray-500">Who We Are</p>
+                <p className="text-3xl">We're Our Blooms® and we're here to help you find your floral story.</p>
+
+                <About/>
+            </div>
+
+            <div className="flex flex-col gap-9 ">
+                <div className="flex flex-row gap-3">
+                    <img src={flower1} alt="" className="image"/>
+                    <img src={flower1} alt="" className="image"/>
+                    <img src={flower1} alt="" className="image"/>
+                    <img src={flower1} alt="" className="image"/>
+                </div>
+
+                <div className="flex flex-col gap-6 items-center">
+                    <h1 className="text-4xl font-bold">What We Do</h1>
+                    <h4 className="font-medium text-sm">We bring a touch of that simple magic into your world.</h4>
+                </div>
+            </div>
+
+            <div className="flex flex-col gap-9">
+                <div className="my-12 border-b border-t border-gray-700 pb-4">
+                    <div className="my-18 text-center p-6 flex flex-col gap-6 ">
+                        <p className="text-3xl font-bold">1</p>
+                        <img src="" alt="photo1"/>
+                        <h2 className="text-xl font-bold">FLORAL INSTALLATIONS</h2>
+                        <h4 className="font-medium text-xs">Living art for homes, businesses, and events.</h4>
+                    </div>
+                </div>
+                <div className="my-12 border-b border-t border-gray-700 pb-4">
+                    <div className="my-18 text-center p-6 flex flex-col gap-6 ">
+                        <p className="text-3xl font-bold">2</p>
+                        <img src="" alt="photo1"/>
+                        <h2 className="text-xl font-bold">FLORAL INSTALLATIONS</h2>
+                        <h4 className="font-medium text-xs">Whether it’s a private retreat or a public space, we craft floral experiences that bloom
+                            beyond expectations.</h4>
+                    </div>
+                </div>
+                <div className="my-12 border-b border-t border-gray-700 pb-4">
+                    <div className="my-18 text-center p-6 flex flex-col gap-6 ">
+                        <p className="text-3xl font-bold">3</p>
+                        <img src="" alt="photo1"/>
+                        <h2 className="text-xl font-bold">CUSTOM FLORAL CONCEPTS</h2>
+                        <h4 className="font-medium text-xs">Your vision, our blooms. We build arrangements that are both personal and exquisitely
+                            simple. Whether it’s a private retreat or a public space, we craft floral experiences that bloom beyond expectations.</h4>
+                    </div>
+                </div>
+
+                <img src={mainFlower} alt="Main Image" className="image"/>
+
+                <div className="my-18">
+
+                    <div className="flex flex-col gap-6"><h1>Work with us</h1>
+                        <h1>Discover how we can add a touch of natural beauty to your next event</h1>
+                        <About/></div>
+                </div>
+
+                <img src={mainFlower} alt="Main Image" className="image"/>
+
+            </div>
         </div>
 
         {error ? (

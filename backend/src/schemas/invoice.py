@@ -34,7 +34,6 @@ class InvoiceResponse(BaseModel):
     name: str
     order_id: int
     user_id: int
-    link: str
     amount: float
     status: InvoiceStatus
     method: Methods

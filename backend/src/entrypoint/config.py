@@ -130,7 +130,7 @@ class APPConfig(BaseSettings):
         env_prefix="APP_",
         env_file_encoding="utf-8",
         extra="ignore",
-        )
+    )
 
     MODE: str
     NAME: str
@@ -138,7 +138,6 @@ class APPConfig(BaseSettings):
     PORT: int
 
 
-<<<<<<< HEAD
 class BotConfig(BaseSettings):
     model_config = SettingsConfigDict(
         env_prefix="BOT_",
@@ -147,16 +146,16 @@ class BotConfig(BaseSettings):
     )
     TOKEN: str
     ADMINS_IDS: list[int]
-=======
+
+
 class BackendConfig(BaseSettings):
     model_config = SettingsConfigDict(
         env_prefix="BACKEND_",
         env_file_encoding="utf-8",
         extra="ignore",
-        )
+    )
 
     URL: str
->>>>>>> d84e1f335d9a4b972176d0cec956883a47e06153
 
 
 class Config(BaseSettings):

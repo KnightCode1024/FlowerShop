@@ -4,7 +4,6 @@ import aiogram
 from core import broker
 from entrypoint.config import config
 from models.invoices import Invoice
-from schemas.order import OrderResponse
 
 bot = aiogram.Bot(config.bot.TOKEN, parse_mode=None)
 logger = logging.getLogger(__name__)

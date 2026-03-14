@@ -223,49 +223,13 @@ def upgrade() -> None:
         ),
         sa.PrimaryKeyConstraint("id"),
     )
-    # Исправлено: корректное определение таблицы invoices
-    op.create_table(
-        "invoices",
-        sa.Column("id", sa.Integer(), autoincrement=True, nullable=False),
-        sa.Column("uid", sa.Uuid(as_uuid=True), nullable=False),  # убран autoincrement
-        sa.Column(
-            "created_at",
-            sa.DateTime(),
-            server_default=sa.text("now()"),
-            nullable=False,
-        ),
-        sa.Column(
-            "updated_at",
-            sa.DateTime(),
-            server_default=sa.text("now()"),
-            nullable=False,
-        ),
-        # Значения Enum нужно заменить на актуальные из вашей схемы
-        sa.Column("method", sa.Enum(Methods), nullable=False),
-        sa.Column("link", sa.String(length=256), nullable=False),
-        sa.Column("name", sa.String(length=64), nullable=False),
-        # Добавлена колонка order_id
-        sa.Column("order_id", sa.Integer(), nullable=False),
-        sa.Column("user_id", sa.Integer(), nullable=False),
-        sa.Column("amount", sa.Float(), nullable=False),
-        # Значения Enum для статуса (пример)
-        sa.Column(
-            "status",
-            sa.Enum("created", "paid", "failed", name="invoicestatusenum"),
-            nullable=False,
-            server_default="created"
-        ),
-        sa.ForeignKeyConstraint(["order_id"], ["orders.id"], ondelete="CASCADE"),
-        sa.ForeignKeyConstraint(["user_id"], ["users.id"], ondelete="CASCADE"),
-        sa.PrimaryKeyConstraint("id"),
-    )
+
     # ### end Alembic commands ###
 
 
 def downgrade() -> None:
     """Downgrade schema."""
     # Исправлен порядок удаления таблиц (сначала зависимые)
-    op.drop_table("invoices")
     op.drop_table("product_images")
     op.drop_table("order_products")
     op.drop_table("promocode_actions")
@@ -276,5 +240,4 @@ def downgrade() -> None:
     op.drop_table("categories")
     # Удаляем созданные enum types (если они были созданы)
     sa.Enum(name="methodsenum").drop(op.get_bind(), checkfirst=True)
-    sa.Enum(name="invoicestatusenum").drop(op.get_bind(), checkfirst=True)
     # ### end Alembic commands ###

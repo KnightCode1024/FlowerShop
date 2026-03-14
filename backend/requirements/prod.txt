@@ -25,3 +25,4 @@ pyotp==2.9.0
 httpx==0.28.1
 black
 itsdangerous==2.2.0
+aiogram

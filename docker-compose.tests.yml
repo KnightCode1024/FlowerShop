@@ -58,7 +58,7 @@ services:
       - .env.test
     environment:
       - USE_MOCK_BROKER=true
-    command: sh -c "pytest tests/components -s"
+    command: sh -c "pytest -s"
     networks:
       - flower_shop_net
 

@@ -94,8 +94,9 @@ class EmailConfig(BaseSettings):
     )
 
     PORT: int = 8080
-    HOST: str
     USE_SSL: bool = False
+
+    HOST: str
     PASSWORD: str
     USERNAME: str
 
@@ -148,16 +149,6 @@ class BotConfig(BaseSettings):
     ADMINS_IDS: list[int]
 
 
-class BackendConfig(BaseSettings):
-    model_config = SettingsConfigDict(
-        env_prefix="BACKEND_",
-        env_file_encoding="utf-8",
-        extra="ignore",
-    )
-
-    URL: str
-
-
 class Config(BaseSettings):
     model_config = SettingsConfigDict(
         env_file_encoding="utf-8",
@@ -171,7 +162,6 @@ class Config(BaseSettings):
     email: EmailConfig = EmailConfig()
     rabbitmq: RabbitMQConfig = RabbitMQConfig()
     frontend: FrontendConfig = FrontendConfig()
-    backend: BackendConfig = BackendConfig()
     app: APPConfig = APPConfig()
     otp: OTPConfig = OTPConfig()
     payment: PaymentsConfig = PaymentsConfig()

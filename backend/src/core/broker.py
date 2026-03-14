@@ -1,5 +1,3 @@
-__all__ = ["broker"]
-
 import os
 
 from entrypoint.config import config

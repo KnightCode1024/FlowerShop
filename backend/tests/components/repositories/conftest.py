@@ -51,7 +51,7 @@ async def promocodes_repository(session: AsyncSession):
 
 
 @pytest.fixture
-async def invoices_repository(session: AsyncSession):
+async def invoice_repository(session: AsyncSession):
     return InvoiceRepository(session)
 
 

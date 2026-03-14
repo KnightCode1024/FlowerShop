@@ -1,3 +1,5 @@
+import random
+
 import pytest
 
 from schemas.category import CategoryCreate, CategoryResponse, CategoryUpdate, CategoriesListResponse
@@ -5,8 +7,8 @@ from schemas.category import CategoryCreate, CategoryResponse, CategoryUpdate, C
 
 @pytest.mark.asyncio
 async def test_create_category(created_admin_client):
-    category = CategoryCreate(name="Розы")
-    response = await created_admin_client.post("/categories/", json=category)
+    category = CategoryCreate(name=f"Розы{random.randint(1, 100000)}")
+    response = await created_admin_client.post("/categories/", json=category.model_dump())
 
     assert response.status_code == 200
 
@@ -14,49 +16,34 @@ async def test_create_category(created_admin_client):
 
     assert category_created.name == category.name
 
-    return category
+    return category_created
 
 
 @pytest.mark.asyncio
-async def test_delete_category(clear_db, created_admin_client):
+async def test_delete_category(created_admin_client):
     category = await test_create_category(created_admin_client)
-
-
     response = await created_admin_client.delete(f"/categories/{category.id}")
 
-
     assert response.status_code == 200
-    assert response.json() == None
+    assert response.json()["message"] == "Category deleted successfully"
 
 
 @pytest.mark.asyncio
-async def test_update_category(clear_db, created_admin_client):
-    category_data = CategoryUpdate(name="Архидеи")
-
-
+async def test_update_category(created_admin_client):
+    category_data = CategoryUpdate(name=f"Розы{random.randint(1, 100000)}")
     category = await test_create_category(created_admin_client)
-
-
-    response = await created_admin_client.put(f"/categories/{category.id}", json=category_data.json())
-
-
+    response = await created_admin_client.put(f"/categories/{category.id}", json=category_data.model_dump())
     category_updated = CategoryResponse(**response.json())
 
     assert category_updated.name == category_data.name
 
 
 @pytest.mark.asyncio
-async def test_get_all_categories(clear_db, created_admin_client):
+async def test_get_all_categories(created_admin_client):
     cats: list[CategoryResponse] = []
     for i in range(3):
-        category = CategoryCreate(name=f"Розы{i}")
-        response = await created_admin_client.post("/categories/", json=category)
-
-        assert response.status_code == 200
-        category_created = CategoryResponse(**response.json())
-
-        assert category_created.name == category.name
-        cats.append(category_created)
+        category = await test_create_category(created_admin_client)
+        cats.append(category)
 
     response2 = await created_admin_client.get("/categories/")
     categories: list[CategoriesListResponse] = [CategoriesListResponse(**i) for i in response2.json()]
@@ -65,11 +52,12 @@ async def test_get_all_categories(clear_db, created_admin_client):
 
 
 @pytest.mark.asyncio
-async def test_get_one_category(clear_db, created_admin_client):
-    category = CategoryCreate(name=f"Розы")
-    response = await created_admin_client.post("/categories/", json=category)
+async def test_get_one_category(created_admin_client):
+    category = CategoryCreate(name=f"Розы{random.randint(1, 100000)}")
+    response = await created_admin_client.post("/categories/", json=category.model_dump())
 
     assert response.status_code == 200
+
     category_created = CategoryResponse(**response.json())
 
     response2 = await created_admin_client.get(f"/categories/{category_created.id}")

@@ -49,7 +49,9 @@ class Product(Base):
         "Category",
         back_populates="products",
     )
-    # quantity: Mapped[int] = mapped_column(default=1)
+    # quantity: Mapped[int] = mapped_column(
+    #     default=1
+    # )
 
     def __str__(self) -> str:
         return f"{self.name} ({self.price})"

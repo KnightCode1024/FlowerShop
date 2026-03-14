@@ -24,9 +24,13 @@ class InvoiceService:
     @require_roles([RoleEnum.USER])
     async def create_invoice(self, invoice_data: InvoiceCreateRequest, current_user: UserResponse) -> InvoiceResponse:
         self.provider = self.provider_factories.get(Methods(invoice_data.method))()
+        name: str = f"Покупка заказа #{invoice_data.order_id}"
 
         async with self.uow:
-            invoice_data = InvoiceCreate(user_id=current_user.id, **invoice_data.model_dump())
+            invoice_data = InvoiceCreate(user_id=current_user.id,
+                                         name=name,
+                                         status=InvoiceStatus.created,
+                                         **invoice_data.model_dump())
             invoice = await self.invoices.add(invoice_data)
 
             link = await self.provider.create(invoice_data)
@@ -53,4 +57,3 @@ class InvoiceService:
                 await send_notify_admins.kiq(invoice.model_dump())
 
         return invoice
-

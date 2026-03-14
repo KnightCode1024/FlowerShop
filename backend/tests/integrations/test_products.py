@@ -18,20 +18,21 @@ async def test_success_create_product(created_admin_client):
 
     category = CategoryResponse(**response1.json())
 
-
     product_data = CreateProductRequest(
         name=f'product_{random.randint(1, 10000)}',
         description=f"desc_{random.randint(1, 10000)}",
-        price=random.uniform(100.00, 1000.00),
+        price=round(random.uniform(100.00, 1000.00), 2),
         in_stock=random.choice([True, False]),
         category_id=category.id
     )
 
     response2 = await created_admin_client.post(
         "/products/",
-        json={"product_data": product_data.json()},
-        files=[("images", ("photo_1.png", open("media/photo_1.png", "rb"), "image/png"))]
+        data={"product_data": product_data.json()},
+        files=[("images", ("photo_1.png", open("tests/integrations/media/photo_1.png", "rb"), "image/png"))]
     )
+
+    assert response2.status_code == 200, f"пропущено значение: {response2.text}"
 
     product = ProductResponse(**response2.json())
 

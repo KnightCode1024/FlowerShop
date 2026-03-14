@@ -15,6 +15,8 @@ from routers.root_router import root_router
 
 
 def make_app(*di_providers: Provider) -> FastAPI:
+    import asyncio
+    print("create on loop id", id(asyncio.get_running_loop()))
     app: FastAPI = create_app()
     logging.basicConfig(level=logging.DEBUG)
     configure_middlewares(app=app)

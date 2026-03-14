@@ -17,7 +17,7 @@ class Methods(str, Enum):
 class InvoiceCreateRequest(BaseModel):
     method: Methods
     order_id: int
-    amount: int
+    amount: float
 
 
 class InvoiceCreate(BaseModel):

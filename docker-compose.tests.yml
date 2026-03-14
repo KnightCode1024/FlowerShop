@@ -2,7 +2,9 @@ services:
   backend:
     &backend
     env_file: .env.test
-    build: ./backend
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.test
     restart: always
     volumes:
       - ./backend:/backend
@@ -58,7 +60,7 @@ services:
       - .env.test
     environment:
       - USE_MOCK_BROKER=true
-    command: sh -c "pytest tests/components/repositories/test_invoices_repository.py -s"
+    command: sh -c "pytest tests/integrations/test_invoices.py -v"
     networks:
       - flower_shop_net
 
@@ -101,21 +103,21 @@ services:
     networks:
       - flower_shop_net
 
-  worker:
-    <<: *backend
-    ports: [ ]
-    command: taskiq worker core:broker --workers 1 --fs-discover --tasks-pattern **/tasks/*.py
-    environment:
-      - PYTHONPATH=src
-      - TASKIQ_ADMIN_URL=http://taskiq_admin:3000
-      - TASKIQ_ADMIN_API_TOKEN=supersecret
-    depends_on:
-      rabbitmq:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-      postgres:
-        condition: service_healthy
+#  worker:
+#    <<: *backend
+#    ports: [ ]
+#    command: taskiq worker core:broker --workers 1 --fs-discover --tasks-pattern **/tasks/*.py
+#    environment:
+#      - PYTHONPATH=src
+#      - TASKIQ_ADMIN_URL=http://taskiq_admin:3000
+#      - TASKIQ_ADMIN_API_TOKEN=supersecret
+#    depends_on:
+#      rabbitmq:
+#        condition: service_healthy
+#      redis:
+#        condition: service_healthy
+#      postgres:
+#        condition: service_healthy
 
 
   minio:
@@ -156,21 +158,6 @@ services:
       - "5540:5540"
     networks:
       - flower_shop_net
-
-  frontend:
-    build: ./frontend
-    ports:
-      - "5173:5173"
-    depends_on:
-      - backend
-    volumes:
-      - ./frontend:/frontend
-      - /frontend/node_modules
-    command: npm run dev
-    networks:
-      - flower_shop_net
-    restart: always
-
 
   prometheus:
     image: prom/prometheus:latest

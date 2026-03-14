@@ -129,6 +129,7 @@ def upgrade() -> None:
         sa.Column("in_stock", sa.Boolean(), nullable=False),
         sa.Column("category_id", sa.Integer(), nullable=False),
         sa.Column("id", sa.Integer(), autoincrement=True, nullable=False),
+        sa.Column("quantity", sa.Integer(), nullable=False),
         sa.Column(
             "created_at",
             sa.DateTime(),

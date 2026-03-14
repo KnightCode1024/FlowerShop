@@ -62,6 +62,6 @@ class YoomoneyProvider(IPaymentProvider):
         return aiohttp.ClientSession(
             headers={
                 "Content-Type": "application/x-www-form-urlencoded",
-                "Authorization": f"Bearer {config.payment.YOOMONEY_ACCESS_TOKEN}"
+                "Authorization": f"Bearer {config.yoomoney.ACCESS_TOKEN}"
             }
         )

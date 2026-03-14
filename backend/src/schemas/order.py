@@ -35,7 +35,6 @@ class OrderResponse(BaseModel):
     order_products: list
     amount: float
     status: OrderStatus
-    link: str
 
 
 class OrderProductCreate(BaseModel):

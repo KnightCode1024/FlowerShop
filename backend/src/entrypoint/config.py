@@ -7,7 +7,8 @@ env_file = find_dotenv() or (Path(__file__).resolve().parents[0] / ".env")
 load_dotenv(env_file)
 
 
-class PaymentsConfig(BaseSettings):
+
+class YoomoneyConfig(BaseSettings):
     model_config = SettingsConfigDict(
         env_prefix="YOOMONEY_",
         env_file_encoding="utf-8",
@@ -164,7 +165,7 @@ class Config(BaseSettings):
     frontend: FrontendConfig = FrontendConfig()
     app: APPConfig = APPConfig()
     otp: OTPConfig = OTPConfig()
-    payment: PaymentsConfig = PaymentsConfig()
+    yoomoney: YoomoneyConfig = YoomoneyConfig()
     bot: BotConfig = BotConfig()
 
 

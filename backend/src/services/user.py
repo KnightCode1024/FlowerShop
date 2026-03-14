@@ -1,3 +1,4 @@
+import logging
 import re
 
 from core.permissions import require_roles
@@ -93,14 +94,19 @@ class UserService:
     async def login_user(self, user_data: UserLogin) -> AccessToken:
         user = await self.user_repository.get_user_by_email(user_data.email)
 
-        if user is None or not validate_password(
-            user_data.password,
-            user.password,
-        ):
-            raise ValueError("Uncorrect login or password")
+        try:
+            if not user or not validate_password(
+                user_data.password,
+                user.password,
+            ):
+                raise ValueError("Uncorrect login or password")
 
-        if not user.email_verified:
-            raise ValueError("Email not verify")
+            if not user.email_verified:
+                raise ValueError("Email not verified")
+
+        except Exception as e:
+            logging.exception("Password or email not valid", exc_info=True)
+            raise ValueError("Uncorrect login or password")
 
         otp_secret = generate_otp_secret()
         otp_code = generate_otp_code(otp_secret)

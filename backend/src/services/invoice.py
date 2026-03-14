@@ -1,4 +1,6 @@
+import uuid
 from typing import Dict, Callable
+from uuid import UUID
 
 from core.permissions import require_roles
 from core.uow import UnitOfWork
@@ -36,13 +38,15 @@ class InvoiceService:
 
     @require_roles([RoleEnum.USER])
     async def process_invoice(self, uid: str, method: str, current_user: UserResponse) -> InvoiceResponse:
+        uid: UUID = uuid.UUID(uid)
         self.provider = self.provider_factories.get(Methods(method))()
 
         async with self.uow:
             invoice = await self.invoices.get(uid, current_user.id)
             is_payed = await self.provider.process(uid)
 
-            invoice_data_update = InvoiceUpdate(uid=invoice.uid, status=InvoiceStatus.payed if is_payed else InvoiceStatus.processing)
+            invoice_data_update = InvoiceUpdate(uid=invoice.uid,
+                                                status=InvoiceStatus.payed if is_payed else InvoiceStatus.processing)
             await self.invoices.update(invoice_data_update)
 
             if is_payed:

@@ -1,4 +1,5 @@
 import abc
+from uuid import UUID
 
 from fastapi import HTTPException
 from sqlalchemy import select
@@ -16,7 +17,7 @@ class InvoiceRepositoryI(abc.ABC):
         pass
 
     @abc.abstractmethod
-    async def get(self, uid: str, user_id: int) -> InvoiceResponse:
+    async def get(self, uid: UUID, user_id: int) -> InvoiceResponse:
         pass
 
     @abc.abstractmethod
@@ -42,7 +43,7 @@ class InvoiceRepository(InvoiceRepositoryI):
             )
         return obj
 
-    async def get(self, uid: str, user_id: int) -> InvoiceResponse:
+    async def get(self, uid: UUID, user_id: int) -> InvoiceResponse:
         stmt = select(Invoice).where(Invoice.uid == uid, Invoice.user_id == user_id)
         obj: Invoice | None = (await self.session.execute(stmt)).scalar_one_or_none()
 

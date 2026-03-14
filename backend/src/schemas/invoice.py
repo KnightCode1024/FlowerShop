@@ -1,4 +1,5 @@
 from enum import Enum
+from uuid import UUID
 
 from pydantic import BaseModel
 
@@ -20,7 +21,6 @@ class InvoiceCreateRequest(BaseModel):
 
 
 class InvoiceCreate(BaseModel):
-    uid: str
     name: str
     order_id: int
     user_id: int
@@ -41,7 +41,7 @@ class InvoiceResponse(BaseModel):
 
 
 class InvoiceUpdate(BaseModel):
-    uid: str
+    uid: UUID
     link: str | None = None
     amount: float | None = None
     method: Methods | None = None

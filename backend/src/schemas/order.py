@@ -3,6 +3,13 @@ from pydantic import BaseModel
 from models.order import *
 
 
+class OrderStatus(enum.StrEnum):
+    IN_CART = "in_cart"
+    WAITING = "waiting"
+    PAYED = "payed"
+    ERROR = "error"
+
+
 class CartItem(BaseModel):
     product_id: int
     quantity: int

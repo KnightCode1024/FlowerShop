@@ -1,5 +1,5 @@
 from services.category import CategoryService
-from services.email import EmailService, IEmailService
+from services.email import EmailService
 from services.order import OrderService
 from services.product import ProductService
 from services.user import UserService
@@ -12,7 +12,6 @@ __all__ = [
     "UserService",
     "OrderService",
     "EmailService",
-    "IEmailService",
     "InvoiceService",
     "PromocodeService",
 ]

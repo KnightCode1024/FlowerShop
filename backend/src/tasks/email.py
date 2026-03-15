@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 
 
 @broker.task(task_name="send_verify_email")
-async def send_verify_email(config: Config, to_email: str, token):
+async def send_verify_email(config: Config, to_email: str, token: str):
     message = EmailMessage()
     message["From"] = config.email.USERNAME
     message["To"] = to_email

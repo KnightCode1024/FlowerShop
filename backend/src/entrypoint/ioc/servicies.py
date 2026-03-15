@@ -15,15 +15,14 @@ from repositories import (
 )
 from services import (
     CategoryService,
-    EmailService,
     OrderService,
     ProductService,
     UserService,
     PromocodeService,
     InvoiceService,
 )
-from providers.dependencies import yoomoney_factory
-from schemas.invoice import Methods
+from providers.dependencies import factories
+from services.email import EmailService
 
 
 class ServiceProvider(Provider):
@@ -51,11 +50,12 @@ class ServiceProvider(Provider):
             self,
             uow: UnitOfWork,
             invoice_repository: InvoiceRepositoryI,
+            orders_repository: IOrderRepository,
     ) -> InvoiceService:
-        return InvoiceService(uow, invoice_repository,
-                              {
-                                  Methods.YOOMONEY: yoomoney_factory
-                              })
+        return InvoiceService(uow,
+                              invoice_repository,
+                              orders_repository,
+                              factories)
 
     @provide
     def get_categories_service(

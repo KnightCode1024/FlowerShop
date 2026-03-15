@@ -7,7 +7,6 @@ env_file = find_dotenv() or (Path(__file__).resolve().parents[0] / ".env")
 load_dotenv(env_file)
 
 
-
 class YoomoneyConfig(BaseSettings):
     model_config = SettingsConfigDict(
         env_prefix="YOOMONEY_",

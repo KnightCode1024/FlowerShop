@@ -6,13 +6,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from models import *
 from models import Base
-
-
-class OrderStatus(enum.StrEnum):
-    IN_CART = "in_cart"
-    WAITING_PAY = "waiting_pay"
-    PAYED = "payed"
-    ERROR = "error"
+from schemas.order import OrderResponse, OrderStatus
 
 
 class OrderProduct(Base):
@@ -49,3 +43,11 @@ class Order(Base):
 
     def __str__(self) -> str:
         return f"Order #{self.id} ({self.status})"
+
+    def to_entity(self) -> OrderResponse:
+        return OrderResponse(
+            id=self.id,
+            order_products=self.order_products,
+            amount=self.amount,
+            status=self.status
+        )

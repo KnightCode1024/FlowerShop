@@ -36,11 +36,6 @@ def create_app() -> FastAPI:
     return app
 
 
-def create_mock_app() -> FastAPI:
-    app = FastAPI()
-    return app
-
-
 def create_async_container(providers: Iterable[Provider]):
     config = create_config()
     return make_async_container(

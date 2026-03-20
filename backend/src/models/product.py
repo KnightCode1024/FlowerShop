@@ -1,7 +1,7 @@
 from decimal import Decimal
 from typing import TYPE_CHECKING
 
-from sqlalchemy import Boolean, ForeignKey, Numeric, String
+from sqlalchemy import Boolean, ForeignKey, Numeric, String, Integer
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from models import Base
@@ -49,9 +49,10 @@ class Product(Base):
         "Category",
         back_populates="products",
     )
-    # quantity: Mapped[int] = mapped_column(
-    #     default=1
-    # )
+    quantity: Mapped[int] = mapped_column(
+        Integer(),
+        default=1
+    )
 
     def __str__(self) -> str:
         return f"{self.name} ({self.price})"

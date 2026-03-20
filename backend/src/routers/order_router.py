@@ -58,3 +58,11 @@ async def get_order(
         service: FromDishka[OrderService],
 ):
     return await service.get_order_by_user(id, current_user)
+
+
+@router.get("/analytics")
+async def get_orders_analytics(
+        current_user: FromDishka[UserResponse],
+        service: FromDishka[OrderService]
+):
+    return await service.get_analytics()

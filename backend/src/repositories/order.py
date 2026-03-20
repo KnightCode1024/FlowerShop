@@ -1,7 +1,9 @@
+import datetime
+import time
 from typing import Protocol
 
 from fastapi import HTTPException
-from sqlalchemy import desc, insert, outerjoin, select, update
+from sqlalchemy import desc, insert, outerjoin, select, update, func
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload, selectinload
@@ -9,7 +11,7 @@ from starlette import status
 
 from models.order import Order, OrderProduct
 from schemas.order import (CartItem, OrderCreate, OrderProductCreate,
-                           OrderUpdate)
+                           OrderUpdate, OrdersAnalytics)
 
 
 class IOrderRepository(Protocol):
@@ -23,6 +25,9 @@ class IOrderRepository(Protocol):
         pass
 
     async def get_all_user(self, user_id: int) -> list[Order]:
+        pass
+
+    async def get_analytics_orders(self) -> OrdersAnalytics:
         pass
 
     async def get(self, id: int, user_id: int) -> Order:
@@ -82,7 +87,7 @@ class OrderRepository(IOrderRepository):
             await self._update_products(obj, order_data.order_products)
 
         for name, value in order_data.model_dump(
-            exclude_none=True, exclude={"order_products"}
+                exclude_none=True, exclude={"order_products"}
         ).items():
             setattr(obj, name, value)
 
@@ -121,6 +126,33 @@ class OrderRepository(IOrderRepository):
         result = result.scalars().unique().all()
         return result
 
+    async def get_analytics_orders(self) -> OrdersAnalytics:
+        today = datetime.datetime.today()
+        day_1 = datetime.datetime.combine(today - datetime.timedelta(days=1), datetime.time.min)
+        day_7 = datetime.datetime.combine(today - datetime.timedelta(days=7), datetime.time.min)
+        day_30 = datetime.datetime.combine(today - datetime.timedelta(days=30), datetime.time.min)
+
+        stmt = (
+            select(
+                func.count(Order.id).label("count_orders"),
+
+                func.count(Order.id).filter(Order.created_at >= day_1).label("count_1_days_orders"),
+                func.count(Order.id).filter(Order.created_at >= day_7).label("count_7_days_orders"),
+                func.count(Order.id).filter(Order.created_at >= day_30).label("count_30_days_orders"),
+
+                func.sum(Order.amount).label("amount_for_all_orders"),
+
+                func.sum(Order.amount).filter(Order.created_at >= day_1).label("amount_for_1_days_orders"),
+                func.sum(Order.amount).filter(Order.created_at >= day_7).label("amount_for_7_days_orders"),
+                func.sum(Order.amount).filter(Order.created_at >= day_30).label("amount_for_30_days_orders"),
+
+            )
+        )
+        result1 = await self.session.execute(stmt)
+        result1 = result1.mappings().one()
+
+        return OrdersAnalytics(**result1)
+
     async def delete(self, id: int) -> None:
         order = await self.get(id)
         await self.session.delete(order)
@@ -128,7 +160,7 @@ class OrderRepository(IOrderRepository):
         return None
 
     async def _update_products(
-        self, order: Order, order_products: list[CartItem]
+            self, order: Order, order_products: list[CartItem]
     ) -> Order:
         new_order_products = []
 

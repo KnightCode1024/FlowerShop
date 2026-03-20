@@ -1,3 +1,8 @@
+import datetime
+
+import taskiq
+
+from core import broker
 from core.permissions import require_roles
 from core.uow import UnitOfWork
 from models import RoleEnum
@@ -36,7 +41,7 @@ class OrderService:
     async def get_all_user_orders(self, user: UserResponse):
         async with self.uow:
             orders = await self.orders.get_all_user(user.id)
-            return orders
+        return orders
 
     @require_roles([RoleEnum.USER])
     async def get_order_by_user(self, id: int, user: UserResponse):
@@ -53,4 +58,13 @@ class OrderService:
     async def get_all_orders(self, user: UserResponse):
         async with self.uow:
             orders = await self.orders.get_all()
-            return orders
+
+        return orders
+
+    @broker.task("orders-analytics")
+    @require_roles([RoleEnum.ADMIN])
+    async def get_analytics(self, user: UserResponse):
+        async with self.uow:
+            orders_analytics = await self.orders.get_analytics_orders()
+
+        return orders_analytics

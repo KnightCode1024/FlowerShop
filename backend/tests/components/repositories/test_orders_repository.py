@@ -5,7 +5,7 @@ from fastapi import HTTPException
 
 from models import User
 from models.order import OrderStatus
-from schemas.order import CartItem, OrderCreate, OrderUpdate
+from schemas.order import CartItem, OrderCreate, OrderUpdate, OrdersAnalytics
 from schemas.product import ProductFilterParams
 
 
@@ -31,7 +31,7 @@ async def test_add_order_one(session, created_user, created_product, order_repos
 
 @pytest.mark.asyncio
 async def test_add_order_many(
-    session, created_user: User, multiple_products, product_repository, order_repository
+        session, created_user: User, multiple_products, product_repository, order_repository
 ):
     products = await product_repository.get_filtered(filters=ProductFilterParams())
     order_create_data = OrderCreate(
@@ -49,7 +49,7 @@ async def test_add_order_many(
 
 @pytest.mark.asyncio
 async def test_error_add_order_many_max_quantity(
-    session, created_user: User, multiple_products, product_repository, order_repository
+        session, created_user: User, multiple_products, product_repository, order_repository
 ):
     products = await product_repository.get_filtered(filters=ProductFilterParams())
     order_create_data = OrderCreate(
@@ -68,7 +68,7 @@ async def test_error_add_order_many_max_quantity(
 
 @pytest.mark.asyncio
 async def test_update_order_already_exists(
-    session, created_user, created_product, product_repository, order_repository
+        session, created_user, created_product, product_repository, order_repository
 ):
     order = await test_add_order_one(
         session, created_user, created_product, order_repository
@@ -94,11 +94,11 @@ async def test_update_order_already_exists(
 
 @pytest.mark.asyncio
 async def test_update_order_success_one(
-    session,
-    created_user,
-    created_multiply_products,
-    product_repository,
-    order_repository,
+        session,
+        created_user,
+        created_multiply_products,
+        product_repository,
+        order_repository,
 ):
     order_create_data = OrderCreate(
         user_id=created_user.id,
@@ -134,11 +134,11 @@ async def test_update_order_success_one(
 
 @pytest.mark.asyncio
 async def test_get_all_orders_all(
-    session,
-    created_user,
-    created_multiply_products,
-    product_repository,
-    order_repository,
+        session,
+        created_user,
+        created_multiply_products,
+        product_repository,
+        order_repository,
 ):
     order_create_data = OrderCreate(
         user_id=created_user.id,
@@ -158,11 +158,11 @@ async def test_get_all_orders_all(
 
 @pytest.mark.asyncio
 async def test_get_all_orders_by_user(
-    session,
-    created_user,
-    created_multiply_products,
-    product_repository,
-    order_repository,
+        session,
+        created_user,
+        created_multiply_products,
+        product_repository,
+        order_repository,
 ):
     order_create_data = OrderCreate(
         user_id=created_user.id,
@@ -183,7 +183,7 @@ async def test_get_all_orders_by_user(
 
 @pytest.mark.asyncio
 async def test_delete_order(
-    session, created_user, created_product, product_repository, order_repository
+        session, created_user, created_product, product_repository, order_repository
 ):
     order = await test_add_order_one(
         session, created_user, created_product, order_repository
@@ -195,3 +195,23 @@ async def test_delete_order(
         await order_repository.get(order.id, created_user.id)
 
         assert exp.value == f"Order {order.id} not found"
+
+
+@pytest.mark.asyncio
+async def test_orders_analytics(
+        session, created_user, created_product, product_repository, order_repository
+):
+    for i in range(10):
+        order = await test_add_order_one(
+            session, created_user, created_product, order_repository
+        )
+
+    order_analytics: OrdersAnalytics = await order_repository.get_analytics_orders()
+
+    print(order_analytics)
+
+    assert order_analytics.count_orders == 10
+    assert order_analytics.count_1_days_orders == 10
+    assert order_analytics.count_7_days_orders == 10
+    assert order_analytics.count_30_days_orders == 10
+    assert order_analytics.amount_for_all_orders > 0

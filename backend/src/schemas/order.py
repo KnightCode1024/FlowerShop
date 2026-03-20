@@ -52,3 +52,15 @@ class OrderProductCreate(BaseModel):
 class OrderProductResponse(BaseModel):
     user_id: int
     order_products: list[CartItem]
+
+
+class OrdersAnalytics(BaseModel):
+    count_orders: int | None = None
+    count_1_days_orders: int | None = None
+    count_7_days_orders: int | None = None
+    count_30_days_orders: int | None = None
+
+    amount_for_all_orders: float | None = None
+    amount_for_1_days_orders: float | None = None
+    amount_for_7_days_orders: float | None = None
+    amount_for_30_days_orders: float | None = None

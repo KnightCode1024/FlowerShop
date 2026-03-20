@@ -149,4 +149,5 @@ class OrderRepository(IOrderRepository):
 
         await self.session.flush()
         await self.session.refresh(order)
+
         return order

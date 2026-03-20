@@ -37,9 +37,11 @@ class RateLimiter:
             await pipe.expire(key, max_window_seconds)
 
             res = await pipe.execute()
-
+            print(res)
         counts = res[1: 1 + len(windows)]
+        print(counts)
         for (max_requests, _), count in zip(windows, counts, strict=False):
+            print(max_requests, count)
             if count >= max_requests:
                 return True
 

@@ -16,10 +16,10 @@ def rate_limit(strategy: Strategy = Strategy.IP, policy: str | None = None):
                 if isinstance(arg, Request):
                     request = arg
                     break
-     
+
             if request is None:
                 request = kwargs.get("request")
-     
+
             if request is None:
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
@@ -27,13 +27,13 @@ def rate_limit(strategy: Strategy = Strategy.IP, policy: str | None = None):
                 )
 
             if not policy or not re.match(
-                r"^(\d+\/[smhd])(;\d+\/[smhd]){0,2}$", 
-                policy,
+                    r"^(\d+\/[smhd])(;\d+\/[smhd]){0,2}$",
+                    policy,
             ):
                 raise ValueError(
-                    f"Invalid request policy: {policy}.", 
+                    f"Invalid request policy: {policy}.",
                     "Expected format: '5/s', '10/m', '20/h', '30/d'",
-                    )
+                )
 
             request_policy = policy.split(";")
 
@@ -68,10 +68,12 @@ def rate_limit(strategy: Strategy = Strategy.IP, policy: str | None = None):
             if identifier is None:
                 identifier = "unknown"
 
+            print(identifier)
+
             rate_limiter = kwargs.get("rate_limiter")
             if rate_limiter is None:
                 for arg in args:
-                    if hasattr(arg, 'is_limited'): 
+                    if hasattr(arg, 'is_limited'):
                         rate_limiter = arg
                         break
 
@@ -87,7 +89,7 @@ def rate_limit(strategy: Strategy = Strategy.IP, policy: str | None = None):
                     raise ValueError(
                         f"Invalid policy segment: {rp}.",
                         "Expected format like '5/s', '10/m', '20/h', '30/d'",
-                        )
+                    )
 
                 max_requests = int(m.group(1))
                 unit = m.group(2)
@@ -98,7 +100,7 @@ def rate_limit(strategy: Strategy = Strategy.IP, policy: str | None = None):
                     window_seconds = 60
                 elif unit == "h":
                     window_seconds = 60 * 60
-                else: 
+                else:
                     window_seconds = 24 * 60 * 60
 
                 windows.append((max_requests, window_seconds))

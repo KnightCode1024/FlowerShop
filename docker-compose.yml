@@ -92,19 +92,6 @@ services:
       postgres:
         condition: service_healthy
 
-
-  # taskiq_admin:
-  #   image: ghcr.io/taskiq-python/taskiq-admin:latest
-  #   container_name: taskiq_admin
-  #   ports:
-  #     - 3000:3000
-  #   environment:
-  #     - TASKIQ_ADMIN_API_TOKEN=supersecret
-  #   volumes:
-  #     - taskiq-admin-data:/usr/database/
-  #   networks:
-  #     - flower_shop_net
-
   postgres:
     env_file: .env
     image: postgres:18-alpine

@@ -1,3 +1,4 @@
+import logging
 from email.message import Message, EmailMessage
 
 import aiosmtplib
@@ -31,7 +32,8 @@ class SmtpProvider(IStmpProvider):
                 tls_context=None,
             )
         except Exception as e:
-            raise Exception(f"Not sent mail to {self.to_mail}") from e
+            logging.error(f"Not sent message for mail - {self.to_mail}")
+            raise e
 
     def configure_mail(self) -> Message:
         message = EmailMessage()

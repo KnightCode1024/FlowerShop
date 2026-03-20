@@ -60,7 +60,7 @@ services:
       - .env.test
     environment:
       - USE_MOCK_BROKER=true
-    command: sh -c "pytest tests/integrations/test_invoices.py -v"
+    command: sh -c "pytest tests/integrations/test_routers_for_metrics.py -v"
     networks:
       - flower_shop_net
 

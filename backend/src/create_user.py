@@ -12,6 +12,7 @@ from entrypoint.setup import create_async_container
 from models import RoleEnum
 from schemas.user import UserCreateConsole
 from services import UserService
+from utils.strings import is_valid_email, make_valid_password
 
 os.environ.setdefault("PYTHONIOENCODING", "utf-8")
 sys.stdout.reconfigure(encoding="utf-8")
@@ -20,9 +21,9 @@ sys.stdin.reconfigure(encoding="utf-8")
 
 @inject
 async def create_user_from_args(
-    args,
-    dishka_container,
-    user_service: FromDishka[UserService],
+        args,
+        dishka_container,
+        user_service: FromDishka[UserService],
 ):
     email = get_email(args)
     username = get_username(args)
@@ -80,9 +81,9 @@ def parse_args():
 
 
 def get_user_input(
-    prompt: str,
-    default: str = None,
-    hide_input: bool = False,
+        prompt: str,
+        default: str = None,
+        hide_input: bool = False,
 ) -> str:
     if default:
         prompt = f"{prompt} (default: {default}): "
@@ -108,8 +109,11 @@ def get_email(args):
         return args.email
     email = get_user_input("Email")
     if not email:
-        print("Error: Email is required")
-        sys.exit(1)
+        raise Exception("Email is required")
+
+    if not is_valid_email(email):
+        raise Exception("Email is not valid format")
+
     return email
 
 
@@ -163,18 +167,8 @@ def get_password(args):
     if args.password:
         return args.password
 
-    while True:
-        password = get_user_input("Password", hide_input=True)
-        if not password:
-            print("Error: Password is required")
-            continue
-
-        password_confirm = get_user_input("Password (again)", hide_input=True)
-        if password != password_confirm:
-            print("Error: Passwords don't match. Please try again.")
-            continue
-
-        break
+    password = make_valid_password(16)
+    print(f"Generated password: {password}")
 
     return password
 

@@ -1,4 +1,5 @@
 import random
+import re
 import secrets
 import string
 from string import *
@@ -16,10 +17,10 @@ def make_valid_password(min_length=12):
     specials = '!@#$%^&*(),.?":{}|<>'
     while True:
         pwd_chars = (
-            secrets.choice(string.ascii_uppercase) +
-            secrets.choice(string.ascii_lowercase) +
-            secrets.choice(string.digits) +
-            secrets.choice(specials)
+                secrets.choice(string.ascii_uppercase) +
+                secrets.choice(string.ascii_lowercase) +
+                secrets.choice(string.digits) +
+                secrets.choice(specials)
         )
         while len(pwd_chars) < min_length:
             pwd_chars += secrets.choice(string.ascii_letters + string.digits + specials)
@@ -29,3 +30,7 @@ def make_valid_password(min_length=12):
                 and any(c in specials for c in pwd)
                 and len(pwd) >= min_length):
             return pwd
+
+
+def is_valid_email(email: str):
+    return re.match("[^@]+@[^@]+\\.[^@]+", email) is not None

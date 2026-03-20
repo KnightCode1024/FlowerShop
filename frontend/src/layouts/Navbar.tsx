@@ -19,7 +19,7 @@ export default function Navbar() {
     <header className="relative border-b border-slate-200 bg-white p-4">
       <div className="flex items-center gap-4">
         <NavLink to="/" className="w-full text-2xl font-bold" onClick={closeMenu}>
-          Our Blooms R
+          Our Blooms®
         </NavLink>
 
         <button

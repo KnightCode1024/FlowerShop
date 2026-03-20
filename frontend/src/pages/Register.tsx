@@ -32,8 +32,8 @@ export default function Register() {
     }
 
     return (
-        <section className="mx-auto mt-10 w-full max-w-md rounded-xl border border-gray-700 p-6">
-            <h1 className="mb-6 text-2xl font-bold">Create account</h1>
+        <section className="mx-auto mt-10 w-full max-w-md rounded-xl border border-slate-200 p-6 shadow-sm">
+            <h1 className="mb-6 text-2xl font-bold">Registration</h1>
 
             {error ? (
                 <p className="mb-4 rounded bg-red-100 p-3 text-sm text-red-800">{error}</p>
@@ -47,37 +47,37 @@ export default function Register() {
 
             <form onSubmit={onSubmit} className="flex flex-col gap-4">
                 <label className="flex flex-col gap-1">
-                    <span className="text-sm text-gray-300">Email</span>
+                    <span className="text-sm text-slate-600">Email</span>
                     <input
                         type="email"
                         required
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        className="rounded border border-gray-600 bg-transparent px-3 py-2"
+                        className="rounded border border-slate-300 bg-transparent px-3 py-2"
                         placeholder="you@example.com"
                     />
                 </label>
 
                 <label className="flex flex-col gap-1">
-                    <span className="text-sm text-gray-300">Username</span>
+                    <span className="text-sm text-slate-600">Username</span>
                     <input
                         type="text"
                         required
                         value={username}
                         onChange={(e) => setUsername(e.target.value)}
-                        className="rounded border border-gray-600 bg-transparent px-3 py-2"
+                        className="rounded border border-slate-300 bg-transparent px-3 py-2"
                         placeholder="username"
                     />
                 </label>
 
                 <label className="flex flex-col gap-1">
-                    <span className="text-sm text-gray-300">Password</span>
+                    <span className="text-sm text-slate-600">Password</span>
                     <input
                         type="password"
                         required
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        className="rounded border border-gray-600 bg-transparent px-3 py-2"
+                        className="rounded border border-slate-300 bg-transparent px-3 py-2"
                         placeholder="Password"
                     />
                 </label>

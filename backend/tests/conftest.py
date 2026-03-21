@@ -2,7 +2,7 @@ from typing import AsyncGenerator
 from unittest.mock import MagicMock
 
 import pytest
-from sqlalchemy import create_engine, event, StaticPool
+from sqlalchemy import create_engine, StaticPool
 from sqlalchemy.ext.asyncio import (
     AsyncSession,
     async_sessionmaker,
@@ -16,11 +16,9 @@ from dishka import (
     make_async_container,
 )
 
-from entrypoint.ioc.engine import session_factory
 from models import (
     Base,
 )
-from entrypoint.config import Config
 
 
 @pytest.fixture(scope="session")

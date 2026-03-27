@@ -251,7 +251,7 @@ export default function AdminProductEdit() {
                         className="h-24 w-24 rounded-md object-cover"
                       />
                       <div className="text-xs text-slate-500">
-                        #{img.order} {img.is_primary ? "(main)" : ""}
+                        #{img.order} {img.is_primary ? "(главное)" : ""}
                       </div>
                     </div>
                   ))}

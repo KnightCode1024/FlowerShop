@@ -102,7 +102,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const submitOtp = useCallback(
     async (otpCode: string) => {
       if (!otpPendingToken) {
-        throw new ApiError("OTP session not found. Login again.", 400);
+        throw new ApiError("Сессия OTP не найдена. Войдите еще раз.", 400);
       }
 
       await checkOtpCode({ otp_code: otpCode }, otpPendingToken);
@@ -115,7 +115,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const resendOtp = useCallback(async () => {
     if (!otpPendingToken) {
-      throw new ApiError("OTP session not found. Login again.", 400);
+      throw new ApiError("Сессия OTP не найдена. Войдите еще раз.", 400);
     }
     await resendOtpCode(otpPendingToken);
   }, [otpPendingToken]);
@@ -176,7 +176,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 export function useAuth() {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error("useAuth must be used within AuthProvider");
+    throw new Error("useAuth должен использоваться внутри AuthProvider");
   }
   return context;
 }

@@ -34,7 +34,7 @@ export default function VerifyEmail() {
   useEffect(() => {
     if (!token) {
       setStatus("error");
-      setMessage("Verification token not found in URL.");
+      setMessage("Токен подтверждения не найден в ссылке.");
       return;
     }
 
@@ -48,14 +48,14 @@ export default function VerifyEmail() {
           return;
         }
         setStatus("success");
-        setMessage("Email successfully verified. You can sign in now.");
+        setMessage("Почта успешно подтверждена. Теперь можно войти.");
       } catch (error) {
         if (!isActive) {
           return;
         }
         setStatus("error");
         setMessage(
-          error instanceof ApiError ? error.message : "Email verification failed.",
+          error instanceof ApiError ? error.message : "Не удалось подтвердить почту.",
         );
       }
     })();
@@ -67,11 +67,11 @@ export default function VerifyEmail() {
 
   return (
     <section className="mx-auto mt-10 w-full max-w-md rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-      <h1 className="mb-4 text-2xl font-bold">Email verification</h1>
+      <h1 className="mb-4 text-2xl font-bold">Подтверждение почты</h1>
 
       {status === "loading" ? (
         <p className="rounded bg-blue-100 p-3 text-sm text-blue-800">
-          Verifying your email...
+          Подтверждаем вашу почту...
         </p>
       ) : null}
 
@@ -88,13 +88,13 @@ export default function VerifyEmail() {
           to="/login"
           className="rounded bg-yellow-500 px-4 py-2 font-semibold text-black"
         >
-          Go to login
+          Перейти к входу
         </Link>
         <Link
           to="/register"
           className="rounded border border-gray-500 px-4 py-2 font-semibold"
         >
-          Register again
+          Зарегистрироваться снова
         </Link>
       </div>
     </section>

@@ -22,10 +22,10 @@ export default function Register() {
 
         try {
             await register({email, username, password});
-            setSuccess("Registration completed. Verify email, then sign in.");
+            setSuccess("Регистрация завершена. Подтвердите почту и войдите.");
             setTimeout(() => navigate("/login"), 1200);
         } catch (err) {
-            setError(err instanceof ApiError ? err.message : "Registration failed");
+            setError(err instanceof ApiError ? err.message : "Не удалось зарегистрироваться");
         } finally {
             setIsSubmitting(false);
         }
@@ -33,7 +33,7 @@ export default function Register() {
 
     return (
         <section className="mx-auto mt-10 w-full max-w-md rounded-xl border border-slate-200 p-6 shadow-sm">
-            <h1 className="mb-6 text-2xl font-bold">Registration</h1>
+            <h1 className="mb-6 text-2xl font-bold">Регистрация</h1>
 
             {error ? (
                 <p className="mb-4 rounded bg-red-100 p-3 text-sm text-red-800">{error}</p>
@@ -47,7 +47,7 @@ export default function Register() {
 
             <form onSubmit={onSubmit} className="flex flex-col gap-4">
                 <label className="flex flex-col gap-1">
-                    <span className="text-sm text-slate-600">Email</span>
+                    <span className="text-sm text-slate-600">Эл. почта</span>
                     <input
                         type="email"
                         required
@@ -59,26 +59,26 @@ export default function Register() {
                 </label>
 
                 <label className="flex flex-col gap-1">
-                    <span className="text-sm text-slate-600">Username</span>
+                    <span className="text-sm text-slate-600">Имя пользователя</span>
                     <input
                         type="text"
                         required
                         value={username}
                         onChange={(e) => setUsername(e.target.value)}
                         className="rounded border border-slate-300 bg-transparent px-3 py-2"
-                        placeholder="username"
+                        placeholder="имя пользователя"
                     />
                 </label>
 
                 <label className="flex flex-col gap-1">
-                    <span className="text-sm text-slate-600">Password</span>
+                    <span className="text-sm text-slate-600">Пароль</span>
                     <input
                         type="password"
                         required
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         className="rounded border border-slate-300 bg-transparent px-3 py-2"
-                        placeholder="Password"
+                        placeholder="Пароль"
                     />
                 </label>
 
@@ -87,14 +87,14 @@ export default function Register() {
                     disabled={isSubmitting}
                     className="rounded bg-yellow-500 px-4 py-2 font-semibold text-black disabled:opacity-60"
                 >
-                    {isSubmitting ? "Creating..." : "Create account"}
+                    {isSubmitting ? "Создаем..." : "Создать аккаунт"}
                 </button>
             </form>
 
             <p className="mt-4 text-sm text-gray-400">
-                Already registered?{" "}
+                Уже зарегистрированы?{" "}
                 <Link to="/login" className="text-yellow-400 underline">
-                    Sign in
+                    Войти
                 </Link>
             </p>
         </section>

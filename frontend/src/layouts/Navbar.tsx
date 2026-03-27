@@ -19,54 +19,54 @@ export default function Navbar() {
     <header className="relative border-b border-slate-200 bg-white p-4">
       <div className="flex items-center gap-4">
         <NavLink to="/" className="w-full text-2xl font-bold" onClick={closeMenu}>
-          Our Blooms®
+          Наши Цветы®
         </NavLink>
 
         <button
           type="button"
-          aria-label="Toggle menu"
+          aria-label="Переключить меню"
           className="rounded border border-slate-300 px-3 py-2 text-sm font-semibold md:hidden"
           onClick={() => setIsOpen((prev) => !prev)}
         >
-          {isOpen ? "Close" : "Menu"}
+          {isOpen ? "Закрыть" : "Меню"}
         </button>
 
         <nav className="ml-auto hidden flex-row gap-5 text-sm font-semibold md:flex md:text-base">
           <NavLink to="/" className={navLinkClass}>
-            HOME
+            Главная
           </NavLink>
           <NavLink to="/about" className={navLinkClass}>
-            ABOUT
+            О нас
           </NavLink>
           <NavLink to="/catalog" className={navLinkClass}>
-            CATALOG
+            Каталог
           </NavLink>
 
           {isAuthenticated ? (
             <>
               {canOpenAdmin ? (
                 <NavLink to="/admin/products" className={navLinkClass}>
-                  ADMIN
+                  Админка
                 </NavLink>
               ) : null}
               <NavLink to="/profile" className={navLinkClass}>
-                PROFILE
+                Профиль
               </NavLink>
               <button
                 type="button"
                 onClick={logout}
                 className="cursor-pointer text-slate-600"
               >
-                LOGOUT
+                Выйти
               </button>
             </>
           ) : (
             <>
               <NavLink to="/login" className={navLinkClass}>
-                LOGIN
+                Войти
               </NavLink>
               <NavLink to="/register" className={navLinkClass}>
-                REGISTER
+                Регистрация
               </NavLink>
             </>
           )}
@@ -76,13 +76,13 @@ export default function Navbar() {
       {isOpen ? (
         <nav className="mt-3 flex flex-col gap-3 border-t border-slate-200 pt-3 text-sm font-semibold md:hidden">
           <NavLink to="/" className={navLinkClass} onClick={closeMenu}>
-            HOME
+            Главная
           </NavLink>
           <NavLink to="/about" className={navLinkClass} onClick={closeMenu}>
-            ABOUT
+            О нас
           </NavLink>
           <NavLink to="/catalog" className={navLinkClass} onClick={closeMenu}>
-            CATALOG
+            Каталог
           </NavLink>
 
           {isAuthenticated ? (
@@ -93,11 +93,11 @@ export default function Navbar() {
                   className={navLinkClass}
                   onClick={closeMenu}
                 >
-                  ADMIN
+                  Админка
                 </NavLink>
               ) : null}
               <NavLink to="/profile" className={navLinkClass} onClick={closeMenu}>
-                PROFILE
+                Профиль
               </NavLink>
               <button
                 type="button"
@@ -107,16 +107,16 @@ export default function Navbar() {
                 }}
                 className="w-fit cursor-pointer text-red-500"
               >
-                LOGOUT
+                Выйти
               </button>
             </>
           ) : (
             <>
               <NavLink to="/login" className={navLinkClass} onClick={closeMenu}>
-                LOGIN
+                Войти
               </NavLink>
               <NavLink to="/register" className={navLinkClass} onClick={closeMenu}>
-                REGISTER
+                Регистрация
               </NavLink>
             </>
           )}

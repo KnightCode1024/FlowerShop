@@ -41,7 +41,7 @@ export default function Otp() {
       await submitOtp(otpCode);
       navigate(fromPath, { replace: true });
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "OTP validation failed");
+      setError(err instanceof ApiError ? err.message : "Проверка OTP не удалась");
     } finally {
       setIsSubmitting(false);
     }
@@ -58,10 +58,10 @@ export default function Otp() {
 
     try {
       await resendOtp();
-      setResendMessage("A new OTP code has been sent.");
+      setResendMessage("Новый код OTP отправлен.");
       setCooldown(30);
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Failed to resend OTP code");
+      setError(err instanceof ApiError ? err.message : "Не удалось отправить код OTP повторно");
     } finally {
       setIsResending(false);
     }
@@ -69,9 +69,9 @@ export default function Otp() {
 
   return (
     <section className="mx-auto mt-10 w-full max-w-md rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-      <h1 className="mb-2 text-2xl font-bold">OTP verification</h1>
+      <h1 className="mb-2 text-2xl font-bold">Проверка OTP</h1>
       <p className="mb-6 text-sm text-slate-600">
-        Enter OTP code sent to {otpEmail ?? "your email"}.
+        Введите код OTP, отправленный на {otpEmail ?? "вашу почту"}.
       </p>
 
       {error ? (
@@ -86,7 +86,7 @@ export default function Otp() {
 
       <form onSubmit={onSubmit} className="flex flex-col gap-4">
         <label className="flex flex-col gap-1">
-          <span className="text-sm text-slate-600">Code</span>
+          <span className="text-sm text-slate-600">Код</span>
           <input
             type="text"
             required
@@ -102,7 +102,7 @@ export default function Otp() {
           disabled={isSubmitting}
           className="rounded bg-yellow-500 px-4 py-2 font-semibold text-black disabled:opacity-60"
         >
-          {isSubmitting ? "Verifying..." : "Verify"}
+          {isSubmitting ? "Проверяем..." : "Подтвердить"}
         </button>
       </form>
 
@@ -110,14 +110,14 @@ export default function Otp() {
         type="button"
         onClick={onResend}
         disabled={isResending || cooldown > 0}
-        className="mt-4 rounded border border-yellow-500 px-4 py-2 text-sm font-semibold text-yellow-400 disabled:opacity-60"
-      >
-        {isResending
-          ? "Sending..."
-          : cooldown > 0
-            ? `Resend in ${cooldown}s`
-            : "Resend code"}
-      </button>
-    </section>
-  );
+      className="mt-4 rounded border border-yellow-500 px-4 py-2 text-sm font-semibold text-yellow-400 disabled:opacity-60"
+    >
+      {isResending
+        ? "Отправляем..."
+        : cooldown > 0
+          ? `Повторить через ${cooldown} сек.`
+          : "Отправить код снова"}
+    </button>
+  </section>
+);
 }

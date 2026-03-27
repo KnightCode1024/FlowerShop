@@ -23,7 +23,7 @@ async function requestJson<T>(path: string, init?: RequestInit): Promise<T> {
 
   if (!response.ok) {
     const data = (await response.json().catch(() => ({}))) as ApiErrorPayload;
-    throw new ApiError(data.detail ?? "Request failed", response.status);
+    throw new ApiError(data.detail ?? "Ошибка запроса", response.status);
   }
 
   if (response.status === 204) {
@@ -46,7 +46,7 @@ async function requestForm<T>(
 
   if (!response.ok) {
     const data = (await response.json().catch(() => ({}))) as ApiErrorPayload;
-    throw new ApiError(data.detail ?? "Request failed", response.status);
+    throw new ApiError(data.detail ?? "Ошибка запроса", response.status);
   }
 
   return (await response.json()) as T;

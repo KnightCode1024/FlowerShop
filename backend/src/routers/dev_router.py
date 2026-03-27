@@ -14,7 +14,7 @@ from prometheus_client import (
     GCCollector,
     process_collector,
     PLATFORM_COLLECTOR,
-    REGISTRY
+    REGISTRY,
 )
 
 
@@ -26,10 +26,10 @@ router = APIRouter(
 
 
 @router.get("/ping")
-@rate_limit(strategy=Strategy.IP, policy="1/s;2/m;3/h")
+@rate_limit(strategy=Strategy.IP, policy="5/s;10/m;100/h")
 async def pong(
-        request: Request,
-        rate_limiter: FromDishka[RateLimiter],
+    request: Request,
+    rate_limiter: FromDishka[RateLimiter],
 ):
     return {"msg": "pong"}
 
@@ -37,5 +37,4 @@ async def pong(
 @router.get("/metrics")
 async def metrics():
     data = generate_latest(REGISTRY)
-    return PlainTextResponse(content=data,
-                             media_type=CONTENT_TYPE_LATEST)
+    return PlainTextResponse(content=data, media_type=CONTENT_TYPE_LATEST)

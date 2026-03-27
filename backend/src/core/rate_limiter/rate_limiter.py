@@ -33,16 +33,15 @@ class RateLimiter:
                 window_start_ms = current_ms - ws * 1000
                 await pipe.zcount(key, window_start_ms, "+inf")
 
-            await pipe.zadd(key, {current_request: current_ms})
-            await pipe.expire(key, max_window_seconds)
-
             res = await pipe.execute()
-            print(res)
         counts = res[1: 1 + len(windows)]
-        print(counts)
         for (max_requests, _), count in zip(windows, counts, strict=False):
-            print(max_requests, count)
             if count >= max_requests:
                 return True
+
+        async with self._redis.pipeline() as pipe:
+            await pipe.zadd(key, {current_request: current_ms})
+            await pipe.expire(key, max_window_seconds)
+            await pipe.execute()
 
         return False

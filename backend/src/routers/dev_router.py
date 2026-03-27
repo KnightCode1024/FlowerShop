@@ -26,7 +26,7 @@ router = APIRouter(
 
 
 @router.get("/ping")
-@rate_limit(strategy=Strategy.IP, policy="5/s;10/m;100/h")
+# @rate_limit(strategy=Strategy.IP, policy="5/s;10/m;100/h")
 async def pong(
     request: Request,
     rate_limiter: FromDishka[RateLimiter],

@@ -1,5 +1,6 @@
 from enum import Enum
 from uuid import UUID
+from datetime import datetime
 
 from pydantic import BaseModel
 
@@ -40,6 +41,7 @@ class InvoiceResponse(BaseModel):
     method: Methods
     link: str | None = None
     provider_uid: str | None = None
+    updated_at: datetime | None = None
 
 
 class InvoiceUpdate(BaseModel):

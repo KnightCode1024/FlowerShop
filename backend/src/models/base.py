@@ -3,8 +3,12 @@ from datetime import datetime
 import inflect
 from sqlalchemy import Integer, func
 from sqlalchemy.ext.asyncio import AsyncAttrs
-from sqlalchemy.orm import (DeclarativeBase, Mapped, declared_attr,
-                            mapped_column)
+from sqlalchemy.orm import (
+    DeclarativeBase,
+    Mapped,
+    declared_attr,
+    mapped_column,
+)
 
 p = inflect.engine()
 

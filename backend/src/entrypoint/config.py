@@ -46,7 +46,7 @@ class AuthJWT(BaseSettings):
     if Path("/backend/certs").exists():
         _certs_dir = Path("/backend/certs")
     else:
-        _certs_dir = "certs"
+        _certs_dir = Path("certs")
 
     PRIVATE_KEY: Path = _certs_dir / "jwt-private.pem"
     PUBLIC_KEY: Path = _certs_dir / "jwt-public.pem"

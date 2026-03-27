@@ -20,6 +20,20 @@ class YoomoneyConfig(BaseSettings):
     ACCESS_TOKEN: str
 
 
+class StripeConfig(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_prefix="STRIPE_",
+        env_file_encoding="utf-8",
+        extra="ignore",
+    )
+
+    SECRET_KEY: str
+    WEBHOOK_SECRET: str | None = None
+    SUCCESS_URL: str
+    CANCEL_URL: str
+    CURRENCY: str = "rub"
+
+
 class DatabaseConfig(BaseSettings):
     USER: str
     PASSWORD: str
@@ -165,6 +179,7 @@ class Config(BaseSettings):
     app: APPConfig = APPConfig()
     otp: OTPConfig = OTPConfig()
     yoomoney: YoomoneyConfig = YoomoneyConfig()
+    stripe: StripeConfig = StripeConfig()
     bot: BotConfig = BotConfig()
 
 

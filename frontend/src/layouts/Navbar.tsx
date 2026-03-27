@@ -1,12 +1,14 @@
 import { useState } from "react";
 import { NavLink } from "react-router-dom";
 import { useAuth } from "../auth/useAuth";
+import { useCart } from "../cart/useCart";
 
 const navLinkClass = ({ isActive }: { isActive: boolean }) =>
   isActive ? "text-slate-900" : "text-slate-600";
 
 export default function Navbar() {
   const { isAuthenticated, user, logout } = useAuth();
+  const { totalCount } = useCart();
   const [isOpen, setIsOpen] = useState(false);
   const role = user?.role?.toLowerCase?.() ?? "";
   const canOpenAdmin = role === "admin" || role === "employee";
@@ -33,6 +35,9 @@ export default function Navbar() {
           <NavLink to="/catalog" className={navLinkClass}>
             Каталог
           </NavLink>
+          <NavLink to="/cart" className={navLinkClass}>
+            Корзина{totalCount ? ` (${totalCount})` : ""}
+          </NavLink>
 
           {isAuthenticated ? (
             <>
@@ -41,6 +46,9 @@ export default function Navbar() {
                   Админка
                 </NavLink>
               ) : null}
+              <NavLink to="/orders" className={navLinkClass}>
+                Заказы
+              </NavLink>
               <NavLink to="/profile" className={navLinkClass}>
                 Профиль
               </NavLink>
@@ -86,6 +94,9 @@ export default function Navbar() {
           <NavLink to="/catalog" className={navLinkClass} onClick={closeMenu}>
             Каталог
           </NavLink>
+          <NavLink to="/cart" className={navLinkClass} onClick={closeMenu}>
+            Корзина{totalCount ? ` (${totalCount})` : ""}
+          </NavLink>
 
           {isAuthenticated ? (
             <>
@@ -98,6 +109,9 @@ export default function Navbar() {
                   Админка
                 </NavLink>
               ) : null}
+              <NavLink to="/orders" className={navLinkClass} onClick={closeMenu}>
+                Заказы
+              </NavLink>
               <NavLink to="/profile" className={navLinkClass} onClick={closeMenu}>
                 Профиль
               </NavLink>

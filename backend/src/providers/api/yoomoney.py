@@ -1,18 +1,13 @@
-import abc
-import uuid
-
 import aiohttp
-import httpx
 
 from entrypoint.config import config
 from models.invoices import Invoice
 from providers import IPaymentProvider
-from schemas.invoice import InvoiceCreate, InvoiceCreateRequest
 
 
 class YoomoneyProvider(IPaymentProvider):
 
-    async def create(self, invoice: InvoiceCreate) -> str | None:
+    async def create(self, invoice: Invoice) -> tuple[str | None, str | None]:
 
         async with self._get_client() as client:
             account = await self._get_account_info()
@@ -20,7 +15,7 @@ class YoomoneyProvider(IPaymentProvider):
                 "label": invoice.uid,
                 "sum": invoice.amount,
                 "receiver": account,
-                "successURL": config.payment.YOOMONEY_REDIRECT_URI,
+                "successURL": config.yoomoney.REDIRECT_URI,
                 "quickpay-form": "button",
                 "paymentType": "AC",
 
@@ -29,9 +24,9 @@ class YoomoneyProvider(IPaymentProvider):
                 url="https://yoomoney.ru/quickpay/confirm.xml?",
                 params=params,
             )
-        return str(response.url) if response.url else None
+        return (str(response.url) if response.url else None), None
 
-    async def process(self, uid: str) -> bool:
+    async def process(self, uid: str, provider_uid: str | None = None) -> bool:
         async with self._get_client() as client:
             response = await client.post(
                 url=f"https://yoomoney.ru/api/operation-history",

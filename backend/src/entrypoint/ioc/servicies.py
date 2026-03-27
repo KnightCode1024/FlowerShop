@@ -51,10 +51,12 @@ class ServiceProvider(Provider):
             uow: UnitOfWork,
             invoice_repository: InvoiceRepositoryI,
             orders_repository: IOrderRepository,
+            user_repository: IUserRepository,
     ) -> InvoiceService:
         return InvoiceService(uow,
                               invoice_repository,
                               orders_repository,
+                              user_repository,
                               factories)
 
     @provide

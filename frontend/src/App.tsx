@@ -11,6 +11,11 @@ import Product from "./pages/Product";
 import Profile from "./pages/Profile";
 import Register from "./pages/Register";
 import VerifyEmail from "./pages/VerifyEmail";
+import Cart from "./pages/Cart";
+import Checkout from "./pages/Checkout";
+import Orders from "./pages/Orders";
+import OrderSuccess from "./pages/OrderSuccess";
+import OrderCancel from "./pages/OrderCancel";
 import AdminRoute from "./components/AdminRoute";
 import AdminLayout from "./layouts/AdminLayout";
 import AdminProducts from "./pages/admin/AdminProducts";
@@ -32,6 +37,7 @@ function App(): JSX.Element {
         <Route path="about" element={<About />} />
         <Route path="catalog" element={<Catalog />} />
         <Route path="products/:productId" element={<Product />} />
+        <Route path="cart" element={<Cart />} />
         <Route path="login" element={<Login />} />
         <Route path="register" element={<Register />} />
         <Route path="verify-email" element={<VerifyEmail />} />
@@ -39,6 +45,10 @@ function App(): JSX.Element {
 
         <Route element={<ProtectedRoute />}>
           <Route path="profile" element={<Profile />} />
+          <Route path="checkout" element={<Checkout />} />
+          <Route path="orders" element={<Orders />} />
+          <Route path="orders/success" element={<OrderSuccess />} />
+          <Route path="orders/cancel" element={<OrderCancel />} />
         </Route>
       </Route>
 

@@ -2,9 +2,11 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { ApiError } from "../api/authApi";
 import { formatPrice, getProduct, type ProductDetails } from "../api/catalogApi";
+import { useCart } from "../cart/useCart";
 
 export default function Product() {
   const { productId } = useParams();
+  const { addItem } = useCart();
   const [product, setProduct] = useState<ProductDetails | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -89,12 +91,29 @@ export default function Product() {
         <p className="text-sm text-slate-600">
           Статус: {product.in_stock ? "в наличии" : "нет в наличии"}
         </p>
-        <Link
-          to="/catalog"
-          className="mt-4 w-fit rounded border border-amber-500 px-4 py-2 font-semibold text-amber-700"
-        >
-          Назад в каталог
-        </Link>
+        <div className="mt-4 flex flex-wrap gap-3">
+          <button
+            type="button"
+            onClick={() =>
+              addItem({
+                product_id: product.id,
+                name: product.name,
+                price: Number(product.price),
+                image_url: primaryImage?.url ?? null,
+              })
+            }
+            disabled={!product.in_stock}
+            className="rounded border border-amber-500 px-4 py-2 font-semibold text-amber-700 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            В корзину
+          </button>
+          <Link
+            to="/catalog"
+            className="rounded border border-amber-500 px-4 py-2 font-semibold text-amber-700"
+          >
+            Назад в каталог
+          </Link>
+        </div>
       </div>
     </section>
   );

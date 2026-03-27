@@ -1,32 +1,32 @@
-import datetime
-import enum
-
 from sqlalchemy import Enum, Float, ForeignKey, Integer
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from models import *
 from models import Base
-from schemas.order import OrderResponse, OrderStatus
+from schemas.order import CartItem, OrderResponse, OrderStatus
 
 
 class OrderProduct(Base):
-    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     order_id: Mapped[int] = mapped_column(
         ForeignKey("orders.id", ondelete="CASCADE"), primary_key=False
     )
     product_id: Mapped[int] = mapped_column(
         ForeignKey("products.id"), nullable=False, primary_key=False
     )
-    order: Mapped["Order"] = relationship("Order", back_populates="order_products")
+    order: Mapped["Order"] = relationship(
+        "Order",
+        back_populates="order_products",
+    )
     quantity: Mapped[int] = mapped_column(Integer(), nullable=False)
     price: Mapped[float] = mapped_column(Float(), nullable=False)
 
     def __str__(self) -> str:
-        return f"OrderItem(order={self.order_id}, product={self.product_id}, qty={self.quantity})"
+        return (
+            f"OrderItem(order={self.order_id}, "
+            f"product={self.product_id}, qty={self.quantity})"
+        )
 
 
 class Order(Base):
-    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     order_products: Mapped[list["OrderProduct"]] = relationship(
         "OrderProduct",
         back_populates="order",
@@ -47,7 +47,14 @@ class Order(Base):
     def to_entity(self) -> OrderResponse:
         return OrderResponse(
             id=self.id,
-            order_products=self.order_products,
+            order_products=[
+                CartItem(
+                    product_id=item.product_id,
+                    quantity=item.quantity,
+                    price=item.price,
+                )
+                for item in (self.order_products or [])
+            ],
             amount=self.amount,
-            status=self.status
+            status=self.status,
         )

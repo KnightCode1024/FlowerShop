@@ -11,7 +11,7 @@ bot = aiogram.Bot(config.bot.TOKEN, parse_mode=None)
 logger = logging.getLogger(__name__)
 
 TEMPLATE_ORDER_NOTIFY_MESSAGE: str = """
-Notify about NEW order {id}   
+Notify about NEW order {id}
 
 date: {updated_at}
 status: {status}
@@ -31,7 +31,7 @@ async def send_notify_admins(invoice: InvoiceResponse):
                     status=str(invoice.status),
                     user=invoice.user_id,
                     admin_link=f"{config.frontend.URL}/admin/orders/{invoice.order_id}",
-                )
+                ),
             )
         except Exception as e:
             logger.error(f"Don't sent notify message for admin_id=%s", admin_id)
@@ -40,10 +40,12 @@ async def send_notify_admins(invoice: InvoiceResponse):
 
 @broker.task(task_name="user-payed-order")
 async def send_notify_user_to_email(to_email: str, order: OrderResponse):
-    provider = SmtpProvider(to_mail=to_email,
-                            subject="Thanks for order! Your order is being processed",
-                            content=f"#{order.id}"
-                                    f"Amount: {order.amount}"
-                                    f"Status: {order.status}"
-                                    f"Link: {config.frontend.URL}/orders/{order.id}")
+    provider = SmtpProvider(
+        to_mail=to_email,
+        subject="Thanks for order! Your order is being processed",
+        content=f"#{order.id}"
+        f"Amount: {order.amount}"
+        f"Status: {order.status}"
+        f"Link: {config.frontend.URL}/orders/{order.id}",
+    )
     await provider.send_to_mail()

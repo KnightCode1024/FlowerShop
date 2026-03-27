@@ -142,11 +142,6 @@ def upgrade() -> None:
             server_default=sa.text("now()"),
             nullable=False,
         ),
-        sa.Column(
-            "quantity",
-            sa.Integer(),
-            default=1
-        ),
         sa.ForeignKeyConstraint(
             ["category_id"], ["categories.id"], ondelete="RESTRICT"
         ),

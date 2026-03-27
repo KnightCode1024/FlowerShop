@@ -24,6 +24,10 @@ class InvoiceRepositoryI(abc.ABC):
     async def update(self, invoice_data: InvoiceUpdate) -> InvoiceResponse:
         pass
 
+    @abc.abstractmethod
+    async def get_by_provider_uid(self, provider_uid: str) -> InvoiceResponse | None:
+        pass
+
 
 class InvoiceRepository(InvoiceRepositoryI):
 
@@ -72,3 +76,8 @@ class InvoiceRepository(InvoiceRepositoryI):
         await self.session.flush()
 
         return obj.to_entity()
+
+    async def get_by_provider_uid(self, provider_uid: str) -> InvoiceResponse | None:
+        stmt = select(Invoice).where(Invoice.provider_uid == provider_uid)
+        obj: Invoice | None = (await self.session.execute(stmt)).scalar_one_or_none()
+        return obj.to_entity() if obj else None

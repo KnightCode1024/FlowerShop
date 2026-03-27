@@ -12,6 +12,7 @@ class InvoiceStatus(str, Enum):
 
 class Methods(str, Enum):
     YOOMONEY = "yoomoney"
+    STRIPE = "stripe"
 
 
 class InvoiceCreateRequest(BaseModel):
@@ -30,7 +31,7 @@ class InvoiceCreate(BaseModel):
 
 
 class InvoiceResponse(BaseModel):
-    uid: str
+    uid: UUID
     name: str
     order_id: int
     user_id: int
@@ -38,11 +39,13 @@ class InvoiceResponse(BaseModel):
     status: InvoiceStatus
     method: Methods
     link: str | None = None
+    provider_uid: str | None = None
 
 
 class InvoiceUpdate(BaseModel):
     uid: UUID
     link: str | None = None
+    provider_uid: str | None = None
     amount: float | None = None
     method: Methods | None = None
     status: InvoiceStatus | None = None

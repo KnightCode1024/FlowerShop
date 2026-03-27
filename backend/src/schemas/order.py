@@ -1,13 +1,13 @@
-from pydantic import BaseModel
+import enum
 
-from models.order import *
+from pydantic import BaseModel
 
 
 class OrderStatus(enum.StrEnum):
-    IN_CART = "in_cart"
-    WAITING = "waiting"
-    PAYED = "payed"
-    ERROR = "error"
+    IN_CART = "IN_CART"
+    WAITING_PAY = "WAITING_PAY"
+    PAYED = "PAYED"
+    ERROR = "ERROR"
 
 
 class CartItem(BaseModel):
@@ -39,7 +39,7 @@ class OrderCreate(BaseModel):
 
 class OrderResponse(BaseModel):
     id: int
-    order_products: list
+    order_products: list[CartItem]
     amount: float
     status: OrderStatus
 

@@ -88,7 +88,7 @@ async def test_update_order_already_exists(
 
     order_updated = await order_repository.update(order_create_data)  # +1
 
-    assert len(order_updated.order_products) == 2
+    assert len(order_updated.order_products) == 1
     assert order_updated.status == OrderStatus.IN_CART
 
 
@@ -127,7 +127,7 @@ async def test_update_order_success_one(
 
     order2_updated = await order_repository.update(order_update_data)
 
-    assert len(order2_updated.order_products) == 2
+    assert len(order2_updated.order_products) == 1
     assert order2_updated.user_id == created_user.id
     assert order2_updated.status == OrderStatus.IN_CART
 

@@ -1,11 +1,14 @@
 import { Link } from "react-router-dom";
 import { formatPrice, type ProductListItem } from "../api/catalogApi";
+import { useCart } from "../cart/useCart";
 
 interface ProductCardProps {
   product: ProductListItem;
 }
 
 export default function ProductCard({ product }: ProductCardProps) {
+  const { addItem } = useCart();
+
   return (
     <article className="flex h-full flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
       {product.main_image_url ? (
@@ -39,12 +42,29 @@ export default function ProductCard({ product }: ProductCardProps) {
           <p className="text-xl font-bold">
             {formatPrice(product.price)}
           </p>
-          <Link
-            to={`/products/${product.id}`}
-            className="rounded border border-yellow-500 px-3 py-1 text-sm font-semibold text-yellow-500 transition hover:bg-amber-500 hover:text-white"
-          >
-            Подробнее
-          </Link>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() =>
+                addItem({
+                  product_id: product.id,
+                  name: product.name,
+                  price: Number(product.price),
+                  image_url: product.main_image_url,
+                })
+              }
+              disabled={!product.in_stock}
+              className="rounded border border-amber-500 px-3 py-1 text-sm font-semibold text-amber-700 disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              В корзину
+            </button>
+            <Link
+              to={`/products/${product.id}`}
+              className="rounded border border-yellow-500 px-3 py-1 text-sm font-semibold text-yellow-500 transition hover:bg-amber-500 hover:text-white"
+            >
+              Подробнее
+            </Link>
+          </div>
         </div>
       </div>
     </article>

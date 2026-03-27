@@ -18,7 +18,7 @@ async def test_create_invoice(created_user_client, created_product: ProductRespo
     response = await created_user_client.post("/invoices/", json=invoice.model_dump())
     uid = str(response.text)
 
-    response2 = await created_user_client.get(f"/invoices/{uid}")
+    response2 = await created_user_client.get(f"/invoices/{invoice.method}/{uid}")
     invoice_created = InvoiceResponse(**response2.json())
 
     assert invoice.amount == invoice_created.amount

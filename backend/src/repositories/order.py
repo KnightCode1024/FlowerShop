@@ -3,15 +3,17 @@ import time
 from typing import Protocol
 
 from fastapi import HTTPException
-from sqlalchemy import desc, insert, outerjoin, select, update, func
+from sqlalchemy import desc, insert, outerjoin, select, update, func, delete
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload, selectinload
 from starlette import status
 
 from models.order import Order, OrderProduct
+from models.product import Product
 from schemas.order import (CartItem, OrderCreate, OrderProductCreate,
                            OrderUpdate, OrdersAnalytics)
+from schemas.order import OrderStatus
 
 
 class IOrderRepository(Protocol):
@@ -25,6 +27,12 @@ class IOrderRepository(Protocol):
         pass
 
     async def get_all_user(self, user_id: int) -> list[Order]:
+        pass
+
+    async def get_purchases_user(self, user_id: int) -> list[Order]:
+        pass
+
+    async def get_cart(self, user_id: int) -> Order | None:
         pass
 
     async def get_analytics_orders(self) -> OrdersAnalytics:
@@ -68,7 +76,7 @@ class OrderRepository(IOrderRepository):
         )
 
         if user_id:
-            stmt.where(Order.user_id == user_id)
+            stmt = stmt.where(Order.user_id == user_id)
 
         result = await self.session.execute(stmt)
         obj: Order | None = result.scalars().unique().one_or_none()
@@ -83,7 +91,7 @@ class OrderRepository(IOrderRepository):
     async def update(self, order_data: OrderUpdate) -> Order:
         obj = await self.get(order_data.id, order_data.user_id)
 
-        if order_data.order_products:
+        if order_data.order_products is not None:
             await self._update_products(obj, order_data.order_products)
 
         for name, value in order_data.model_dump(
@@ -121,10 +129,31 @@ class OrderRepository(IOrderRepository):
                 Order.created_at.desc(),
             )
             .where(Order.user_id == user_id)
+            .options(joinedload(Order.order_products))
         )
         result = await self.session.execute(stmt)
         result = result.scalars().unique().all()
         return result
+
+    async def get_purchases_user(self, user_id: int) -> list[Order]:
+        stmt = (
+            select(Order)
+            .order_by(Order.created_at.desc())
+            .where(Order.user_id == user_id, Order.status != OrderStatus.IN_CART)
+            .options(joinedload(Order.order_products))
+        )
+        result = await self.session.execute(stmt)
+        return result.scalars().unique().all()
+
+    async def get_cart(self, user_id: int) -> Order | None:
+        stmt = (
+            select(Order)
+            .where(Order.user_id == user_id, Order.status == OrderStatus.IN_CART)
+            .order_by(Order.created_at.desc())
+            .options(joinedload(Order.order_products))
+        )
+        result = await self.session.execute(stmt)
+        return result.scalars().unique().first()
 
     async def get_analytics_orders(self) -> OrdersAnalytics:
         today = datetime.datetime.today()
@@ -162,22 +191,66 @@ class OrderRepository(IOrderRepository):
     async def _update_products(
             self, order: Order, order_products: list[CartItem]
     ) -> Order:
-        new_order_products = []
-
-        for o_prod in order_products:
-            op = OrderProduct(
-                order_id=order.id,
-                product_id=o_prod.product_id,
-                quantity=o_prod.quantity,
-                price=o_prod.price,
+        if order.status != OrderStatus.IN_CART:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Order cannot be edited in current status",
             )
-            new_order_products.append(op)
+
+        order_products = order_products or []
+        aggregated: dict[int, int] = {}
+
+        for item in order_products:
+            if item.quantity <= 0:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Quantity must be greater than zero",
+                )
+            aggregated[item.product_id] = aggregated.get(item.product_id, 0) + item.quantity
+
+        await self.session.execute(
+            delete(OrderProduct).where(OrderProduct.order_id == order.id)
+        )
+
+        if not aggregated:
+            order.amount = 0.00
+            await self.session.flush()
+            await self.session.refresh(order)
+            return order
+
+        products_stmt = select(Product).where(Product.id.in_(aggregated.keys()))
+        products = (await self.session.execute(products_stmt)).scalars().all()
+
+        if len(products) != len(aggregated):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Some products were not found",
+            )
+
+        new_order_products = []
+        total_amount = 0.0
+
+        for product in products:
+            quantity = aggregated[product.id]
+            if not product.in_stock:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=f"Product {product.id} is not available in requested quantity",
+                )
+            price = float(product.price)
+            total_amount += quantity * price
+            new_order_products.append(
+                OrderProduct(
+                    order_id=order.id,
+                    product_id=product.id,
+                    quantity=quantity,
+                    price=price,
+                )
+            )
 
         self.session.add_all(new_order_products)
 
-        order.amount = round(
-            float(sum([i.quantity * i.price for i in order_products])), 2
-        )
+        order.amount = round(float(total_amount), 2)
 
         await self.session.flush()
         await self.session.refresh(order)

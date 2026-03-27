@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { getAdminUsers } from "../../api/adminApi";
 import type { UserResponse } from "../../api/authApi";
 import { useAuth } from "../../auth/useAuth";
+import { formatRole } from "../../utils/formatRole";
 
 export default function AdminUsers() {
   const { user } = useAuth();
@@ -59,7 +60,7 @@ export default function AdminUsers() {
             <thead className="bg-slate-50 text-left text-slate-600">
               <tr>
                 <th className="px-4 py-3 font-medium">ID</th>
-                <th className="px-4 py-3 font-medium">Email</th>
+                <th className="px-4 py-3 font-medium">Эл. почта</th>
                 <th className="px-4 py-3 font-medium">Имя</th>
                 <th className="px-4 py-3 font-medium">Роль</th>
                 <th className="px-4 py-3 font-medium"></th>
@@ -73,7 +74,7 @@ export default function AdminUsers() {
                   <td className="px-4 py-3 font-medium text-slate-900">
                     {user.username}
                   </td>
-                  <td className="px-4 py-3 text-slate-600">{user.role}</td>
+                  <td className="px-4 py-3 text-slate-600">{formatRole(user.role)}</td>
                   <td className="px-4 py-3 text-right">
                     <Link
                       to={`/admin/users/${user.id}`}

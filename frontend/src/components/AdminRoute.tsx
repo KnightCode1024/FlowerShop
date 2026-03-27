@@ -8,7 +8,7 @@ export default function AdminRoute() {
   const location = useLocation();
 
   if (isLoading) {
-    return <div className="py-10 text-center">Loading...</div>;
+    return <div className="py-10 text-center">Загрузка...</div>;
   }
 
   if (!isAuthenticated) {

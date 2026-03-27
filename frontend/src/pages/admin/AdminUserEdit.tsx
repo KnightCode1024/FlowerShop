@@ -7,6 +7,7 @@ import {
 } from "../../api/adminApi";
 import type { UserResponse } from "../../api/authApi";
 import { useAuth } from "../../auth/useAuth";
+import { formatRole } from "../../utils/formatRole";
 
 const EMPTY_FORM: AdminUserUpdatePayload = {
   email: "",
@@ -145,7 +146,7 @@ export default function AdminUserEdit() {
           <div className="grid gap-6 md:grid-cols-2">
             <div className="space-y-2">
               <label className="text-sm font-medium text-slate-700">
-                Email
+                Эл. почта
               </label>
               <input
                 type="email"
@@ -180,7 +181,7 @@ export default function AdminUserEdit() {
           </div>
 
           <div className="rounded-md border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
-            Роль пользователя: <span className="font-medium">{user?.role}</span>
+            Роль пользователя: <span className="font-medium">{formatRole(user?.role)}</span>
           </div>
 
           <div className="flex items-center justify-end gap-3">

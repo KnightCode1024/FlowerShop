@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import mainFlower from "../assets/images/main_flower.png";
 import { ApiError } from "../api/authApi";
 import { getProducts, type ProductListItem } from "../api/catalogApi";
@@ -39,80 +40,90 @@ export default function Home() {
     };
   }, []);
 
-  const services = [
+  const highlights = [
     {
-      number: "1",
-      title: "FLORAL INSTALLATIONS",
-      description: "Living art for homes, businesses, and events.",
+      title: "Свежие поставки каждый день",
+      description: "Работаем с проверенными фермами и отбираем лучшие стебли.",
     },
     {
-      number: "2",
-      title: "EVENT FLOWERS",
-      description:
-        "Whether it’s a private retreat or a public space, we craft floral experiences that bloom beyond expectations.",
+      title: "Быстрая доставка",
+      description: "Привезем букет в день заказа или к точному времени.",
     },
     {
-      number: "3",
-      title: "CUSTOM FLORAL CONCEPTS",
-      description:
-        "Your vision, our blooms. We build arrangements that are both personal and exquisitely simple.",
+      title: "Авторские подборки",
+      description: "Соберем композицию под ваш стиль, повод и бюджет.",
     },
   ];
 
   return (
     <section className="w-full">
-      <div>
-        <img src={mainFlower} alt="Main flower" className="image" />
-
-        <div className="flex flex-col items-center gap-9 my-18 font-bold">
-          <p className="text-sm text-gray-500">Who We Are</p>
-          <p className="text-3xl text-center">
-            We're Our Blooms® and we're here to help you find your floral story.
-          </p>
-          <About />
-        </div>
-
-        <div className="flex flex-col gap-9">
-          <div className="flex flex-row gap-3 overflow-hidden">
-            <img src={mainFlower} alt="Flower 1" className="image" />
-            <img src={mainFlower} alt="Flower 2" className="image" />
-            <img src={mainFlower} alt="Flower 3" className="image" />
-            <img src={mainFlower} alt="Flower 4" className="image" />
-          </div>
-
-          <div className="flex flex-col items-center gap-6">
-            <h1 className="text-4xl font-bold">What We Do</h1>
-            <h4 className="font-medium text-sm text-center">
-              We bring a touch of that simple magic into your world.
-            </h4>
-          </div>
-        </div>
-
-        <div className="flex flex-col gap-9">
-          {services.map((service) => (
-            <div key={service.number} className="my-12 border-b border-t border-gray-700 pb-4">
-              <div className="my-18 flex flex-col gap-6 p-6 text-center">
-                <p className="text-3xl font-bold">{service.number}</p>
-                <img src={mainFlower} alt={service.title} className="mx-auto w-48" />
-                <h2 className="text-xl font-bold">{service.title}</h2>
-                <h4 className="font-medium text-xs">{service.description}</h4>
-              </div>
-            </div>
-          ))}
-
-          <img src={mainFlower} alt="Main flower" className="image" />
-
-          <div className="my-18">
-            <div className="flex flex-col gap-6">
-              <h1 className="text-2xl font-bold">Work with us</h1>
-              <h2 className="text-lg">
-                Discover how we can add a touch of natural beauty to your next event
-              </h2>
+      <div className="flex flex-col gap-10">
+        <div className="grid grid-cols-1 gap-8 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm lg:grid-cols-[1.1fr_0.9fr]">
+          <div className="flex flex-col justify-center gap-6">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
+              Магазин цветов
+            </p>
+            <h1 className="text-4xl font-bold text-slate-900 sm:text-5xl">
+              Свежие букеты и композиции для любого повода
+            </h1>
+            <p className="text-base text-slate-600">
+              Быстрая доставка, авторские подборки и гарантия свежести. Выберите букет в каталоге
+              или расскажите нам о вашем событии.
+            </p>
+            <div className="flex flex-wrap gap-3">
+              <Link
+                to="/catalog"
+                className="rounded bg-yellow-500 px-5 py-3 font-semibold text-black"
+              >
+                Перейти в каталог
+              </Link>
               <About />
             </div>
           </div>
+          <div className="overflow-hidden rounded-2xl border border-slate-100">
+            <img src={mainFlower} alt="Свежие букеты" className="h-full w-full object-cover" />
+          </div>
+        </div>
 
-          <img src={mainFlower} alt="Main flower" className="image" />
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+          {highlights.map((item) => (
+            <div
+              key={item.title}
+              className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
+            >
+              <h3 className="text-lg font-semibold text-slate-900">{item.title}</h3>
+              <p className="mt-2 text-sm text-slate-600">{item.description}</p>
+            </div>
+          ))}
+        </div>
+
+        <div className="rounded-3xl border border-slate-200 bg-slate-900 px-6 py-8 text-white">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h2 className="text-2xl font-semibold">Хит недели</h2>
+              <p className="text-sm text-slate-200">
+                Сезонные букеты со скидкой и открыткой в подарок.
+              </p>
+            </div>
+            <Link
+              to="/catalog"
+              className="w-fit rounded bg-white px-4 py-2 font-semibold text-slate-900"
+            >
+              Смотреть предложения
+            </Link>
+          </div>
+        </div>
+
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-2xl font-semibold text-slate-900">Популярные товары</h2>
+            <p className="text-sm text-slate-500">
+              Подборка свежих букетов, которые заказывают чаще всего.
+            </p>
+          </div>
+          <Link to="/catalog" className="text-sm font-semibold text-yellow-500">
+            Весь каталог →
+          </Link>
         </div>
 
         {error ? (

@@ -1,5 +1,6 @@
 import { Link, Outlet } from "react-router-dom";
 import { useAuth } from "../auth/useAuth";
+import { formatRole } from "../utils/formatRole";
 
 export default function AdminLayout() {
   const { user, logout } = useAuth();
@@ -13,7 +14,7 @@ export default function AdminLayout() {
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
           <div className="flex items-center gap-6">
             <Link to="/" className="text-lg font-semibold">
-              FlowerShop
+              Наши Цветы
             </Link>
             <nav className="flex items-center gap-4 text-sm">
               {canManageCatalog ? (
@@ -65,7 +66,7 @@ export default function AdminLayout() {
           <div className="flex items-center gap-3 text-sm">
             {user && (
               <span className="text-slate-600">
-                {user.username} ({user.role})
+                {user.username} ({formatRole(user.role)})
               </span>
             )}
             <button

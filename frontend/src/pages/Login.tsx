@@ -25,7 +25,7 @@ export default function Login() {
       await loginStart({ email, password });
       navigate("/otp", { replace: true, state: { fromPath } });
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Login failed");
+      setError(err instanceof ApiError ? err.message : "Не удалось войти");
     } finally {
       setIsSubmitting(false);
     }
@@ -33,11 +33,11 @@ export default function Login() {
 
   return (
     <section className="mx-auto mt-10 w-full max-w-md rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-      <h1 className="mb-6 text-2xl font-bold">Sign in</h1>
+      <h1 className="mb-6 text-2xl font-bold">Вход</h1>
 
       {isOtpPending && otpEmail ? (
         <p className="mb-4 rounded bg-yellow-100 p-3 text-sm text-black">
-          OTP step is pending for {otpEmail}. Continue on the OTP page.
+          Шаг с OTP для {otpEmail} еще не завершен. Продолжите на странице ввода кода.
         </p>
       ) : null}
 
@@ -47,7 +47,7 @@ export default function Login() {
 
       <form onSubmit={onSubmit} className="flex flex-col gap-4">
         <label className="flex flex-col gap-1">
-          <span className="text-sm text-slate-600">Email</span>
+          <span className="text-sm text-slate-600">Эл. почта</span>
           <input
             type="email"
             required
@@ -59,14 +59,14 @@ export default function Login() {
         </label>
 
         <label className="flex flex-col gap-1">
-          <span className="text-sm text-slate-600">Password</span>
+          <span className="text-sm text-slate-600">Пароль</span>
           <input
             type="password"
             required
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             className="rounded border border-slate-300 bg-white px-3 py-2 outline-none focus:border-slate-500"
-            placeholder="Password"
+            placeholder="Пароль"
           />
         </label>
 
@@ -75,14 +75,14 @@ export default function Login() {
           disabled={isSubmitting}
           className="rounded bg-yellow-500 px-4 py-2 font-semibold text-black disabled:opacity-60"
         >
-          {isSubmitting ? "Signing in..." : "Sign in"}
+          {isSubmitting ? "Входим..." : "Войти"}
         </button>
       </form>
 
       <p className="mt-4 text-sm text-slate-500">
-        No account?{" "}
+        Нет аккаунта?{" "}
         <Link to="/register" className="text-yellow-400 underline">
-          Create one
+          Создать аккаунт
         </Link>
       </p>
     </section>

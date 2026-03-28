@@ -232,10 +232,10 @@ class OrderRepository(IOrderRepository):
 
         for product in products:
             quantity = aggregated[product.id]
-            if not product.in_stock:
+            if product.quantity < quantity:
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
-                    detail=f"Product {product.id} is not available in requested quantity",
+                    detail=f"Product {product.id} has insufficient stock. Available: {product.quantity}, requested: {quantity}",
                 )
             price = float(product.price)
             total_amount += quantity * price
@@ -251,6 +251,13 @@ class OrderRepository(IOrderRepository):
         self.session.add_all(new_order_products)
 
         order.amount = round(float(total_amount), 2)
+
+        await self.session.flush()
+
+        for product in products:
+            product.quantity -= aggregated[product.id]
+            product.in_stock = product.quantity > 0
+            self.session.add(product)
 
         await self.session.flush()
         await self.session.refresh(order)

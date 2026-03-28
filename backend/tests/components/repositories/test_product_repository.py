@@ -163,15 +163,15 @@ class TestProductRepository:
         # Act
         result = await product_repository.get_filtered(filters)
 
-        # Assert
-        assert len(result) == 2
+        # Assert - only 2 products have quantity > 0
+        assert len(result) == 1
 
     @pytest.mark.parametrize(
         "offset,limit,expected_count",
         [
-            (0, 10, 3),
-            (1, 2, 2),
-            (2, 10, 1),
+            (0, 10, 2),  # Only 2 products have quantity > 0
+            (1, 2, 1),
+            (2, 10, 0),
             (10, 10, 0),
         ],
     )

@@ -68,6 +68,7 @@ export default function AdminProducts() {
                 <th className="px-4 py-3 font-medium">Название</th>
                 <th className="px-4 py-3 font-medium">Цена</th>
                 <th className="px-4 py-3 font-medium">Категория</th>
+                <th className="px-4 py-3 font-medium">Количество</th>
                 <th className="px-4 py-3 font-medium">В наличии</th>
                 <th className="px-4 py-3 font-medium"></th>
               </tr>
@@ -94,6 +95,7 @@ export default function AdminProducts() {
                   <td className="px-4 py-3 text-slate-600">
                     {item.category_name}
                   </td>
+                  <td className="px-4 py-3">{item.quantity}</td>
                   <td className="px-4 py-3">
                     {item.in_stock ? "Да" : "Нет"}
                   </td>
@@ -118,7 +120,7 @@ export default function AdminProducts() {
               ))}
               {items.length === 0 && (
                 <tr>
-                  <td className="px-4 py-6 text-center text-slate-500" colSpan={7}>
+                  <td className="px-4 py-6 text-center text-slate-500" colSpan={8}>
                     Нет товаров.
                   </td>
                 </tr>

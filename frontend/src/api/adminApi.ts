@@ -126,7 +126,8 @@ export interface ProductUpsertPayload {
   description?: string | null;
   price: number | string;
   in_stock: boolean;
-  category_id: number;
+  quantity: number;
+  category_id: number | string;
 }
 
 export async function createAdminProduct(

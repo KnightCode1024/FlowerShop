@@ -11,6 +11,7 @@ class ProductCreate(BaseModel):
     description: str | None = Field(None, max_length=255)
     price: Decimal = Field(..., gt=0, decimal_places=2)
     in_stock: bool = Field(True)
+    quantity: int = Field(0, ge=0)
     category_id: int = Field(...)
 
 
@@ -19,6 +20,7 @@ class ProductUpdate(BaseModel):
     description: str | None = Field(None, max_length=255)
     price: Decimal | None = Field(None, gt=0, decimal_places=2)
     in_stock: bool | None = Field(None)
+    quantity: int | None = Field(None, ge=0)
     category_id: int | None = Field(None)
 
 
@@ -36,6 +38,7 @@ class CreateProductRequest(BaseModel):
     description: str | None = Field(None, max_length=255)
     price: Decimal = Field(..., gt=0, decimal_places=2)
     in_stock: bool = Field(True)
+    quantity: int = Field(0, ge=0)
     category_id: int = Field(...)
 
 
@@ -44,6 +47,7 @@ class UpdateProductRequest(BaseModel):
     description: str | None = Field(None, max_length=255)
     price: Decimal | None = Field(None, gt=0, decimal_places=2)
     in_stock: bool | None = Field(None)
+    quantity: int | None = Field(None, ge=0)
     category_id: int | None = Field(None)
 
 
@@ -53,6 +57,7 @@ class ProductResponse(BaseModel):
     description: str | None = Field(None, max_length=255)
     price: Decimal = Field(..., ge=0, decimal_places=2)
     in_stock: bool = Field(True)
+    quantity: int = Field(0, ge=0)
     category_id: int = Field(...)
 
     images: list[ProductImageResponse]
@@ -65,6 +70,7 @@ class ProductsListResponse(BaseModel):
     description: str | None = Field(None, max_length=255)
     price: Decimal = Field(..., ge=0, decimal_places=2)
     in_stock: bool = Field(True)
+    quantity: int = Field(0, ge=0)
     category_id: int = Field(...)
 
     main_image_url: str | None = Field(None)

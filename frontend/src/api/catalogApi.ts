@@ -16,6 +16,7 @@ export interface ProductListItem {
   description: string | null;
   price: number | string;
   in_stock: boolean;
+  quantity: number;
   category_id: number;
   main_image_url: string | null;
   category_name: string;
@@ -33,6 +34,7 @@ export interface ProductDetails {
   description: string | null;
   price: number | string;
   in_stock: boolean;
+  quantity: number;
   category_id: number;
   images: ProductImage[];
   category: {

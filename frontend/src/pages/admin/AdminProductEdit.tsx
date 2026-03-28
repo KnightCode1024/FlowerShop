@@ -12,8 +12,9 @@ import type { CategoryListItem, ProductDetails } from "../../api/catalogApi";
 const EMPTY_FORM: ProductUpsertPayload = {
   name: "",
   description: "",
-  price: 0,
+  price: "",
   in_stock: true,
+  quantity: 0,
   category_id: 0,
 };
 
@@ -62,6 +63,7 @@ export default function AdminProductEdit() {
             description: product.description ?? "",
             price: Number(product.price),
             in_stock: product.in_stock,
+            quantity: product.quantity,
             category_id: product.category_id,
           });
           setExistingImages(product.images ?? []);
@@ -107,12 +109,32 @@ export default function AdminProductEdit() {
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
     setError(null);
+
+    // Validate form data
+    const priceNum = Number(form.price);
+    if (!form.name.trim()) {
+      setError("Название обязательно");
+      return;
+    }
+    if (!form.category_id) {
+      setError("Категория обязательна");
+      return;
+    }
+    if (isNaN(priceNum) || priceNum <= 0) {
+      setError("Цена должна быть больше 0");
+      return;
+    }
+
     setIsSaving(true);
     try {
+      const payload = {
+        ...form,
+        price: priceNum,
+      };
       if (isNew) {
-        await createAdminProduct(form, files);
+        await createAdminProduct(payload, files);
       } else if (productIdNumber) {
-        await updateAdminProduct(productIdNumber, form, files);
+        await updateAdminProduct(productIdNumber, payload, files);
       }
       navigate("/admin/products");
     } catch (err) {
@@ -187,7 +209,21 @@ export default function AdminProductEdit() {
                 min="0"
                 step="0.01"
                 value={form.price}
-                onChange={(e) => handleChange("price", Number(e.target.value))}
+                onChange={(e) => handleChange("price", e.target.value === "" ? "" : Number(e.target.value))}
+                required
+                className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm"
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-slate-700">
+                Количество на складе
+              </label>
+              <input
+                type="number"
+                min="0"
+                step="1"
+                value={form.quantity}
+                onChange={(e) => handleChange("quantity", Number(e.target.value))}
                 required
                 className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm"
               />

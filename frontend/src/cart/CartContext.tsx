@@ -6,16 +6,18 @@ export interface CartItem {
   price: number;
   quantity: number;
   image_url?: string | null;
+  maxQuantity?: number;
 }
 
 interface CartContextValue {
   items: CartItem[];
   totalCount: number;
   totalAmount: number;
-  addItem: (item: Omit<CartItem, "quantity">, quantity?: number) => void;
+  addItem: (item: Omit<CartItem, "quantity">, quantity?: number, maxQuantity?: number) => void;
   removeItem: (productId: number) => void;
-  updateQuantity: (productId: number, quantity: number) => void;
+  updateQuantity: (productId: number, quantity: number, maxQuantity?: number) => void;
   clear: () => void;
+  getItemQuantity: (productId: number) => number;
 }
 
 const CART_STORAGE_KEY = "flower_shop_cart";
@@ -50,16 +52,26 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   }, [items]);
 
   const addItem = useCallback(
-    (item: Omit<CartItem, "quantity">, quantity = 1) => {
+    (item: Omit<CartItem, "quantity">, quantity = 1, maxQuantity?: number) => {
       setItems((prev) => {
         const index = prev.findIndex((existing) => existing.product_id === item.product_id);
+        const currentQty = index !== -1 ? prev[index].quantity : 0;
+        const newQty = currentQty + quantity;
+
+        // Проверка на максимальное количество
+        if (maxQuantity !== undefined && newQty > maxQuantity) {
+          // Возвращаем текущее количество без изменений
+          return prev;
+        }
+
         if (index === -1) {
-          return [...prev, { ...item, quantity }];
+          return [...prev, { ...item, quantity, maxQuantity }];
         }
         const next = [...prev];
         next[index] = {
           ...next[index],
-          quantity: Math.max(1, next[index].quantity + quantity),
+          quantity: Math.max(1, newQty),
+          maxQuantity: maxQuantity ?? next[index].maxQuantity,
         };
         return next;
       });
@@ -71,15 +83,24 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     setItems((prev) => prev.filter((item) => item.product_id !== productId));
   }, []);
 
-  const updateQuantity = useCallback((productId: number, quantity: number) => {
+  const updateQuantity = useCallback((productId: number, quantity: number, maxQuantity?: number) => {
     setItems((prev) =>
       prev.map((item) =>
         item.product_id === productId
-          ? { ...item, quantity: Math.max(1, quantity) }
+          ? {
+              ...item,
+              quantity: Math.max(1, maxQuantity !== undefined ? Math.min(quantity, maxQuantity) : quantity),
+              maxQuantity: maxQuantity ?? item.maxQuantity,
+            }
           : item,
       ),
     );
   }, []);
+
+  const getItemQuantity = useCallback((productId: number) => {
+    const item = items.find((i) => i.product_id === productId);
+    return item?.quantity ?? 0;
+  }, [items]);
 
   const clear = useCallback(() => {
     setItems([]);
@@ -104,8 +125,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       removeItem,
       updateQuantity,
       clear,
+      getItemQuantity,
     }),
-    [addItem, clear, items, removeItem, totalAmount, totalCount, updateQuantity],
+    [addItem, clear, getItemQuantity, items, removeItem, totalAmount, totalCount, updateQuantity],
   );
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;

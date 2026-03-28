@@ -72,7 +72,7 @@ async def test_update_order_already_exists(
 ):
     order = await test_add_order_one(
         session, created_user, created_product, order_repository
-    )  # +1
+    )  
 
     order_create_data = OrderUpdate(
         id=order.id,
@@ -80,7 +80,7 @@ async def test_update_order_already_exists(
         order_products=[
             CartItem(
                 product_id=created_product.id,
-                quantity=random.randint(1, 10),
+                quantity=1,
                 price=created_product.price,
             )
         ],
@@ -105,7 +105,7 @@ async def test_update_order_success_one(
         order_products=[
             CartItem(
                 product_id=created_multiply_products[0].id,
-                quantity=random.randint(1, 3),
+                quantity=1,
                 price=created_multiply_products[0].price,
             )
         ],
@@ -119,7 +119,7 @@ async def test_update_order_success_one(
         order_products=[
             CartItem(
                 product_id=created_multiply_products[1].id,
-                quantity=random.randint(1, 10),
+                quantity=1,
                 price=created_multiply_products[1].price,
             )
         ],
@@ -143,8 +143,8 @@ async def test_get_all_orders_all(
     order_create_data = OrderCreate(
         user_id=created_user.id,
         order_products=[
-            CartItem(product_id=i.id, quantity=random.randint(1, 5), price=i.price)
-            for i in created_multiply_products
+            CartItem(product_id=created_multiply_products[0].id, quantity=2, price=created_multiply_products[0].price),
+            CartItem(product_id=created_multiply_products[1].id, quantity=1, price=created_multiply_products[1].price),
         ],
     )
 
@@ -153,7 +153,7 @@ async def test_get_all_orders_all(
     orders_all = await order_repository.get_all()
 
     assert orders_all[0].id == order_added.id
-    assert len(created_multiply_products) == len(orders_all[0].order_products)
+    assert len(order_create_data.order_products) == len(orders_all[0].order_products)
 
 
 @pytest.mark.asyncio
@@ -167,8 +167,8 @@ async def test_get_all_orders_by_user(
     order_create_data = OrderCreate(
         user_id=created_user.id,
         order_products=[
-            CartItem(product_id=i.id, quantity=random.randint(1, 5), price=i.price)
-            for i in created_multiply_products
+            CartItem(product_id=created_multiply_products[0].id, quantity=2, price=created_multiply_products[0].price),
+            CartItem(product_id=created_multiply_products[1].id, quantity=1, price=created_multiply_products[1].price),
         ],
     )
 
@@ -178,7 +178,7 @@ async def test_get_all_orders_by_user(
 
     assert orders_all[0].id == order_added.id
     assert order_added.user_id == created_user.id
-    assert len(created_multiply_products) == len(orders_all[0].order_products)
+    assert len(order_create_data.order_products) == len(orders_all[0].order_products)
 
 
 @pytest.mark.asyncio
@@ -201,7 +201,8 @@ async def test_delete_order(
 async def test_orders_analytics(
         session, created_user, created_product, product_repository, order_repository
 ):
-    for i in range(10):
+    # Create orders with quantity=1 to not exceed product stock
+    for i in range(5):
         order = await test_add_order_one(
             session, created_user, created_product, order_repository
         )
@@ -210,8 +211,8 @@ async def test_orders_analytics(
 
     print(order_analytics)
 
-    assert order_analytics.count_orders == 10
-    assert order_analytics.count_1_days_orders == 10
-    assert order_analytics.count_7_days_orders == 10
-    assert order_analytics.count_30_days_orders == 10
+    assert order_analytics.count_orders == 5
+    assert order_analytics.count_1_days_orders == 5
+    assert order_analytics.count_7_days_orders == 5
+    assert order_analytics.count_30_days_orders == 5
     assert order_analytics.amount_for_all_orders > 0

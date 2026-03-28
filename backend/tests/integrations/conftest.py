@@ -129,6 +129,7 @@ def test_product1(category_for_products):
         description="Beautiful red roses",
         price=Decimal("29.99"),
         in_stock=True,
+        quantity=10,
         category_id=category_for_products.id,
     )
 

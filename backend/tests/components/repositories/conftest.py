@@ -157,6 +157,7 @@ def test_product1(test_category_for_products):
         description="Beautiful red roses",
         price=Decimal("29.99"),
         in_stock=True,
+        quantity=10,
         category_id=test_category_for_products.id,
     )
 
@@ -168,6 +169,7 @@ def test_product2(test_category_for_products):
         description="Colorful tulips",
         price=Decimal("19.99"),
         in_stock=True,
+        quantity=5,
         category_id=test_category_for_products.id,
     )
 
@@ -179,6 +181,7 @@ def test_product3(test_category_for_products):
         description="Elegant white lilies",
         price=Decimal("39.99"),
         in_stock=False,
+        quantity=0,
         category_id=test_category_for_products.id,
     )
 

@@ -61,7 +61,7 @@ class ProductRepository(IProductRepository):
         self,
         filters: ProductFilterParams,
     ) -> list[ProductsListResponse]:
-        conditions = []
+        conditions = [Product.quantity > 0]
 
         if filters.min_price is not None:
             conditions.append(Product.price >= filters.min_price)
@@ -86,7 +86,6 @@ class ProductRepository(IProductRepository):
             query = query.where(and_(*conditions))
 
         result = await self.session.execute(query)
-        # Return raw product objects (tests expect model instances)
         products = result.unique().scalars().all()
         return products
 
@@ -181,6 +180,7 @@ class ProductRepository(IProductRepository):
             "description": product.description,
             "price": product.price,
             "in_stock": product.in_stock,
+            "quantity": product.quantity,
             "category_id": product.category_id,
             "images": images_list,
             "category": category_dict,

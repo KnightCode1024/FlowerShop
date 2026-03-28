@@ -51,7 +51,8 @@ class Product(Base):
     )
     quantity: Mapped[int] = mapped_column(
         Integer(),
-        default=1
+        default=0,
+        nullable=False,
     )
 
     def __str__(self) -> str:

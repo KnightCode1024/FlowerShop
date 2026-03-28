@@ -11,6 +11,16 @@ export default function Checkout() {
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Проверка на превышение доступного количества
+  const availabilityError = useMemo(() => {
+    for (const item of items) {
+      if (item.maxQuantity !== undefined && item.quantity > item.maxQuantity) {
+        return `Товар "${item.name}": доступно только ${item.maxQuantity} шт., а в корзине ${item.quantity}`;
+      }
+    }
+    return null;
+  }, [items]);
+
   const payloadItems = useMemo(
     () =>
       items.map((item) => ({
@@ -35,6 +45,11 @@ export default function Checkout() {
       setIsSubmitting(true);
       setError(null);
 
+      // Проверка перед оформлением
+      if (availabilityError) {
+        throw new Error(availabilityError);
+      }
+
       const order = await updateCart(payloadItems);
       const invoice = await createInvoice({
         order_id: order.id,
@@ -48,7 +63,7 @@ export default function Checkout() {
 
       window.location.href = invoice.link;
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Не удалось создать оплату");
+      setError(err instanceof ApiError ? err.message : (err as Error).message || "Не удалось создать оплату");
     } finally {
       setIsSubmitting(false);
     }
@@ -92,6 +107,20 @@ export default function Checkout() {
           карту 4242 4242 4242 4242.
         </p>
 
+        {availabilityError ? (
+          <div className="mt-4 rounded-md border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+            <p className="font-semibold">Внимание!</p>
+            {availabilityError}
+            <button
+              type="button"
+              onClick={() => navigate("/cart")}
+              className="mt-2 text-sm font-semibold text-amber-700 underline"
+            >
+              Вернуться в корзину для исправления
+            </button>
+          </div>
+        ) : null}
+
         {error ? (
           <div className="mt-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
             {error}
@@ -101,7 +130,7 @@ export default function Checkout() {
         <button
           type="button"
           onClick={handleCheckout}
-          disabled={isSubmitting}
+          disabled={isSubmitting || !!availabilityError}
           className="mt-4 rounded border border-amber-500 px-6 py-3 font-semibold text-amber-700 disabled:cursor-not-allowed disabled:opacity-50"
         >
           {isSubmitting ? "Создаем оплату..." : "Перейти к оплате"}

@@ -3,11 +3,14 @@ import { Link, useParams } from "react-router-dom";
 import { ApiError } from "../api/authApi";
 import { formatPrice, getProduct, type ProductDetails } from "../api/catalogApi";
 import { useCart } from "../cart/useCart";
+import QuantitySelector from "../components/QuantitySelector";
 
 export default function Product() {
   const { productId } = useParams();
-  const { addItem } = useCart();
+  const { addItem, getItemQuantity } = useCart();
   const [product, setProduct] = useState<ProductDetails | null>(null);
+  const [quantity, setQuantity] = useState(1);
+  const [addedToCart, setAddedToCart] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -40,6 +43,25 @@ export default function Product() {
       isActive = false;
     };
   }, [productId]);
+
+  const cartQuantity = product ? getItemQuantity(product.id) : 0;
+  const maxAvailable = product?.quantity ?? 0;
+  const canAddToCart = product?.in_stock && cartQuantity < maxAvailable;
+
+  const handleAddToCart = () => {
+    if (product && canAddToCart) {
+      const availableToAdd = Math.min(quantity, maxAvailable - cartQuantity);
+      addItem({
+        product_id: product.id,
+        name: product.name,
+        price: Number(product.price),
+        image_url: primaryImage?.url ?? null,
+      }, availableToAdd, maxAvailable);
+      setQuantity(1);
+      setAddedToCart(true);
+      setTimeout(() => setAddedToCart(false), 2000);
+    }
+  };
 
   const primaryImage = useMemo(() => {
     if (!product?.images?.length) {
@@ -89,27 +111,48 @@ export default function Product() {
           {product.description ?? "Описание товара отсутствует."}
         </p>
         <p className="text-sm text-slate-600">
-          Статус: {product.in_stock ? "в наличии" : "нет в наличии"}
+          Статус: {product.in_stock ? `${product.quantity} шт. в наличии` : "нет в наличии"}
         </p>
+
+        {cartQuantity > 0 && (
+          <p className="text-sm text-amber-600 font-medium">
+            В корзине: {cartQuantity} шт.
+          </p>
+        )}
+
         <div className="mt-4 flex flex-wrap gap-3">
-          <button
-            type="button"
-            onClick={() =>
-              addItem({
-                product_id: product.id,
-                name: product.name,
-                price: Number(product.price),
-                image_url: primaryImage?.url ?? null,
-              })
-            }
-            disabled={!product.in_stock}
-            className="rounded border border-amber-500 px-4 py-2 font-semibold text-amber-700 disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            В корзину
-          </button>
+          {product.in_stock ? (
+            <>
+              <QuantitySelector
+                value={quantity}
+                maxValue={Math.min(maxAvailable, maxAvailable - cartQuantity)}
+                onChange={setQuantity}
+              />
+              <button
+                type="button"
+                onClick={handleAddToCart}
+                disabled={!canAddToCart}
+                className={`rounded border px-4 py-2 font-semibold transition disabled:cursor-not-allowed disabled:opacity-50 ${
+                  addedToCart
+                    ? "border-green-500 bg-green-500 text-white"
+                    : "border-amber-500 text-amber-700 hover:bg-amber-500 hover:text-white"
+                }`}
+              >
+                {addedToCart ? "Добавлено!" : cartQuantity > 0 ? "Добавить ещё" : "В корзину"}
+              </button>
+            </>
+          ) : (
+            <button
+              type="button"
+              disabled
+              className="w-full rounded border border-slate-300 bg-slate-100 px-4 py-2 font-semibold text-slate-400 disabled:cursor-not-allowed"
+            >
+              Нет в наличии
+            </button>
+          )}
           <Link
             to="/catalog"
-            className="rounded border border-amber-500 px-4 py-2 font-semibold text-amber-700"
+            className="rounded border border-amber-500 px-4 py-2 font-semibold text-amber-700 transition hover:bg-amber-500 hover:text-white"
           >
             Назад в каталог
           </Link>

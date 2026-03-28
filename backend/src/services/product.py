@@ -166,6 +166,7 @@ class ProductService:
             description=product.description,
             price=product.price,
             in_stock=product.in_stock,
+            quantity=product.quantity,
             category_id=product.category_id,
             main_image_url=main_image_url,
             category_name=category_name,

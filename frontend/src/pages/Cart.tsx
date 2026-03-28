@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { formatPrice } from "../api/catalogApi";
 import { useCart } from "../cart/useCart";
+import QuantitySelector from "../components/QuantitySelector";
 
 export default function Cart() {
   const { items, totalAmount, removeItem, updateQuantity, clear } = useCart();
@@ -36,58 +37,59 @@ export default function Cart() {
       </div>
 
       <div className="space-y-4">
-        {items.map((item) => (
-          <article
-            key={item.product_id}
-            className="flex flex-col gap-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm md:flex-row md:items-center"
-          >
-            <div className="flex items-center gap-4">
-              <div className="h-20 w-20 overflow-hidden rounded-lg bg-slate-100">
-                {item.image_url ? (
-                  <img
-                    src={item.image_url}
-                    alt={item.name}
-                    className="h-full w-full object-cover"
-                  />
-                ) : null}
-              </div>
-              <div>
-                <h2 className="text-lg font-semibold">{item.name}</h2>
-                <p className="text-slate-600">{formatPrice(item.price)}</p>
-              </div>
-            </div>
+        {items.map((item) => {
+          const maxQty = item.maxQuantity ?? 999;
+          const isLimited = item.maxQuantity !== undefined && item.maxQuantity > 0;
 
-            <div className="flex flex-1 items-center justify-between gap-4">
-              <label className="flex items-center gap-2 text-sm text-slate-600">
-                Кол-во
-                <input
-                  type="number"
-                  min={1}
-                  value={item.quantity}
-                  onChange={(event) =>
-                    updateQuantity(
-                      item.product_id,
-                      Number.isFinite(Number(event.target.value))
-                        ? Number(event.target.value)
-                        : 1,
-                    )
-                  }
-                  className="w-20 rounded border border-slate-300 px-2 py-1"
-                />
-              </label>
-              <p className="text-lg font-semibold">
-                {formatPrice(item.price * item.quantity)}
-              </p>
-              <button
-                type="button"
-                onClick={() => removeItem(item.product_id)}
-                className="rounded border border-red-200 px-3 py-1 text-sm text-red-600"
-              >
-                Удалить
-              </button>
-            </div>
-          </article>
-        ))}
+          return (
+            <article
+              key={item.product_id}
+              className="flex flex-col gap-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm md:flex-row md:items-center"
+            >
+              <div className="flex items-center gap-4">
+                <div className="h-20 w-20 overflow-hidden rounded-lg bg-slate-100">
+                  {item.image_url ? (
+                    <img
+                      src={item.image_url}
+                      alt={item.name}
+                      className="h-full w-full object-cover"
+                    />
+                  ) : null}
+                </div>
+                <div>
+                  <h2 className="text-lg font-semibold">{item.name}</h2>
+                  <p className="text-slate-600">{formatPrice(item.price)}</p>
+                  {isLimited && item.quantity >= maxQty && (
+                    <p className="text-xs text-amber-600 font-medium">
+                      Максимум доступного количества
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              <div className="flex flex-1 items-center justify-between gap-4">
+                <div className="flex items-center gap-4">
+                  <span className="text-sm text-slate-600">Кол-во:</span>
+                  <QuantitySelector
+                    value={item.quantity}
+                    maxValue={maxQty}
+                    onChange={(qty) => updateQuantity(item.product_id, qty, maxQty)}
+                  />
+                </div>
+                <p className="text-lg font-semibold">
+                  {formatPrice(item.price * item.quantity)}
+                </p>
+                <button
+                  type="button"
+                  onClick={() => removeItem(item.product_id)}
+                  className="rounded border border-red-200 px-3 py-1 text-sm text-red-600"
+                >
+                  Удалить
+                </button>
+              </div>
+            </article>
+          );
+        })}
       </div>
 
       <div className="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-slate-200 bg-white p-4">

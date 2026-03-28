@@ -1,13 +1,31 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { formatPrice, type ProductListItem } from "../api/catalogApi";
 import { useCart } from "../cart/useCart";
+import QuantitySelector from "./QuantitySelector";
 
 interface ProductCardProps {
   product: ProductListItem;
 }
 
 export default function ProductCard({ product }: ProductCardProps) {
-  const { addItem } = useCart();
+  const { addItem, getItemQuantity } = useCart();
+  const [quantity, setQuantity] = useState(1);
+  const cartQuantity = getItemQuantity(product.id);
+  const maxAvailable = product.quantity;
+  const canAddToCart = product.in_stock && cartQuantity < maxAvailable;
+
+  const handleAddToCart = () => {
+    if (canAddToCart) {
+      addItem({
+        product_id: product.id,
+        name: product.name,
+        price: Number(product.price),
+        image_url: product.main_image_url,
+      }, quantity, maxAvailable);
+      setQuantity(1);
+    }
+  };
 
   return (
     <article className="flex h-full flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
@@ -28,7 +46,7 @@ export default function ProductCard({ product }: ProductCardProps) {
         <div className="flex items-start justify-between gap-3">
           <h3 className="line-clamp-2 text-lg font-semibold">{product.name}</h3>
           <span className="shrink-0 rounded bg-yellow-500 px-2 py-1 text-xs font-semibold text-black">
-            {product.in_stock ? "В наличии" : "Нет в наличии"}
+            {product.in_stock ? `${product.quantity} шт.` : "Нет в наличии"}
           </span>
         </div>
 
@@ -38,33 +56,43 @@ export default function ProductCard({ product }: ProductCardProps) {
 
         <p className="text-sm text-slate-500">{product.category_name}</p>
 
-        <div className="mt-auto flex items-center justify-between pt-2">
+        <div className="mt-auto flex flex-col gap-3 pt-2">
           <p className="text-xl font-bold">
             {formatPrice(product.price)}
           </p>
-          <div className="flex items-center gap-2">
+
+          {product.in_stock ? (
+            <div className="flex items-center justify-between gap-2">
+              <QuantitySelector
+                value={quantity}
+                maxValue={Math.min(maxAvailable, maxAvailable - cartQuantity)}
+                onChange={setQuantity}
+              />
+              <button
+                type="button"
+                onClick={handleAddToCart}
+                disabled={!canAddToCart}
+                className="rounded border border-amber-500 px-4 py-2 text-sm font-semibold text-amber-700 transition hover:bg-amber-500 hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                {cartQuantity > 0 ? `В корзине: ${cartQuantity}` : "В корзину"}
+              </button>
+            </div>
+          ) : (
             <button
               type="button"
-              onClick={() =>
-                addItem({
-                  product_id: product.id,
-                  name: product.name,
-                  price: Number(product.price),
-                  image_url: product.main_image_url,
-                })
-              }
-              disabled={!product.in_stock}
-              className="rounded border border-amber-500 px-3 py-1 text-sm font-semibold text-amber-700 disabled:cursor-not-allowed disabled:opacity-40"
+              disabled
+              className="w-full rounded border border-slate-300 bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-400 disabled:cursor-not-allowed"
             >
-              В корзину
+              Нет в наличии
             </button>
-            <Link
-              to={`/products/${product.id}`}
-              className="rounded border border-yellow-500 px-3 py-1 text-sm font-semibold text-yellow-500 transition hover:bg-amber-500 hover:text-white"
-            >
-              Подробнее
-            </Link>
-          </div>
+          )}
+
+          <Link
+            to={`/products/${product.id}`}
+            className="mt-1 text-center text-sm font-semibold text-yellow-600 transition hover:text-yellow-700"
+          >
+            Подробнее
+          </Link>
         </div>
       </div>
     </article>

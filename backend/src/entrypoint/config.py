@@ -159,8 +159,18 @@ class BotConfig(BaseSettings):
         env_file_encoding="utf-8",
         extra="ignore",
     )
+
     TOKEN: str
-    ADMINS_IDS: list[int]
+
+
+class AdminConfig(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_prefix="ADMIN_",
+        env_file_encoding="utf-8",
+        extra="ignore",
+    )
+
+    IDS: list[int]
 
 
 class Config(BaseSettings):
@@ -181,6 +191,7 @@ class Config(BaseSettings):
     yoomoney: YoomoneyConfig = YoomoneyConfig()
     stripe: StripeConfig = StripeConfig()
     bot: BotConfig = BotConfig()
+    admin: AdminConfig = AdminConfig()
 
 
 def create_config() -> Config:

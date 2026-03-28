@@ -1,5 +1,6 @@
 import logging
 import aiogram
+from aiogram.exceptions import TelegramBadRequest
 
 from core import broker
 from entrypoint.config import config
@@ -22,19 +23,29 @@ link to admin: {admin_link}
 
 @broker.task(task_name="admins-user-payed-order")
 async def send_notify_admins(invoice: InvoiceResponse):
-    for admin_id in config.BOT_ADMINS_IDS:
+    for admin_id in config.admin.IDS:
+        print(admin_id, type(admin_id))
         try:
+            updated_at_ = str(invoice.updated_at) if invoice.updated_at else "N/A"
             await bot.send_message(
                 chat_id=admin_id,
                 text=TEMPLATE_ORDER_NOTIFY_MESSAGE.format(
-                    id=invoice.id,
+                    id=invoice.uid,
+                    updated_at=updated_at_,
                     status=str(invoice.status),
                     user=invoice.user_id,
                     admin_link=f"{config.frontend.URL}/admin/orders/{invoice.order_id}",
                 ),
             )
+        except TelegramBadRequest as e:
+            logger.warning(
+                "Skip admin notify for admin_id=%s: %s",
+                admin_id,
+                e,
+            )
+            continue
         except Exception as e:
-            logger.error(f"Don't sent notify message for admin_id=%s", admin_id)
+            logger.error("Don't sent notify message for admin_id=%s", admin_id)
             raise e
 
 

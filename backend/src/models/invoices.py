@@ -12,7 +12,14 @@ class Invoice(Base):
     uid: Mapped[Uuid] = mapped_column(
         Uuid(as_uuid=True), primary_key=False, default=uuid.uuid4
     )
-    method: Mapped[Methods] = mapped_column(Enum(Methods), nullable=False)
+    method: Mapped[Methods] = mapped_column(
+        Enum(
+            Methods,
+            name="methods",
+            values_callable=lambda enum: [e.value for e in enum],
+        ),
+        nullable=False,
+    )
     link: Mapped[str] = mapped_column(Text(), nullable=True)
     provider_uid: Mapped[str] = mapped_column(
         String(length=128),
@@ -39,4 +46,5 @@ class Invoice(Base):
             amount=self.amount,
             status=self.status,
             method=self.method,
+            updated_at=self.updated_at,
         )

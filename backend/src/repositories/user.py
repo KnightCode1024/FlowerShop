@@ -82,7 +82,8 @@ class UserRepository(IUserRepository):
         return result.scalar_one_or_none()
 
     async def get_user_by_email_token(self, token: str) -> User | None:
-        query = select(User).where(User.token == token)
+        # Defensive: token should be unique, but don't 500 if DB has duplicates.
+        query = select(User).where(User.token == token).order_by(User.id.desc()).limit(1)
         result = await self.session.execute(query)
         return result.scalar_one_or_none()
 

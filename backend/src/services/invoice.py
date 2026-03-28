@@ -11,7 +11,14 @@ from models.order import OrderStatus
 from providers import IPaymentProvider
 from repositories import IOrderRepository, IUserRepository
 from repositories.invoice import InvoiceRepositoryI
-from schemas.invoice import InvoiceCreateRequest, InvoiceCreate, Methods, InvoiceStatus, InvoiceUpdate, InvoiceResponse
+from schemas.invoice import (
+    InvoiceCreateRequest,
+    InvoiceCreate,
+    Methods,
+    InvoiceStatus,
+    InvoiceUpdate,
+    InvoiceResponse,
+)
 from schemas.order import OrderUpdate
 from schemas.user import UserResponse
 from tasks.notify import send_notify_admins, send_notify_user_to_email
@@ -21,7 +28,6 @@ from entrypoint.config import config
 
 
 class InvoiceService:
-
     def __init__(
         self,
         uow: UnitOfWork,
@@ -39,13 +45,21 @@ class InvoiceService:
         self.provider: IPaymentProvider = None
 
     @require_roles([RoleEnum.USER])
-    async def create_invoice(self, invoice_data: InvoiceCreateRequest, current_user: UserResponse) -> InvoiceResponse:
-        self.provider = self.provider_factories.get(Methods(invoice_data.method))()
+    async def create_invoice(
+        self,
+        invoice_data: InvoiceCreateRequest,
+        current_user: UserResponse,
+    ) -> InvoiceResponse:
+        self.provider = self.provider_factories.get(
+            Methods(invoice_data.method),
+        )()
 
         name: str = f"Покупка заказа #{invoice_data.order_id}"
 
         async with self.uow:
-            order = await self.orders.get(id=invoice_data.order_id, user_id=current_user.id)
+            order = await self.orders.get(
+                id=invoice_data.order_id, user_id=current_user.id
+            )
 
             if order.status != OrderStatus.IN_CART:
                 raise HTTPException(
@@ -53,12 +67,14 @@ class InvoiceService:
                     detail="Order cannot be paid in current status",
                 )
 
-            invoice_data = InvoiceCreate(user_id=current_user.id,
-                                         name=name,
-                                         status=InvoiceStatus.created,
-                                         amount=order.amount,
-                                         method=invoice_data.method,
-                                         order_id=invoice_data.order_id)
+            invoice_data = InvoiceCreate(
+                user_id=current_user.id,
+                name=name,
+                status=InvoiceStatus.created,
+                amount=order.amount,
+                method=invoice_data.method,
+                order_id=invoice_data.order_id,
+            )
             invoice = await self.invoices.add(invoice_data)
 
             link, provider_uid = await self.provider.create(invoice)
@@ -71,14 +87,18 @@ class InvoiceService:
             invoice = await self.invoices.update(invoice_data_update)
 
             await self.orders.update(
-                OrderUpdate(id=invoice.order_id,
-                            user_id=invoice.user_id,
-                            status=OrderStatus.WAITING_PAY)
+                OrderUpdate(
+                    id=invoice.order_id,
+                    user_id=invoice.user_id,
+                    status=OrderStatus.WAITING_PAY,
+                )
             )
         return invoice
 
     @require_roles([RoleEnum.USER])
-    async def process_invoice(self, uid: str, method: str, current_user: UserResponse) -> InvoiceResponse:
+    async def process_invoice(
+        self, uid: str, method: str, current_user: UserResponse
+    ) -> InvoiceResponse:
         uid: UUID = uuid.UUID(uid)
         self.provider = self.provider_factories.get(Methods(method))()
 
@@ -86,13 +106,16 @@ class InvoiceService:
             invoice = await self.invoices.get(uid, current_user.id)
             is_payed = await self.provider.process(str(uid), invoice.provider_uid)
 
-            invoice_data_update = InvoiceUpdate(uid=invoice.uid,
-                                                status=InvoiceStatus.payed if is_payed else InvoiceStatus.processing)
+            invoice_data_update = InvoiceUpdate(
+                uid=invoice.uid,
+                status=InvoiceStatus.payed if is_payed else InvoiceStatus.processing,
+            )
             invoice_entity = await self.invoices.update(invoice_data_update)
 
             if is_payed:
-                order = await self.orders.get(id=invoice.order_id,
-                                              user_id=invoice.user_id)
+                order = await self.orders.get(
+                    id=invoice.order_id, user_id=invoice.user_id
+                )
 
                 await send_notify_user_to_email.kiq(
                     current_user.email,
@@ -101,9 +124,9 @@ class InvoiceService:
                 await send_notify_admins.kiq(invoice_entity)  # sent admin
 
                 await self.orders.update(
-                    OrderUpdate(id=order.id,
-                                user_id=order.user_id,
-                                status=OrderStatus.PAYED)
+                    OrderUpdate(
+                        id=order.id, user_id=order.user_id, status=OrderStatus.PAYED
+                    )
                 )
         return invoice
 
@@ -170,7 +193,9 @@ class InvoiceService:
                 )
             elif payment_status != "paid" and invoice.status == InvoiceStatus.created:
                 await self.invoices.update(
-                    InvoiceUpdate(uid=UUID(invoice.uid), status=InvoiceStatus.processing)
+                    InvoiceUpdate(
+                        uid=UUID(invoice.uid), status=InvoiceStatus.processing
+                    )
                 )
 
         return {"ok": True}

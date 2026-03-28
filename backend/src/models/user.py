@@ -45,8 +45,9 @@ class User(Base):
     )
     token: Mapped[uuid.UUID] = mapped_column(
         UUID(),
-        default=uuid.uuid4(),
+        default=uuid.uuid4,
         nullable=True,
+        unique=True,
     )
     otp_secret: Mapped[str] = mapped_column(
         String(),

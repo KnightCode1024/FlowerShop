@@ -26,6 +26,7 @@ from utils.jwt_utils import hash_password
 from utils.strings import make_valid_password
 from run import make_app
 from dishka import Provider, provide, Scope
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncEngine
 
 TEST_DATABASE_DSN = config.database.DATABASE_URI
 
@@ -45,9 +46,6 @@ def get_executed_tasks():
         return broker.get_all_tasks()
 
     return _get_tasks
-
-
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncEngine
 
 
 @pytest.fixture(scope="function")
@@ -102,7 +100,6 @@ async def client(app):
 async def session(async_session_maker) -> AsyncGenerator[AsyncSession, None]:
     async with async_session_maker() as s:
         yield s
-
         await s.close()
 
 

@@ -27,11 +27,11 @@ class StripeConfig(BaseSettings):
         extra="ignore",
     )
 
-    SECRET_KEY: str
+    SECRET_KEY: str | None = None
     WEBHOOK_SECRET: str | None = None
-    SUCCESS_URL: str
-    CANCEL_URL: str
-    CURRENCY: str = "rub"
+    SUCCESS_URL: str | None = None
+    CANCEL_URL: str | None = None
+    CURRENCY: str | None = "rub"
 
 
 class DatabaseConfig(BaseSettings):
@@ -161,16 +161,7 @@ class BotConfig(BaseSettings):
     )
 
     TOKEN: str
-
-
-class AdminConfig(BaseSettings):
-    model_config = SettingsConfigDict(
-        env_prefix="ADMIN_",
-        env_file_encoding="utf-8",
-        extra="ignore",
-    )
-
-    IDS: list[int]
+    ADMINS_IDS: list[int]
 
 
 class Config(BaseSettings):
@@ -191,7 +182,6 @@ class Config(BaseSettings):
     yoomoney: YoomoneyConfig = YoomoneyConfig()
     stripe: StripeConfig = StripeConfig()
     bot: BotConfig = BotConfig()
-    admin: AdminConfig = AdminConfig()
 
 
 def create_config() -> Config:

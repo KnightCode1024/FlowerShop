@@ -104,7 +104,6 @@ class OrderService:
     async def get_all_orders(self, user: UserResponse):
         async with self.uow:
             orders = await self.orders.get_all()
-
         return orders
 
     @broker.task("orders-analytics")

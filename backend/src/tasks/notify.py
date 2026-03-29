@@ -23,20 +23,21 @@ link to admin: {admin_link}
 
 @broker.task(task_name="admins-user-payed-order")
 async def send_notify_admins(invoice: InvoiceResponse):
-    for admin_id in config.admin.IDS:
-        print(admin_id, type(admin_id))
+    for admin_id in config.bot.ADMINS_IDS:
         try:
-            updated_at_ = str(invoice.updated_at) if invoice.updated_at else "N/A"
+            updated_at = str(invoice.updated_at) if invoice.updated_at else "N/A"
             await bot.send_message(
                 chat_id=admin_id,
                 text=TEMPLATE_ORDER_NOTIFY_MESSAGE.format(
                     id=invoice.uid,
-                    updated_at=updated_at_,
+                    updated_at=updated_at,
                     status=str(invoice.status),
                     user=invoice.user_id,
                     admin_link=f"{config.frontend.URL}/admin/orders/{invoice.order_id}",
                 ),
             )
+            print("Sent notify message for admin_id=%s", admin_id)
+            logger.info("Sent notify message for admin_id=%s", admin_id)
         except TelegramBadRequest as e:
             logger.warning(
                 "Skip admin notify for admin_id=%s: %s",
@@ -47,6 +48,7 @@ async def send_notify_admins(invoice: InvoiceResponse):
         except Exception as e:
             logger.error("Don't sent notify message for admin_id=%s", admin_id)
             raise e
+    return True
 
 
 @broker.task(task_name="user-payed-order")
@@ -55,8 +57,8 @@ async def send_notify_user_to_email(to_email: str, order: OrderResponse):
         to_mail=to_email,
         subject="Thanks for order! Your order is being processed",
         content=f"#{order.id}"
-        f"Amount: {order.amount}"
-        f"Status: {order.status}"
-        f"Link: {config.frontend.URL}/orders/{order.id}",
+                f"Amount: {order.amount}"
+                f"Status: {order.status}"
+                f"Link: {config.frontend.URL}/orders/{order.id}",
     )
     await provider.send_to_mail()

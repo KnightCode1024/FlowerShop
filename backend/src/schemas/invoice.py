@@ -22,6 +22,12 @@ class InvoiceCreateRequest(BaseModel):
     amount: float
 
 
+class InvoiceUpdateRequest(BaseModel):
+    id: str
+    method: Methods | None = None
+    status: InvoiceStatus
+
+
 class InvoiceCreate(BaseModel):
     name: str
     order_id: int
@@ -37,7 +43,7 @@ class InvoiceResponse(BaseModel):
     order_id: int
     user_id: int
     amount: float
-    status: InvoiceStatus
+    status: str
     method: Methods
     link: str | None = None
     provider_uid: str | None = None

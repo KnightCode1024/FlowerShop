@@ -58,11 +58,25 @@ services:
       dockerfile: Dockerfile.test
     env_file:
       - .env.test
-    environment:
-      - USE_MOCK_BROKER=true
-    command: sh -c "pytest tests/components/functionals -v"
+    command: sh -c "pytest tests/integrations/test_invoices.py::test_success_invoice_and_notify_admins -s"
     networks:
       - flower_shop_net
+
+  maildev:
+    image: maildev/maildev
+    environment:
+      - TZ=Europe/Moscow
+      - MAILDEV_WEB_PORT=1080
+      - MAILDEV_SMTP_PORT=1025
+    ports:
+      - "1080:1080"
+      - "1025:1025"
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1m"
+        max-file: "3"
 
   postgres:
     env_file: .env.test
@@ -103,21 +117,21 @@ services:
     networks:
       - flower_shop_net
 
-#  worker:
-#    <<: *backend
-#    ports: [ ]
-#    command: taskiq worker core:broker --workers 1 --fs-discover --tasks-pattern **/tasks/*.py
-#    environment:
-#      - PYTHONPATH=src
-#      - TASKIQ_ADMIN_URL=http://taskiq_admin:3000
-#      - TASKIQ_ADMIN_API_TOKEN=supersecret
-#    depends_on:
-#      rabbitmq:
-#        condition: service_healthy
-#      redis:
-#        condition: service_healthy
-#      postgres:
-#        condition: service_healthy
+  #  worker:
+  #    <<: *backend
+  #    ports: [ ]
+  #    command: taskiq worker core:broker --workers 1 --fs-discover --tasks-pattern **/tasks/*.py
+  #    environment:
+  #      - PYTHONPATH=src
+  #      - TASKIQ_ADMIN_URL=http://taskiq_admin:3000
+  #      - TASKIQ_ADMIN_API_TOKEN=supersecret
+  #    depends_on:
+  #      rabbitmq:
+  #        condition: service_healthy
+  #      redis:
+  #        condition: service_healthy
+  #      postgres:
+  #        condition: service_healthy
 
 
   minio:

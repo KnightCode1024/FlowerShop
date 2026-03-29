@@ -143,4 +143,4 @@ class PromocodeRepository(IPromocodeRepository):
                 detail="Your already activated this promocode",
             )
 
-        return obj
+        return obj.to_entity()

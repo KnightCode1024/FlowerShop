@@ -27,7 +27,8 @@ class PromocodeService:
 
         async with self.uow:
             promo_operation = await self.repository.activate_user_promo(promo_data)
-            return promo_operation
+
+        return promo_operation
 
     @require_roles([RoleEnum.ADMIN, RoleEnum.ADMIN])
     async def delete_promo(self, user, id: int):

@@ -5,6 +5,7 @@ from sqlalchemy import String, Integer, Numeric, ForeignKey
 from models import Base
 from sqlalchemy.orm import Mapped, mapped_column
 
+from schemas.promocode import PromocodeResponse
 from utils.strings import generate_random_promo
 
 
@@ -16,6 +17,13 @@ class Promocode(Base):
 
     def __str__(self) -> str:
         return f"{self.code} ({self.percent}%)"
+
+    def to_entity(self):
+        return PromocodeResponse(
+            code=self.code,
+            count_activation=self.count_activation,
+            max_count_activators=self.max_count_activators
+        )
 
 
 class PromocodeAction(Base):

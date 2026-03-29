@@ -23,6 +23,7 @@ class OrderCreateRequest(BaseModel):
 class OrderUpdateRequest(BaseModel):
     order_id: int
     order_products: list[CartItem]
+    promocode: str | None = None
 
 
 class OrderUpdate(BaseModel):
@@ -30,6 +31,8 @@ class OrderUpdate(BaseModel):
     user_id: int
     status: OrderStatus | None = None
     order_products: list[CartItem] | None = None
+    promocode: str | None = None
+    amount: float | None = None
 
 
 class OrderCreate(BaseModel):

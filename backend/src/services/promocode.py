@@ -35,20 +35,10 @@ class PromocodeService:
             user_id=user_id, **promo_code_data.model_dump()
         )
 
-        try:
-            async with self.uow:
-                promo_operation = await self.repository.activate_user_promo(promo_data)
-                return promo_operation
-        except PromocodeNotFoundError as e:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=str(e),
-            )
-        except PromocodeAlreadyActivatedError as e:
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail=str(e),
-            )
+        async with self.uow:
+            promo_operation = await self.repository.activate_user_promo(promo_data)
+
+        return promo_operation
 
     @require_roles([RoleEnum.ADMIN, RoleEnum.ADMIN])
     async def delete_promo(self, user, id: int):

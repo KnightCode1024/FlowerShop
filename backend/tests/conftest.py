@@ -16,6 +16,7 @@ from dishka import (
     make_async_container,
 )
 
+from entrypoint.ioc.engine import session_factory
 from models import (
     Base,
 )
@@ -66,23 +67,4 @@ async def async_session_maker(
         bind=async_engine,
         autoflush=False,
         expire_on_commit=False,
-    )
-
-
-@pytest.fixture
-def database_provider(session: AsyncSession):
-    class TestDatabaseProvider(Provider):
-        @provide(scope=Scope.REQUEST)
-        async def get_session(self) -> AsyncGenerator[AsyncSession, None]:
-            async with session_factory() as s:
-                yield s
-
-    return TestDatabaseProvider()
-
-
-@pytest.fixture
-def container(database_provider: Provider) -> AsyncContainer:
-    return make_async_container(
-        database_provider,
-        context={Config: MagicMock},
     )

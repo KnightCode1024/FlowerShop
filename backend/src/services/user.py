@@ -205,12 +205,17 @@ class UserService:
             payload = decode_jwt(payload.refresh_token)
         except Exception as exc:
             raise ValueError("Invalid token") from exc
+
         user_id = int(payload.get("sub"))
+
         if not user_id:
             raise ValueError("Invalid token payload")
+
         user = await self.user_repository.get(user_id)
+
         if not user:
             raise LookupError("User not found")
+
         return TokenPair(
             access_token=create_access_token({"sub": str(user.id)}),
             refresh_token=create_refresh_token({"sub": str(user.id)}),

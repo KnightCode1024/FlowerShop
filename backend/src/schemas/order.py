@@ -34,6 +34,7 @@ class OrderUpdateRequest(BaseModel):
     order_id: int
     order_products: list[CartItem]
     delivery_address: DeliveryAddress | None = None
+    promocode: str | None = None
 
 
 class OrderUpdate(BaseModel):
@@ -47,6 +48,8 @@ class OrderUpdate(BaseModel):
     delivery_city: str | None = None
     delivery_zip: str | None = None
     delivery_notes: str | None = None
+    promocode: str | None = None
+    amount: float | None = None
 
 
 class OrderCreate(BaseModel):

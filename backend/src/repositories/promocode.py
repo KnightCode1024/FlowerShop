@@ -127,4 +127,4 @@ class PromocodeRepository(IPromocodeRepository):
             await self.session.rollback()
             raise PromocodeAlreadyActivatedError(data.user_id, data.code)
 
-        return obj
+        return obj.to_entity()

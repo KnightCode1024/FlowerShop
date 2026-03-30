@@ -23,7 +23,7 @@ from schemas.invoice import (
     Methods,
     InvoiceStatus,
     InvoiceUpdate,
-    InvoiceResponse,
+    InvoiceResponse, InvoiceUpdateRequest,
 )
 from schemas.order import OrderUpdate
 from schemas.product import ProductUpdate
@@ -35,13 +35,12 @@ from entrypoint.config import config as app_config
 
 class InvoiceService:
     def __init__(
-        self,
-        uow: UnitOfWork,
-        invoices_repository: IInvoiceRepository,
-        orders_repository: IOrderRepository,
-        products_repository: IProductRepository,
-        users_repository: IUserRepository,
-        provider_factories: Dict[Methods, Callable],
+            self,
+            uow: UnitOfWork,
+            invoices_repository: InvoiceRepositoryI,
+            orders_repository: IOrderRepository,
+            users_repository: IUserRepository,
+            provider_factories: Dict[Methods, Callable],
     ):
         self.uow = uow
         self.invoices = invoices_repository
@@ -107,9 +106,9 @@ class InvoiceService:
 
     @require_roles([RoleEnum.USER])
     async def create_invoice(
-        self,
-        invoice_data: InvoiceCreateRequest,
-        current_user: UserResponse,
+            self,
+            invoice_data: InvoiceCreateRequest,
+            current_user: UserResponse,
     ) -> InvoiceResponse:
         self.provider = self.provider_factories.get(
             Methods(invoice_data.method),
@@ -156,8 +155,21 @@ class InvoiceService:
             )
         return self._to_invoice_response(invoice)
 
+    @require_roles([RoleEnum.ADMIN])
+    async def update_invoice(
+            self,
+            invoice_data: InvoiceUpdateRequest,
+    ) -> InvoiceResponse:
+        async with self.uow:
+            invoice_data_update = InvoiceUpdate(
+                **invoice_data.model_dump()
+            )
+            invoice = await self.invoices.update(invoice_data_update)
+        return invoice
+
+    @require_roles([RoleEnum.USER])
     async def process_invoice(
-        self, uid: str, method: str
+            self, uid: str, method: str, current_user: UserResponse
     ) -> InvoiceResponse:
         uid: UUID = uuid.UUID(uid)
         self.provider = self.provider_factories.get(Methods(method))()

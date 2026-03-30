@@ -19,6 +19,12 @@ class PromoActivateRequest(BaseModel):
     code: str
 
 
+class PromocodeResponse(BaseModel):
+    code: str | None = None
+    max_count_activators: int | None = None
+    percent: float | None = None
+
+
 class PromoActivateCreate(BaseModel):
     user_id: int
     code: str

@@ -8,11 +8,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload, selectinload
 from starlette import status
 
+from models import PromocodeAction, Promocode
 from models.order import Order, OrderProduct
 from models.product import Product
 from schemas.order import (CartItem, OrderCreate, OrderProductCreate,
                            OrderUpdate, OrdersAnalytics)
 from schemas.order import OrderStatus
+from utils.numbers import get_percent
 
 
 class IOrderRepository(Protocol):
@@ -97,6 +99,9 @@ class OrderRepository(IOrderRepository):
     async def update(self, order_data: OrderUpdate) -> Order:
         obj = await self.get(order_data.id, order_data.user_id)
 
+        if order_data.promocode:
+            await self.check_promo(obj, order_data)
+
         if order_data.order_products is not None:
             await self._update_products(obj, order_data.order_products)
 
@@ -115,6 +120,34 @@ class OrderRepository(IOrderRepository):
         result = result.scalars().unique().one_or_none()
 
         return result
+
+    async def check_promo(self, obj: Order, order_data: OrderUpdate):
+        stmt = (
+            select(Promocode)
+            .where(Promocode.code == order_data.promocode)
+        )
+
+        promo_obj = (await self.session.execute(stmt)).scalars().one_or_none()
+
+        if not obj:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Promocode not found",
+            )
+
+        obj2 = PromocodeAction(promo_id=obj.id, user_id=order_data.user_id)
+
+        self.session.add(obj2)
+
+        try:
+            await self.session.flush()
+        except IntegrityError:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Your already activated this promocode",
+            )
+
+        order_data.amount = get_percent(order_data.amount, promo_obj.percent)
 
     async def get_all(self) -> list[Order]:
         stmt = (

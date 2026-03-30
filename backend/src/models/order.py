@@ -1,4 +1,6 @@
-from sqlalchemy import Enum, Float, ForeignKey, Integer
+import enum
+
+from sqlalchemy import Enum, Float, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from models import Base
@@ -40,6 +42,14 @@ class Order(Base):
         Enum(OrderStatus), default=OrderStatus.IN_CART
     )
     amount: Mapped[float] = mapped_column(Float(), default=0.00)
+    
+    # Delivery address fields
+    recipient_name: Mapped[str] = mapped_column(String(255), nullable=True)
+    recipient_phone: Mapped[str] = mapped_column(String(50), nullable=True)
+    delivery_address: Mapped[str] = mapped_column(Text(), nullable=True)
+    delivery_city: Mapped[str] = mapped_column(String(100), nullable=True)
+    delivery_zip: Mapped[str] = mapped_column(String(20), nullable=True)
+    delivery_notes: Mapped[str] = mapped_column(Text(), nullable=True)
 
     def __str__(self) -> str:
         return f"Order #{self.id} ({self.status})"
@@ -57,4 +67,10 @@ class Order(Base):
             ],
             amount=self.amount,
             status=self.status,
+            recipient_name=self.recipient_name,
+            recipient_phone=self.recipient_phone,
+            delivery_address=self.delivery_address,
+            delivery_city=self.delivery_city,
+            delivery_zip=self.delivery_zip,
+            delivery_notes=self.delivery_notes,
         )

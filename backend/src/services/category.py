@@ -52,15 +52,20 @@ class CategoryService:
         return CategoryResponse.model_validate(category_dict)
 
     async def get_categories(
-        self, offset: int = 0, limit: int = 20
+        self, offset: int = 0, limit: int = 20, in_stock: bool | None = None
     ) -> list[CategoriesListResponse]:
         categories = await self.categories.get_all(
             offset=offset,
             limit=limit,
+            in_stock=in_stock,
         )
         result = []
         for category in categories:
-            products_count = len(category.products or [])
+            products = category.products or []
+            if in_stock is True:
+                # Filter to only in-stock products
+                products = [p for p in products if p.in_stock and p.quantity > 0]
+            products_count = len(products)
             result.append(
                 CategoriesListResponse.model_validate(
                     {

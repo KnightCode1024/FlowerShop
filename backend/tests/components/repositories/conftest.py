@@ -1,3 +1,4 @@
+
 import pytest
 from decimal import Decimal
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -12,9 +13,8 @@ from repositories.product import ProductRepository
 from schemas.user import UserCreate, UserUpdate, UserCreateConsole
 from schemas.category import CategoryCreate, CategoryUpdate
 from schemas.product import ProductCreate, ProductUpdate, ProductResponse
-
-
-
+from services.order import OrderService
+from core.uow import UnitOfWork
 
 
 @pytest.fixture
@@ -31,117 +31,38 @@ async def user_repository(session: AsyncSession) -> UserRepository:
 
 
 @pytest.fixture
-async def category_repository(session: AsyncSession):
+async def category_repository(session: AsyncSession) -> CategoryRepository:
     return CategoryRepository(session=session)
 
 
 @pytest.fixture
-async def product_repository(session: AsyncSession):
+async def product_repository(session: AsyncSession) -> ProductRepository:
     return ProductRepository(session=session)
 
 
 @pytest.fixture
-async def order_repository(session: AsyncSession):
-    return OrderRepository(session)
+async def order_repository(session: AsyncSession) -> OrderRepository:
+    return OrderRepository(session=session)
 
 
 @pytest.fixture
-async def promocodes_repository(session: AsyncSession):
-    return PromocodeRepository(session)
+async def promocode_repository(session: AsyncSession) -> PromocodeRepository:
+    return PromocodeRepository(session=session)
 
 
 @pytest.fixture
-async def invoice_repository(session: AsyncSession):
-    return InvoiceRepository(session)
-
-
-
-@pytest.fixture
-def test_user1():
-    return UserCreate(
-        email="test_user1@gmail.com",
-        username="test_user1",
-        password="Qwerty123!",
-    )
+async def invoice_repository(session: AsyncSession) -> InvoiceRepository:
+    return InvoiceRepository(session=session)
 
 
 @pytest.fixture
-def test_admin_user():
-    return UserCreateConsole(
-        email="test_user1@gmail.com",
-        username="test_user1",
-        password="Qwerty123!",
-        admin=RoleEnum.ADMIN
-    )
+async def test_category1():
+    return CategoryCreate(name="Category 1")
 
 
 @pytest.fixture
-def test_user2():
-    return UserCreate(
-        email="test_user2@gmail.com",
-        username="test_user2",
-        password="Pomidoro567!",
-    )
-
-
-@pytest.fixture
-def test_user3():
-    return UserCreate(
-        email="test_user3@gmail.com",
-        username="test_user3",
-        password="super-password456!",
-    )
-
-
-@pytest.fixture
-def user_update_data():
-    return UserUpdate(username="updated_user", email="updated@example.com")
-
-
-@pytest.fixture
-async def created_user(user_repository: UserRepository, test_user1):
-    return await user_repository.create(test_user1)
-
-
-@pytest.fixture
-async def multiple_users(user_repository: UserRepository, test_user1, test_user2, test_user3):
-    await user_repository.create(test_user1)
-    await user_repository.create(test_user2)
-    await user_repository.create(test_user3)
-
-
-@pytest.fixture
-def test_category1():
-    return CategoryCreate(name="Electronics")
-
-
-@pytest.fixture
-def test_category2():
-    return CategoryCreate(name="Books")
-
-
-@pytest.fixture
-def test_category3():
-    return CategoryCreate(name="Clothing")
-
-
-@pytest.fixture
-def category_update_data():
-    return CategoryUpdate(name="Updated Category")
-
-
-@pytest.fixture
-async def created_category(category_repository: CategoryRepository, test_category1):
-    return await category_repository.create(test_category1)
-
-
-@pytest.fixture
-async def multiple_categories(
-        category_repository: CategoryRepository, test_category1, test_category2, test_category3
-):
-    await category_repository.create(test_category1)
-    await category_repository.create(test_category2)
-    await category_repository.create(test_category3)
+async def test_category2():
+    return CategoryCreate(name="Category 2")
 
 
 @pytest.fixture
@@ -191,23 +112,25 @@ def product_update_data():
     return ProductUpdate(
         name="Updated Product Name",
         description="Updated description",
-        price=Decimal("49.99"),
+        price=Decimal("99.99"),
         in_stock=False,
     )
 
 
 @pytest.fixture
-async def created_product(product_repository: ProductRepository, test_product1):
-    return await product_repository.create(test_product1)
+async def created_user(user_repository: UserRepository) -> UserCreate:
+    user_data = UserCreate(
+        email=f"test_{id} @test.com",
+        username="testuser",
+        password="hashed_password",
+        role=RoleEnum.USER,
+    )
+    return await user_repository.create(user_data)
 
 
 @pytest.fixture
-async def multiple_products(
-        product_repository: ProductRepository, test_product1, test_product2, test_product3
-):
-    await product_repository.create(test_product1)
-    await product_repository.create(test_product2)
-    await product_repository.create(test_product3)
+async def created_product(product_repository: ProductRepository, test_product1):
+    return await product_repository.create(test_product1)
 
 
 @pytest.fixture
@@ -217,3 +140,44 @@ async def created_multiply_products(product_repository: ProductRepository, test_
         await product_repository.create(test_product2),
         await product_repository.create(test_product3)
     ]
+
+
+@pytest.fixture
+def test_user1():
+    return UserCreate(
+        email=f"test_user1_{id()}@test.com",
+        username="testuser1",
+        password="hashed_password",
+        role=RoleEnum.USER,
+    )
+
+
+@pytest.fixture
+def test_user2():
+    return UserCreate(
+        email=f"test_user2_{id()}@test.com",
+        username="testuser2",
+        password="hashed_password",
+        role=RoleEnum.USER,
+    )
+
+
+@pytest.fixture
+def test_user3():
+    return UserCreate(
+        email=f"test_user3_{id()}@test.com",
+        username="testuser3",
+        password="hashed_password",
+        role=RoleEnum.USER,
+    )
+
+
+@pytest.fixture
+async def order_service(
+    session: AsyncSession,
+    order_repository: OrderRepository,
+    product_repository: ProductRepository,
+) -> OrderService:
+    """Create OrderService for testing business logic."""
+    uow = UnitOfWork(session)
+    return OrderService(uow, order_repository, product_repository)

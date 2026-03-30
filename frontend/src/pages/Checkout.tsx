@@ -1,7 +1,7 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { formatPrice } from "../api/catalogApi";
-import { createInvoice, updateCart } from "../api/orderApi";
+import { createInvoice, updateCart, type DeliveryAddress } from "../api/orderApi";
 import { ApiError } from "../api/authApi";
 import { useCart } from "../cart/useCart";
 
@@ -11,7 +11,15 @@ export default function Checkout() {
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Проверка на превышение доступного количества
+  const [deliveryAddress, setDeliveryAddress] = useState<DeliveryAddress>({
+    recipient_name: "",
+    recipient_phone: "",
+    delivery_address: "",
+    delivery_city: "",
+    delivery_zip: "",
+    delivery_notes: "",
+  });
+
   const availabilityError = useMemo(() => {
     for (const item of items) {
       if (item.maxQuantity !== undefined && item.quantity > item.maxQuantity) {
@@ -20,6 +28,22 @@ export default function Checkout() {
     }
     return null;
   }, [items]);
+
+  const addressError = useMemo(() => {
+    if (!deliveryAddress.recipient_name.trim()) {
+      return "Введите имя получателя";
+    }
+    if (!deliveryAddress.recipient_phone.trim()) {
+      return "Введите телефон получателя";
+    }
+    if (!deliveryAddress.delivery_address.trim()) {
+      return "Введите адрес доставки";
+    }
+    if (!deliveryAddress.delivery_city.trim()) {
+      return "Введите город доставки";
+    }
+    return null;
+  }, [deliveryAddress]);
 
   const payloadItems = useMemo(
     () =>
@@ -40,17 +64,27 @@ export default function Checkout() {
     );
   }
 
+  const handleAddressChange = (field: keyof DeliveryAddress, value: string) => {
+    setDeliveryAddress((prev) => ({ ...prev, [field]: value }));
+  };
+
   const handleCheckout = async () => {
     try {
       setIsSubmitting(true);
       setError(null);
 
-      // Проверка перед оформлением
       if (availabilityError) {
         throw new Error(availabilityError);
       }
 
-      const order = await updateCart(payloadItems);
+      if (addressError) {
+        throw new Error(addressError);
+      }
+
+      const order = await updateCart({
+        order_products: payloadItems,
+        delivery_address: deliveryAddress,
+      });
       const invoice = await createInvoice({
         order_id: order.id,
         amount: order.amount,
@@ -72,7 +106,7 @@ export default function Checkout() {
   return (
     <section className="my-10 space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-3xl font-semibold">Оформление</h1>
+        <h1 className="text-3xl font-semibold">Оформление заказа</h1>
         <button
           type="button"
           onClick={() => navigate("/cart")}
@@ -101,6 +135,84 @@ export default function Checkout() {
       </div>
 
       <div className="rounded-xl border border-slate-200 bg-white p-5">
+        <h2 className="text-lg font-semibold mb-4">Адрес доставки</h2>
+        <div className="grid gap-4 md:grid-cols-2">
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-slate-700">
+              Имя получателя *
+            </label>
+            <input
+              type="text"
+              value={deliveryAddress.recipient_name}
+              onChange={(e) => handleAddressChange("recipient_name", e.target.value)}
+              placeholder="Иван Иванов"
+              className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-amber-500 focus:outline-none"
+            />
+          </div>
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-slate-700">
+              Телефон *
+            </label>
+            <input
+              type="tel"
+              value={deliveryAddress.recipient_phone}
+              onChange={(e) => handleAddressChange("recipient_phone", e.target.value)}
+              placeholder="+7 (999) 123-45-67"
+              className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-amber-500 focus:outline-none"
+            />
+          </div>
+          <div className="md:col-span-2 space-y-2">
+            <label className="text-sm font-medium text-slate-700">
+              Город *
+            </label>
+            <input
+              type="text"
+              value={deliveryAddress.delivery_city}
+              onChange={(e) => handleAddressChange("delivery_city", e.target.value)}
+              placeholder="Москва"
+              className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-amber-500 focus:outline-none"
+            />
+          </div>
+          <div className="md:col-span-2 space-y-2">
+            <label className="text-sm font-medium text-slate-700">
+              Адрес доставки *
+            </label>
+            <input
+              type="text"
+              value={deliveryAddress.delivery_address}
+              onChange={(e) => handleAddressChange("delivery_address", e.target.value)}
+              placeholder="ул. Примерная, д. 10, кв. 50"
+              className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-amber-500 focus:outline-none"
+            />
+          </div>
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-slate-700">
+              Индекс
+            </label>
+            <input
+              type="text"
+              value={deliveryAddress.delivery_zip || ""}
+              onChange={(e) => handleAddressChange("delivery_zip", e.target.value)}
+              placeholder="123456"
+              className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-amber-500 focus:outline-none"
+            />
+          </div>
+          <div className="md:col-span-2 space-y-2">
+            <label className="text-sm font-medium text-slate-700">
+              Комментарий к заказу
+            </label>
+            <textarea
+              value={deliveryAddress.delivery_notes || ""}
+              onChange={(e) => handleAddressChange("delivery_notes", e.target.value)}
+              placeholder="Домофон, код, ориентир и т.д."
+              rows={2}
+              className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-amber-500 focus:outline-none"
+            />
+          </div>
+        </div>
+      </div>
+
+      <div className="rounded-xl border border-slate-200 bg-white p-5">
         <h2 className="text-lg font-semibold">Оплата</h2>
         <p className="mt-2 text-sm text-slate-600">
           Мы используем Stripe (тестовый режим). Для оплаты используйте тестовую
@@ -121,6 +233,12 @@ export default function Checkout() {
           </div>
         ) : null}
 
+        {addressError ? (
+          <div className="mt-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+            {addressError}
+          </div>
+        ) : null}
+
         {error ? (
           <div className="mt-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
             {error}
@@ -130,7 +248,7 @@ export default function Checkout() {
         <button
           type="button"
           onClick={handleCheckout}
-          disabled={isSubmitting || !!availabilityError}
+          disabled={isSubmitting || !!availabilityError || !!addressError}
           className="mt-4 rounded border border-amber-500 px-6 py-3 font-semibold text-amber-700 disabled:cursor-not-allowed disabled:opacity-50"
         >
           {isSubmitting ? "Создаем оплату..." : "Перейти к оплате"}

@@ -65,8 +65,15 @@ async function request<T>(path: string): Promise<T> {
   return (await response.json()) as T;
 }
 
-export async function getCategories(limit = 100): Promise<CategoryListItem[]> {
-  return request<CategoryListItem[]>(`/categories?offset=0&limit=${limit}`);
+export async function getCategories(limit = 100, in_stock?: boolean): Promise<CategoryListItem[]> {
+  const params = new URLSearchParams();
+  params.set("offset", "0");
+  params.set("limit", String(limit));
+  if (in_stock !== undefined) {
+    params.set("in_stock", String(in_stock));
+  }
+  const query = params.toString();
+  return request<CategoryListItem[]>(`/categories?${query}`);
 }
 
 export async function getProducts(

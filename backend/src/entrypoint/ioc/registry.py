@@ -3,9 +3,16 @@ from collections.abc import Iterable
 from dishka import Provider
 from dishka.integrations.fastapi import FastapiProvider
 
-from entrypoint.ioc import (AuthProvider, ConfigProvider, DatabaseProvider,
-                            RateLimiterProvider, RedisProvider,
-                            RepositoryProvider, ServiceProvider)
+from entrypoint.ioc.providers import (
+    AuthProvider, 
+    ConfigProvider, 
+    DatabaseProvider,
+    RateLimiterProvider, 
+    RedisProvider,
+    RepositoryProvider, 
+    ServiceProvider,
+    
+)
 
 
 def get_providers() -> Iterable[Provider]:

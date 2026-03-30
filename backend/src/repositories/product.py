@@ -32,6 +32,8 @@ class IProductRepository(Protocol):
         self, name: str, exclude_id: int | None = None
     ) -> bool: ...
 
+    async def get_products_by_ids(self, product_ids: list[int]) -> list[Product]: ...
+
 
 class ProductRepository(IProductRepository):
     def __init__(self, session: AsyncSession):
@@ -61,7 +63,7 @@ class ProductRepository(IProductRepository):
         self,
         filters: ProductFilterParams,
     ) -> list[ProductsListResponse]:
-        conditions = [Product.quantity > 0]
+        conditions = []
 
         if filters.min_price is not None:
             conditions.append(Product.price >= filters.min_price)
@@ -70,7 +72,13 @@ class ProductRepository(IProductRepository):
         if filters.category_id is not None:
             conditions.append(Product.category_id == filters.category_id)
         if filters.in_stock is not None:
-            conditions.append(Product.in_stock == filters.in_stock)
+            if filters.in_stock:
+                # In stock=true means in_stock=true AND quantity > 0
+                conditions.append(Product.in_stock == True)
+                conditions.append(Product.quantity > 0)
+            else:
+                # In stock=false means in_stock=false OR quantity = 0
+                conditions.append(Product.in_stock == False)
 
         query = (
             select(Product)
@@ -148,6 +156,13 @@ class ProductRepository(IProductRepository):
         query = select(Product).where(Product.id == product_id)
         result = await self.session.execute(query)
         return result.scalar_one_or_none()
+
+    async def get_products_by_ids(self, product_ids: list[int]) -> list[Product]:
+        if not product_ids:
+            return []
+        query = select(Product).where(Product.id.in_(product_ids))
+        result = await self.session.execute(query)
+        return result.scalars().all()
 
     async def _to_product_response(self, product: Product) -> ProductResponse:
         images = getattr(product, "images", []) or []

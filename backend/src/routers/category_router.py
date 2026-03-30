@@ -34,8 +34,9 @@ async def get_all_categories(
     service: FromDishka[CategoryService],
     offset: int = Query(0, ge=0),
     limit: int = Query(20, ge=1, le=100),
+    in_stock: bool | None = Query(None),
 ):
-    return await service.get_categories(offset=offset, limit=limit)
+    return await service.get_categories(offset=offset, limit=limit, in_stock=in_stock)
 
 
 @router.post("/", response_model=CategoryCreateResponse)

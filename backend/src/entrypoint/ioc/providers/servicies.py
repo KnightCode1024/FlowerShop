@@ -2,16 +2,15 @@ from dishka import Provider, Scope, provide
 
 from core.uow import UnitOfWork
 from entrypoint.config import Config
-from interfaces import IEmailService
 from repositories import (
     ICategoryRepository,
+    IInvoiceRepository,
     IOrderRepository,
     IProductImageRepository,
     IProductRepository,
     IPromocodeRepository,
     IS3Repository,
     IUserRepository,
-    InvoiceRepositoryI,
 )
 from services import (
     CategoryService,
@@ -21,8 +20,7 @@ from services import (
     PromocodeService,
     InvoiceService,
 )
-from providers.dependencies import factories
-from services.email import EmailService
+from entrypoint.ioc.providers.dependencies import factories
 
 
 class ServiceProvider(Provider):
@@ -49,13 +47,15 @@ class ServiceProvider(Provider):
     def get_invoices_service(
             self,
             uow: UnitOfWork,
-            invoice_repository: InvoiceRepositoryI,
+            invoice_repository: IInvoiceRepository,
             orders_repository: IOrderRepository,
+            products_repository: IProductRepository,
             user_repository: IUserRepository,
     ) -> InvoiceService:
         return InvoiceService(uow,
                               invoice_repository,
                               orders_repository,
+                              products_repository,
                               user_repository,
                               factories)
 
@@ -72,19 +72,17 @@ class ServiceProvider(Provider):
             self,
             uow: UnitOfWork,
             user_repository: IUserRepository,
-            email_service: IEmailService,
     ) -> UserService:
-        return UserService(uow, user_repository, email_service)
-
-    @provide
-    def get_email_service(self, config: Config) -> IEmailService:
-        return EmailService(config)
+        return UserService(uow, user_repository)
 
     @provide
     def get_order_service(
-            self, uow: UnitOfWork, order_repository: IOrderRepository
+            self,
+            uow: UnitOfWork,
+            order_repository: IOrderRepository,
+            product_repository: IProductRepository,
     ) -> OrderService:
-        return OrderService(uow, order_repository)
+        return OrderService(uow, order_repository, product_repository)
 
     @provide
     def get_promocode_service(

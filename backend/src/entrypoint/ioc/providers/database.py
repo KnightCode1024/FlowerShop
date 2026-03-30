@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from core.uow import UnitOfWork
 from dishka import provide, Scope, Provider
 
-from entrypoint.ioc.engine import session_factory
+from entrypoint.ioc.providers.engine import session_factory
 
 
 class DatabaseProvider(Provider):

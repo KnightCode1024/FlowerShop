@@ -3,8 +3,7 @@ from email.message import Message, EmailMessage
 
 import aiosmtplib
 
-from entrypoint.config import Config, config
-from interfaces import IEmailService
+from entrypoint.config import config
 from interfaces.smtp_service import IStmpProvider
 
 

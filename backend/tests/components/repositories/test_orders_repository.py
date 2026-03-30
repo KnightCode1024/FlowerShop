@@ -11,12 +11,13 @@ from schemas.product import ProductFilterParams
 
 @pytest.mark.asyncio
 async def test_add_order_one(session, created_user, created_product, order_repository):
+    # Use quantity=1 to ensure we don't exceed product stock (created_product has quantity=10)
     order_create_data = OrderCreate(
         user_id=created_user.id,
         order_products=[
             CartItem(
                 product_id=created_product.id,
-                quantity=random.randint(1, 3),
+                quantity=1,
                 price=created_product.price,
             ),
         ],
@@ -201,8 +202,8 @@ async def test_delete_order(
 async def test_orders_analytics(
         session, created_user, created_product, product_repository, order_repository
 ):
-    # Create orders with quantity=1 to not exceed product stock
-    for i in range(5):
+    # Create 3 orders with quantity=1 each (product has quantity=10)
+    for i in range(3):
         order = await test_add_order_one(
             session, created_user, created_product, order_repository
         )
@@ -211,8 +212,8 @@ async def test_orders_analytics(
 
     print(order_analytics)
 
-    assert order_analytics.count_orders == 5
-    assert order_analytics.count_1_days_orders == 5
-    assert order_analytics.count_7_days_orders == 5
-    assert order_analytics.count_30_days_orders == 5
+    assert order_analytics.count_orders == 3
+    assert order_analytics.count_1_days_orders == 3
+    assert order_analytics.count_7_days_orders == 3
+    assert order_analytics.count_30_days_orders == 3
     assert order_analytics.amount_for_all_orders > 0

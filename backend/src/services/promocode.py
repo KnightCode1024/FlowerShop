@@ -1,10 +1,14 @@
+from core.exceptions import (PromocodeAlreadyActivatedError,
+                             PromocodeNotFoundError)
 from core.permissions import require_roles
 from core.uow import UnitOfWork
+from fastapi import HTTPException
 from models import RoleEnum
 from repositories.promocode import IPromocodeRepository
 from schemas.promocode import (PromoActivateCreate, PromoActivateRequest,
                                PromoCreate, PromoCreateRequest, PromoUpdate,
                                PromoUpdateRequest)
+from starlette import status
 
 
 class PromocodeService:
@@ -16,8 +20,14 @@ class PromocodeService:
     async def create_promo(self, user, data: PromoCreateRequest):
         promo_data = PromoCreate(**data.model_dump())
 
-        async with self.uow:
-            return await self.repository.add(promo_data)
+        try:
+            async with self.uow:
+                return await self.repository.add(promo_data)
+        except ValueError as e:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail=str(e),
+            )
 
     @require_roles([RoleEnum.USER])
     async def activate_promo(self, user, promo_code_data: PromoActivateRequest, user_id: int):
@@ -25,22 +35,44 @@ class PromocodeService:
             user_id=user_id, **promo_code_data.model_dump()
         )
 
-        async with self.uow:
-            promo_operation = await self.repository.activate_user_promo(promo_data)
-            return promo_operation
+        try:
+            async with self.uow:
+                promo_operation = await self.repository.activate_user_promo(promo_data)
+                return promo_operation
+        except PromocodeNotFoundError as e:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=str(e),
+            )
+        except PromocodeAlreadyActivatedError as e:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail=str(e),
+            )
 
     @require_roles([RoleEnum.ADMIN, RoleEnum.ADMIN])
     async def delete_promo(self, user, id: int):
-        async with self.uow:
-            await self.repository.delete(id)
+        try:
+            async with self.uow:
+                await self.repository.delete(id)
+        except PromocodeNotFoundError as e:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=str(e),
+            )
 
     @require_roles([RoleEnum.EMPLOYEE, RoleEnum.ADMIN])
     async def update_promo(self, user, id: int, data: PromoUpdateRequest):
         promo_data = PromoUpdate(id=id, **data.model_dump())
-        async with self.uow:
-            updated_promo = await self.repository.update(promo_data)
-
-        return updated_promo
+        try:
+            async with self.uow:
+                updated_promo = await self.repository.update(promo_data)
+            return updated_promo
+        except PromocodeNotFoundError as e:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=str(e),
+            )
 
     @require_roles([RoleEnum.ADMIN, RoleEnum.EMPLOYEE])
     async def get_promos(self, user):

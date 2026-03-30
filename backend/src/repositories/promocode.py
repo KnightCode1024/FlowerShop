@@ -1,11 +1,11 @@
 from typing import Protocol
 
-from fastapi import HTTPException
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
-from starlette import status
 
+from core.exceptions import (PromocodeAlreadyActivatedError,
+                             PromocodeNotFoundError)
 from models import Promocode, PromocodeAction
 from schemas.promocode import PromoActivateCreate, PromoCreate, PromoUpdate
 
@@ -49,10 +49,8 @@ class PromocodeRepository(IPromocodeRepository):
         try:
             await self.session.flush()
         except IntegrityError:
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail="PromocodeOrm already exists",
-            )
+            await self.session.rollback()
+            raise ValueError("Promocode already exists")
 
         return obj
 
@@ -60,10 +58,7 @@ class PromocodeRepository(IPromocodeRepository):
         obj: Promocode | None = await self.session.get(Promocode, data.id)
 
         if not obj:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Promocode not found",
-            )
+            raise PromocodeNotFoundError(promocode_id=data.id)
 
         for field, value in data.model_dump(exclude_none=True).items():
             setattr(obj, field, value)
@@ -76,10 +71,7 @@ class PromocodeRepository(IPromocodeRepository):
         obj: Promocode | None = await self.session.get(Promocode, id)
 
         if not obj:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Promocode not found",
-            )
+            raise PromocodeNotFoundError(promocode_id=id)
 
         await self.session.delete(obj)
         await self.session.flush()
@@ -95,7 +87,7 @@ class PromocodeRepository(IPromocodeRepository):
 
     async def get_promo_is_activate(
         self, data: PromoActivateCreate
-    ) -> PromocodeAction:
+    ) -> PromocodeAction | None:
         stmt = (
             select(PromocodeAction)
             .join(Promocode, PromocodeAction.promo_id == Promocode.id)
@@ -108,10 +100,7 @@ class PromocodeRepository(IPromocodeRepository):
         obj = (await self.session.execute(stmt)).scalars().one_or_none()
 
         if obj:
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail="Your already activated this promocode",
-            )
+            raise PromocodeAlreadyActivatedError(data.user_id, data.code)
 
         return None
 
@@ -126,10 +115,7 @@ class PromocodeRepository(IPromocodeRepository):
         obj = (await self.session.execute(stmt)).scalars().one_or_none()
 
         if not obj:
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail="Promocode not found",
-            )
+            raise PromocodeNotFoundError(code=data.code)
 
         obj2 = PromocodeAction(promo_id=obj.id, user_id=data.user_id)
 
@@ -138,9 +124,7 @@ class PromocodeRepository(IPromocodeRepository):
         try:
             await self.session.flush()
         except IntegrityError:
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail="Your already activated this promocode",
-            )
+            await self.session.rollback()
+            raise PromocodeAlreadyActivatedError(data.user_id, data.code)
 
         return obj

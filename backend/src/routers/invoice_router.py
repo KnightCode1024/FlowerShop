@@ -22,6 +22,6 @@ async def post_invoices(invoice_data: InvoiceCreateRequest,
 @router.get("/{method}/{uid}", response_model=InvoiceResponse)
 async def get_invoice(method: str,
                       uid: str,
-                      service: FromDishka[InvoiceService],
-                      current_user: FromDishka[UserResponse]):
-    return await service.process_invoice(uid, method, current_user)
+                      service: FromDishka[InvoiceService]):
+    # Public endpoint - no authentication required for payment callback
+    return await service.process_invoice(uid, method)

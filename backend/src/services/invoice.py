@@ -3,14 +3,20 @@ from typing import Dict, Callable
 from uuid import UUID
 
 import stripe
+from core.exceptions import InvoiceNotFoundError
 from core.permissions import require_roles
 from core.uow import UnitOfWork
+from fastapi import HTTPException
 from models import RoleEnum
 from models.invoices import Invoice
 from models.order import OrderStatus
-from providers import IPaymentProvider
-from repositories import IOrderRepository, IUserRepository
-from repositories.invoice import InvoiceRepositoryI
+from entrypoint.ioc.providers.payment import IPaymentProvider
+from repositories import (
+    IInvoiceRepository, 
+    IOrderRepository, 
+    IUserRepository, 
+    IProductRepository,
+)
 from schemas.invoice import (
     InvoiceCreateRequest,
     InvoiceCreate,
@@ -20,29 +26,84 @@ from schemas.invoice import (
     InvoiceResponse,
 )
 from schemas.order import OrderUpdate
+from schemas.product import ProductUpdate
 from schemas.user import UserResponse
-from tasks.notify import send_notify_admins, send_notify_user_to_email
 from starlette import status
-from fastapi import HTTPException
-from entrypoint.config import config
+from tasks.notify import send_notify_admins, send_notify_user_to_email
+from entrypoint.config import config as app_config
 
 
 class InvoiceService:
     def __init__(
         self,
         uow: UnitOfWork,
-        invoices_repository: InvoiceRepositoryI,
+        invoices_repository: IInvoiceRepository,
         orders_repository: IOrderRepository,
+        products_repository: IProductRepository,
         users_repository: IUserRepository,
         provider_factories: Dict[Methods, Callable],
     ):
         self.uow = uow
         self.invoices = invoices_repository
         self.orders = orders_repository
+        self.products = products_repository
         self.users = users_repository
         self.provider_factories = provider_factories
 
-        self.provider: IPaymentProvider = None
+        # self.provider: IPaymentProvider = None
+
+    def _to_invoice_response(self, invoice: Invoice) -> InvoiceResponse:
+        return InvoiceResponse(
+            uid=str(invoice.uid),
+            user_id=invoice.user_id,
+            order_id=invoice.order_id,
+            amount=invoice.amount,
+            status=invoice.status,
+            method=invoice.method,
+            name=invoice.name,
+            link=invoice.link,
+            provider_uid=invoice.provider_uid,
+        )
+
+    async def _deduct_product_quantities(self, order_id: int) -> None:
+        async with self.uow:
+            order = await self.orders.get(order_id, user_id=None)
+
+            if not order or not order.order_products:
+                return
+
+            for order_product in order.order_products:
+                product = await self.products.get_by_id(order_product.product_id)
+                if product:
+                    new_quantity = product.quantity - order_product.quantity
+                    new_in_stock = new_quantity > 0
+                    await self.products.update(
+                        order_product.product_id,
+                        ProductUpdate(
+                            quantity=new_quantity,
+                            in_stock=new_in_stock,
+                        ),
+                    )
+
+    async def _restore_product_quantities(self, order_id: int) -> None:
+        async with self.uow:
+            order = await self.orders.get(order_id, user_id=None)
+
+            if not order or not order.order_products:
+                return
+
+            for order_product in order.order_products:
+                product = await self.products.get_by_id(order_product.product_id)
+                if product:
+                    new_quantity = product.quantity + order_product.quantity
+                    new_in_stock = new_quantity > 0
+                    await self.products.update(
+                        order_product.product_id,
+                        ProductUpdate(
+                            quantity=new_quantity,
+                            in_stock=new_in_stock,
+                        ),
+                    )
 
     @require_roles([RoleEnum.USER])
     async def create_invoice(
@@ -93,17 +154,16 @@ class InvoiceService:
                     status=OrderStatus.WAITING_PAY,
                 )
             )
-        return invoice
+        return self._to_invoice_response(invoice)
 
-    @require_roles([RoleEnum.USER])
     async def process_invoice(
-        self, uid: str, method: str, current_user: UserResponse
+        self, uid: str, method: str
     ) -> InvoiceResponse:
         uid: UUID = uuid.UUID(uid)
         self.provider = self.provider_factories.get(Methods(method))()
 
         async with self.uow:
-            invoice = await self.invoices.get(uid, current_user.id)
+            invoice = await self.invoices.get_by_uid(uid)
             is_payed = await self.provider.process(str(uid), invoice.provider_uid)
 
             invoice_data_update = InvoiceUpdate(
@@ -116,22 +176,34 @@ class InvoiceService:
                 order = await self.orders.get(
                     id=invoice.order_id, user_id=invoice.user_id
                 )
+                order_entity = order.to_entity()
 
-                await send_notify_user_to_email.kiq(
-                    current_user.email,
-                    order.to_entity(),
-                )  # sent users
-                await send_notify_admins.kiq(invoice_entity)  # sent admin
+                user_email = ""
+                try:
+                    user = await self.users.get_by_id(invoice.user_id)
+                    if user:
+                        user_email = user.email
+                except Exception:
+                    pass
+
+                await self._deduct_product_quantities(order.id)
+
+                if user_email:
+                    await send_notify_user_to_email.kiq(
+                        user_email,
+                        order_entity,
+                    )
+                await send_notify_admins.kiq(invoice_entity, order_entity)
 
                 await self.orders.update(
                     OrderUpdate(
                         id=order.id, user_id=order.user_id, status=OrderStatus.PAYED
                     )
                 )
-        return invoice
+        return self._to_invoice_response(invoice_entity)
 
     async def process_stripe_webhook(self, payload: bytes, signature: str | None):
-        if not config.stripe.WEBHOOK_SECRET:
+        if not app_config.stripe.WEBHOOK_SECRET:
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail="Stripe webhook secret is not configured",
@@ -141,7 +213,7 @@ class InvoiceService:
             event = stripe.Webhook.construct_event(
                 payload=payload,
                 sig_header=signature,
-                secret=config.stripe.WEBHOOK_SECRET,
+                secret=app_config.stripe.WEBHOOK_SECRET,
             )
         except stripe.error.SignatureVerificationError:
             raise HTTPException(

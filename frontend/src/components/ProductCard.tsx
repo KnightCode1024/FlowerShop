@@ -62,20 +62,28 @@ export default function ProductCard({ product }: ProductCardProps) {
           </p>
 
           {product.in_stock ? (
-            <div className="flex items-center justify-between gap-2">
-              <QuantitySelector
-                value={quantity}
-                maxValue={Math.min(maxAvailable, maxAvailable - cartQuantity)}
-                onChange={setQuantity}
-              />
-              <button
-                type="button"
-                onClick={handleAddToCart}
-                disabled={!canAddToCart}
-                className="rounded border border-amber-500 px-4 py-2 text-sm font-semibold text-amber-700 transition hover:bg-amber-500 hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center justify-between gap-2">
+                <QuantitySelector
+                  value={quantity}
+                  maxValue={Math.min(maxAvailable, maxAvailable - cartQuantity)}
+                  onChange={setQuantity}
+                />
+                <button
+                  type="button"
+                  onClick={handleAddToCart}
+                  disabled={!canAddToCart}
+                  className="flex-1 whitespace-nowrap rounded border border-amber-500 px-4 py-2 text-sm font-semibold text-amber-700 transition hover:bg-amber-500 hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                  {cartQuantity > 0 ? `В корзине: ${cartQuantity}` : "В корзину"}
+                </button>
+              </div>
+              <Link
+                to={`/products/${product.id}`}
+                className="text-center text-sm font-semibold text-yellow-600 transition hover:text-yellow-700"
               >
-                {cartQuantity > 0 ? `В корзине: ${cartQuantity}` : "В корзину"}
-              </button>
+                Подробнее
+              </Link>
             </div>
           ) : (
             <button
@@ -86,13 +94,6 @@ export default function ProductCard({ product }: ProductCardProps) {
               Нет в наличии
             </button>
           )}
-
-          <Link
-            to={`/products/${product.id}`}
-            className="mt-1 text-center text-sm font-semibold text-yellow-600 transition hover:text-yellow-700"
-          >
-            Подробнее
-          </Link>
         </div>
       </div>
     </article>

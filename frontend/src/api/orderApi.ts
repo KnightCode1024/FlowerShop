@@ -10,11 +10,31 @@ export interface CartItemPayload {
   price: number;
 }
 
+export interface DeliveryAddress {
+  recipient_name: string;
+  recipient_phone: string;
+  delivery_address: string;
+  delivery_city: string;
+  delivery_zip?: string | null;
+  delivery_notes?: string | null;
+}
+
+export interface OrderUpdatePayload {
+  order_products: CartItemPayload[];
+  delivery_address?: DeliveryAddress | null;
+}
+
 export interface OrderItem {
   id: number;
   order_products: CartItemPayload[];
   amount: number;
   status: string;
+  recipient_name?: string | null;
+  recipient_phone?: string | null;
+  delivery_address?: string | null;
+  delivery_city?: string | null;
+  delivery_zip?: string | null;
+  delivery_notes?: string | null;
   created_at?: string;
   updated_at?: string;
 }
@@ -62,10 +82,10 @@ export function getCart(): Promise<OrderItem> {
   return request<OrderItem>("/orders/cart");
 }
 
-export function updateCart(order_products: CartItemPayload[]): Promise<OrderItem> {
+export function updateCart(payload: OrderUpdatePayload): Promise<OrderItem> {
   return request<OrderItem>("/orders/cart", {
     method: "PUT",
-    body: JSON.stringify({ order_products }),
+    body: JSON.stringify(payload),
   });
 }
 

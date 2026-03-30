@@ -8,7 +8,7 @@ from repositories.product_image import (
 from repositories.promocode import IPromocodeRepository, PromocodeRepository
 from repositories.s3 import IS3Repository, S3Repository
 from repositories.user import IUserRepository, UserRepository
-from repositories.invoice import InvoiceRepository, InvoiceRepositoryI
+from repositories.invoice import InvoiceRepository, IInvoiceRepository
 
 __all__ = [
     "CategoryRepository",
@@ -26,5 +26,5 @@ __all__ = [
     "IPromocodeRepository",
     "PromocodeRepository",
     "InvoiceRepository",
-    "InvoiceRepositoryI",
+    "IInvoiceRepository",
 ]

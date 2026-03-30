@@ -1,3 +1,5 @@
+from http.client import HTTPException
+
 import pytest
 from httpx import AsyncClient
 
@@ -7,12 +9,12 @@ from utils.numbers import get_percent
 
 
 @pytest.mark.asyncio
-async def test_order_update_with_promocode(created_user_client: AsyncClient, created_admin_client: AsyncClient, created_product):
+async def test_success_order_update_with_promocode(created_user_client: AsyncClient, created_admin_client: AsyncClient, created_product):
     promocode_data = PromoCreateRequest(code="NEWYEAR",
                                         max_count_activators=102,
                                         percent=10)
-    response = await created_admin_client.post("/promocodes/", json=promocode_data.model_dump())
-    promocode = PromocodeResponse(**response.json())
+    response1 = await created_admin_client.post("/promocodes/", json=promocode_data.model_dump())
+    promocode = PromocodeResponse(**response1.json())
 
     assert promocode.code == promocode_data.code
     assert promocode_data.percent == promocode.percent
@@ -20,17 +22,77 @@ async def test_order_update_with_promocode(created_user_client: AsyncClient, cre
     orders_data = OrderCreateRequest(order_products=[
         CartItem(product_id=created_product.id,
                  quantity=1,
-                 price=created_product.price)
+                 price=created_product.price) for i in range(5)
+
     ])
-    response = await created_user_client.post("/orders/", json=orders_data.model_dump())
-    order = OrderResponse(**response.json())
+    response2 = await created_user_client.post("/orders/", json=orders_data.model_dump())
+    order = OrderResponse(**response2.json())
 
     order_update_data = OrderUpdateRequest(
-        order_id=order.id,
+        id=order.id,
         promocode=promocode.code
     )
 
-    response2 = await created_user_client.patch(f"/orders/{order.id}", json=order_update_data.model_dump())
-    updated_order = OrderResponse(**response2.json())
+    response3 = await created_user_client.patch(f"/orders/", json=order_update_data.model_dump())
+    updated_order = OrderResponse(**response3.json())
 
     assert updated_order.amount == get_percent(order.amount, promocode.percent), f"old amount - not activate promocode {promocode.percent}%"
+
+    return updated_order, promocode
+
+
+@pytest.mark.asyncio
+async def test_failed_order_already_activated_promo(created_user_client: AsyncClient, created_admin_client: AsyncClient, created_product):
+    order, promo = await test_success_order_update_with_promocode(created_user_client, created_admin_client, created_product)
+
+    order_update_data = OrderUpdateRequest(
+        id=order.id,
+        promocode=promo.code
+    )
+
+    response = await created_user_client.patch(f"/orders/", json=order_update_data.model_dump())
+
+    assert response.status_code == 409
+    assert response.json()["detail"] == "Promocode already activated"
+
+
+@pytest.mark.asyncio
+async def test_failed_order_max_count_act_promo(created_user_client: AsyncClient, created_admin_client: AsyncClient, created_product, created_users: list):
+    user1_cl, user2_cl, user3_cl = created_users
+    promocode_data = PromoCreateRequest(code="NEWYEAR",
+                                        max_count_activators=2,
+                                        percent=10)
+
+    response1 = await created_admin_client.post("/promocodes/", json=promocode_data.model_dump())
+    promocode = PromocodeResponse(**response1.json())
+
+    assert promocode.code == promocode_data.code
+    assert promocode_data.percent == promocode.percent
+
+    orders_data = OrderCreateRequest(order_products=[
+        CartItem(product_id=created_product.id,
+                 quantity=1,
+                 price=created_product.price) for i in range(5)
+
+    ])
+    response2 = await created_user_client.post("/orders/", json=orders_data.model_dump())
+    order = OrderResponse(**response2.json())
+
+    order_update_data = OrderUpdateRequest(
+        id=order.id,
+        promocode=promocode.code
+    )
+
+    response3 = await user1_cl.patch(f"/orders/", json=order_update_data.model_dump())
+    updated_order = OrderResponse(**response3.json())
+
+    assert updated_order.amount == get_percent(order.amount, promocode.percent), f"old amount - not activate promocode {promocode.percent}%"
+
+    response4 = await user2_cl.patch(f"/orders/", json=order_update_data.model_dump())
+    updated_order = OrderResponse(**response4.json())
+
+    assert updated_order.amount == get_percent(order.amount, promocode.percent), f"old amount - not activate promocode {promocode.percent}%"
+
+    response5 = await user3_cl.patch(f"/orders/", json=order_update_data.model_dump())
+    assert response5.status_code == 403
+    assert response5.json()["detail"] == "Promocode already invalid"

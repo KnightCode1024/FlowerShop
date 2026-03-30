@@ -18,18 +18,12 @@ async def add_order(
     return await service.create_order(current_user, order_data)
 
 
-@router.patch("/{id}")
+@router.patch("/")
 async def patch_order(
-    id: int,
     order_data: OrderUpdateRequest,
     current_user: FromDishka[UserResponse],
     service: FromDishka[OrderService],
 ):
-    if order_data.order_id != id:
-        order_data = OrderUpdateRequest(
-            order_id=id,
-            order_products=order_data.order_products,
-        )
     return await service.update_order(current_user, order_data)
 
 
@@ -47,7 +41,7 @@ async def get_orders_analytics(
     current_user: FromDishka[UserResponse],
     service: FromDishka[OrderService],
 ):
-    return await service.get_analytics()
+    return await service.get_analytics(current_user)
 
 
 @router.get("/all")

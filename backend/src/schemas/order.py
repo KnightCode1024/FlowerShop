@@ -21,8 +21,8 @@ class OrderCreateRequest(BaseModel):
 
 
 class OrderUpdateRequest(BaseModel):
-    order_id: int
-    order_products: list[CartItem]
+    id: int
+    order_products: list[CartItem] | None = None
     promocode: str | None = None
 
 
@@ -45,6 +45,8 @@ class OrderResponse(BaseModel):
     order_products: list[CartItem]
     amount: float
     status: OrderStatus
+
+
 
 
 class OrderProductCreate(BaseModel):

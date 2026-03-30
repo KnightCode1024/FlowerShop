@@ -129,6 +129,21 @@ class OrderRepository(IOrderRepository):
                 detail="Promocode not found",
             )
 
+        promocodes_actions_stmt = (
+            select(
+                func.count(PromocodeAction.id).
+                filter(PromocodeAction.promo_id == promo_obj.id)
+            )
+        )
+
+        count_p_actions = (await self.session.execute(promocodes_actions_stmt)).scalars().one_or_none()
+
+        if promo_obj.max_count_activators == count_p_actions:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Promocode already invalid"
+            )
+
         obj2 = PromocodeAction(promo_id=obj.id, user_id=order_data.user_id)
 
         self.session.add(obj2)
@@ -138,10 +153,10 @@ class OrderRepository(IOrderRepository):
         except IntegrityError:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
-                detail="Your already activated this promocode",
+                detail="Promocode already activated",
             )
 
-        order_data.amount = get_percent(order_data.amount, promo_obj.percent)
+        order_data.amount = get_percent(obj.amount, promo_obj.percent)
 
     async def get_all(self) -> list[Order]:
         stmt = (

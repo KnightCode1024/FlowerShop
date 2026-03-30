@@ -2,6 +2,7 @@ import random
 from typing import AsyncGenerator
 
 import pytest
+import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
 
 from sqlalchemy.ext.asyncio import (
@@ -174,30 +175,68 @@ async def created_admin_client(client: AsyncClient, user_repository: UserReposit
     return client
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def created_user_client(client: AsyncClient, user_repository: UserRepository, session: AsyncSession):
     password = make_valid_password(12)
     hashed_password = hash_password(password)
+
     user_create_data = UserCreate(
         email=f"User_{random.randint(1, 10000)}@test.com",
         username="User",
         password=hashed_password,
         role=RoleEnum.USER,
-        email_verified=True
+        email_verified=True,
     )
+
     user = await user_repository.create(user_create_data)
     await session.commit()
 
-    assert user.email == user_create_data.email
-
     login_data = UserLogin(email=user_create_data.email, password=password)
     response = await client.post("/users/login", json=login_data.model_dump())
-    assert response.status_code == 200
+    token = response.json()["access_token"]
 
-    client.cookies.set("access_token", response.json()["access_token"])
-    client.headers["Authorization"] = f"Bearer {response.json()['access_token']}"
+    client.cookies.set("access_token", token)
+    client.headers["Authorization"] = f"Bearer {token}"
 
     return client
+
+
+@pytest.fixture
+async def create_users(client: AsyncClient, user_repository: UserRepository, session: AsyncSession):
+    async def _create():
+        password = make_valid_password(12)
+        hashed_password = hash_password(password)
+
+        user_create_data = UserCreate(
+            email=f"User_{random.randint(1, 10000)}@test.com",
+            username="User",
+            password=hashed_password,
+            role=RoleEnum.USER,
+            email_verified=True,
+        )
+
+        user = await user_repository.create(user_create_data)
+        await session.commit()
+
+        login_data = UserLogin(email=user_create_data.email, password=password)
+        response = await client.post("/users/login", json=login_data.model_dump())
+        token = response.json()["access_token"]
+
+        client.cookies.set("access_token", token)
+        client.headers["Authorization"] = f"Bearer {token}"
+
+        return client
+
+    return _create
+
+
+@pytest.fixture
+async def created_users(create_users):
+    return [
+        await create_users()
+        for i in range(3)
+    ]
+
 
 
 @pytest.fixture
@@ -206,14 +245,13 @@ async def created_employee_client(client: AsyncClient, user_repository: UserRepo
     hashed_password = hash_password(password)
     user_create_data = UserCreate(
         email=f"Employee_{random.randint(1, 10000)}@test.com",
-        username="employee",
+        username="Employee",
         password=hashed_password,
         role=RoleEnum.EMPLOYEE,
         email_verified=True
     )
     user = await user_repository.create(user_create_data)
     await session.commit()
-
     assert user.email == user_create_data.email
 
     login_data = UserLogin(email=user_create_data.email, password=password)

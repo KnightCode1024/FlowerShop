@@ -24,13 +24,14 @@ export default function Catalog() {
   const [filters, setFilters] = useState<ProductFilters>({
     offset: 0,
     limit: PAGE_SIZE,
+    in_stock: true,
   });
 
   useEffect(() => {
     let isActive = true;
     (async () => {
       try {
-        const data = await getCategories();
+        const data = await getCategories(100, true);
         if (isActive) {
           setCategories(data);
         }
@@ -79,6 +80,7 @@ export default function Catalog() {
     const nextFilters: ProductFilters = {
       offset: 0,
       limit: PAGE_SIZE,
+      in_stock: true,
     };
 
     if (draftMinPrice.trim()) {
@@ -98,7 +100,7 @@ export default function Catalog() {
     setDraftMinPrice("");
     setDraftMaxPrice("");
     setDraftCategoryId("all");
-    setFilters({ offset: 0, limit: PAGE_SIZE });
+    setFilters({ offset: 0, limit: PAGE_SIZE, in_stock: true });
   }
 
   const subtitle = useMemo(() => {

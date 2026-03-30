@@ -1,18 +1,35 @@
 import logging
 import re
 
+from core.exceptions import InvoiceNotFoundError
 from core.permissions import require_roles
 from core.uow import UnitOfWork
-from interfaces import IEmailService
 from models import RoleEnum
 from repositories import IUserRepository
-from schemas.user import (AccessToken, OTPCode, RefreshToken, TokenPair,
-                          UserCreate, UserCreateConsole, UserLogin,
-                          UserResponse, UserUpdate)
-from utils.jwt_utils import (create_access_token, create_refresh_token,
-                             decode_jwt, hash_password, validate_password)
-from utils.otp_utils import (generate_otp_code, generate_otp_secret,
-                             verify_otp_code)
+from schemas.user import (
+    AccessToken, 
+    OTPCode, 
+    RefreshToken, 
+    TokenPair,
+    UserCreate, 
+    UserCreateConsole, 
+    UserLogin,
+    UserResponse, 
+    UserUpdate,
+)
+from utils.jwt_utils import (
+    create_access_token, 
+    create_refresh_token,
+    decode_jwt, 
+    hash_password, 
+    validate_password,
+)
+from utils.otp_utils import (
+    generate_otp_code, 
+    generate_otp_secret,
+    verify_otp_code,
+)
+from tasks.email import send_otp_code, send_verify_email
 
 
 class UserService:
@@ -20,11 +37,9 @@ class UserService:
         self,
         uow: UnitOfWork,
         user_repository: IUserRepository,
-        email_service: IEmailService,
     ):
         self.uow = uow
         self.user_repository = user_repository
-        self.email_service = email_service
 
     async def register_user(self, user_data: UserCreate) -> UserResponse:
         self._validate_password(user_data.password, RoleEnum.USER)
@@ -44,7 +59,7 @@ class UserService:
             )
             user = await self.user_repository.create(user_create_data)
 
-            await self.email_service.send_verify_email(
+            await send_verify_email.kiq(
                 to_email=user.email,
                 token=user.token,
             )
@@ -60,7 +75,7 @@ class UserService:
         otp_secret = await self.user_repository.get_otp_secret(user)
 
         if not verify_otp_code(otp_code.otp_code, otp_secret):
-            raise ValueError("Not valid code")
+            raise ValueError("Invalid code")
 
         return TokenPair(
             access_token=create_access_token({"sub": str(user.id)}),
@@ -85,7 +100,7 @@ class UserService:
 
         otp_code = generate_otp_code(otp_secret)
 
-        await self.email_service.send_otp_code(
+        await send_otp_code.kiq(
             to_email=user.email,
             otp_code=otp_code,
         )
@@ -99,14 +114,14 @@ class UserService:
                 user_data.password,
                 user.password,
             ):
-                raise ValueError("Uncorrect login or password")
+                raise ValueError("Incorrect login or password")
 
             if not user.email_verified:
                 raise ValueError("Email not verified")
 
         except Exception as e:
             logging.exception("Password or email not valid", exc_info=True)
-            raise ValueError("Uncorrect login or password")
+            raise ValueError("Incorrect login or password")
 
         otp_secret = generate_otp_secret()
         otp_code = generate_otp_code(otp_secret)
@@ -114,7 +129,7 @@ class UserService:
         async with self.uow:
             await self.user_repository.set_otp_secret(user, otp_secret)
 
-        await self.email_service.send_otp_code(
+        await send_otp_code.kiq(
             to_email=user.email,
             otp_code=otp_code,
         )
@@ -158,13 +173,13 @@ class UserService:
         user = await self.user_repository.get(user_id)
         if not user:
             raise ValueError("User not found")
-        user_repsonse = UserResponse(
+        user_response = UserResponse(
             id=user.id,
             email=user.email,
             username=user.username,
             role=user.role,
         )
-        return user_repsonse
+        return user_response
 
     async def get_user_by_id(self, user_id: int):
         user = await self.user_repository.get(user_id)
@@ -223,7 +238,7 @@ class UserService:
                 role=user.role,
             )
         except Exception as e:
-            print(f"Token verification error: {e}")
+            logging.exception("Token verification error", exc_info=True)
             return None
 
     async def create_user_for_console(

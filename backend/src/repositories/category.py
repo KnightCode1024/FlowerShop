@@ -13,7 +13,12 @@ class ICategoryRepository(Protocol):
 
     async def get_by_id(self, category_id: int): ...
 
-    async def get_all(self, offset: int = 0, limit: int = 20) -> list: ...
+    async def get_all(
+        self,
+        offset: int = 0,
+        limit: int = 20,
+        in_stock: bool | None = None,
+    ) -> list: ...
 
     async def update(self, category_id: int, data: CategoryUpdate): ...
 
@@ -59,6 +64,7 @@ class CategoryRepository(ICategoryRepository):
         self,
         offset: int = 0,
         limit: int = 20,
+        in_stock: bool | None = None,
     ) -> list[Category]:
         query = (
             select(Category)
@@ -68,6 +74,9 @@ class CategoryRepository(ICategoryRepository):
             .offset(offset)
             .limit(limit)
         )
+
+        if in_stock is True:
+            query = query.where(Product.in_stock == True).where(Product.quantity > 0)
 
         result = await self.session.execute(query)
         return result.unique().scalars().all()

@@ -46,6 +46,18 @@ class IOrderRepository(Protocol):
     async def delete(self, id: int) -> None:
         pass
 
+    async def get_order_products(self, order_id: int) -> list[OrderProduct]:
+        pass
+
+    async def clear_order_products(self, order_id: int) -> None:
+        pass
+
+    async def add_order_products(self, order_id: int, order_products: list[OrderProduct]) -> None:
+        pass
+
+    async def get_products_for_order(self, product_ids: list[int]) -> list[Product]:
+        pass
+
 
 class OrderRepository(IOrderRepository):
 
@@ -82,11 +94,6 @@ class OrderRepository(IOrderRepository):
 
         result = await self.session.execute(stmt)
         obj: Order | None = result.scalars().unique().one_or_none()
-
-        if not obj:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND, detail=f"Order {id} not found"
-            )
 
         return obj
 
@@ -236,55 +243,45 @@ class OrderRepository(IOrderRepository):
         await self.session.flush()
         return None
 
+    async def get_order_products(self, order_id: int) -> list[OrderProduct]:
+        stmt = select(OrderProduct).where(OrderProduct.order_id == order_id)
+        result = await self.session.execute(stmt)
+        return result.scalars().all()
+
+    async def clear_order_products(self, order_id: int) -> None:
+        await self.session.execute(
+            delete(OrderProduct).where(OrderProduct.order_id == order_id)
+        )
+        await self.session.flush()
+
+    async def add_order_products(self, order_id: int, order_products: list[OrderProduct]) -> None:
+        self.session.add_all(order_products)
+        await self.session.flush()
+
+    async def get_products_for_order(self, product_ids: list[int]) -> list[Product]:
+        stmt = select(Product).where(Product.id.in_(product_ids))
+        result = await self.session.execute(stmt)
+        return result.scalars().all()
+
     async def _update_products(
             self, order: Order, order_products: list[CartItem]
     ) -> Order:
-        if order.status != OrderStatus.IN_CART:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Order cannot be edited in current status",
-            )
+        await self.clear_order_products(order.id)
 
-        order_products = order_products or []
-        aggregated: dict[int, int] = {}
-
-        for item in order_products:
-            if item.quantity <= 0:
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail="Quantity must be greater than zero",
-                )
-            aggregated[item.product_id] = aggregated.get(item.product_id, 0) + item.quantity
-
-        await self.session.execute(
-            delete(OrderProduct).where(OrderProduct.order_id == order.id)
-        )
-
-        if not aggregated:
+        if not order_products:
             order.amount = 0.00
             await self.session.flush()
             await self.session.refresh(order)
             return order
 
-        products_stmt = select(Product).where(Product.id.in_(aggregated.keys()))
-        products = (await self.session.execute(products_stmt)).scalars().all()
-
-        if len(products) != len(aggregated):
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Some products were not found",
-            )
+        product_ids = [item.product_id for item in order_products]
+        products = await self.get_products_for_order(product_ids)
 
         new_order_products = []
         total_amount = 0.0
 
         for product in products:
-            quantity = aggregated[product.id]
-            if product.quantity < quantity:
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail=f"Product {product.id} has insufficient stock. Available: {product.quantity}, requested: {quantity}",
-                )
+            quantity = sum(item.quantity for item in order_products if item.product_id == product.id)
             price = float(product.price)
             total_amount += quantity * price
             new_order_products.append(
@@ -296,16 +293,9 @@ class OrderRepository(IOrderRepository):
                 )
             )
 
-        self.session.add_all(new_order_products)
+        await self.add_order_products(order.id, new_order_products)
 
         order.amount = round(float(total_amount), 2)
-
-        await self.session.flush()
-
-        for product in products:
-            product.quantity -= aggregated[product.id]
-            product.in_stock = product.quantity > 0
-            self.session.add(product)
 
         await self.session.flush()
         await self.session.refresh(order)

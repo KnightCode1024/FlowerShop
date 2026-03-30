@@ -5,6 +5,7 @@ from core.uow import UnitOfWork
 from repositories import (
     CategoryRepository,
     ICategoryRepository,
+    IInvoiceRepository,
     IOrderRepository,
     IProductImageRepository,
     IProductRepository,
@@ -17,9 +18,8 @@ from repositories import (
     PromocodeRepository,
     S3Repository,
     UserRepository,
+    InvoiceRepository,
 )
-from repositories import *
-from repositories.invoice import InvoiceRepositoryI, InvoiceRepository
 
 
 class RepositoryProvider(Provider):
@@ -27,7 +27,7 @@ class RepositoryProvider(Provider):
 
     @provide
     def get_invoice_repository(self,
-                               session: AsyncSession) -> InvoiceRepositoryI:
+                               session: AsyncSession) -> IInvoiceRepository:
         return InvoiceRepository(session)
 
     @provide

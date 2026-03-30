@@ -21,7 +21,6 @@ class OrderService:
         self.uow = uow
         self.orders = order_repository
 
-    # @require_roles([RoleEnum.USER])
     async def create_order(self, user: UserResponse, data: OrderCreateRequest):
         order_data = OrderCreate(user_id=user.id, **data.model_dump())
 
@@ -30,7 +29,6 @@ class OrderService:
 
         return order
 
-    # @require_roles([RoleEnum.USER])
     async def update_order(self, user: UserResponse, data: OrderUpdateRequest):
         order_data = OrderUpdate(
             user_id=user.id,
@@ -38,7 +36,6 @@ class OrderService:
                 exclude_none=True,
             )
         )
-
         async with self.uow:
             order = await self.orders.update(order_data)
 

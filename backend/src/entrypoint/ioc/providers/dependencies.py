@@ -1,5 +1,5 @@
-from providers.api.yoomoney import YoomoneyProvider
-from providers.api.stripe_provider import StripeProvider
+from entrypoint.ioc.providers.yoomoney import YoomoneyProvider
+from entrypoint.ioc.providers.stripe_provider import StripeProvider
 from schemas.invoice import Methods
 
 

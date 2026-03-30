@@ -1,5 +1,4 @@
 from services.category import CategoryService
-from services.email import EmailService
 from services.order import OrderService
 from services.product import ProductService
 from services.user import UserService
@@ -11,7 +10,6 @@ __all__ = [
     "CategoryService",
     "UserService",
     "OrderService",
-    "EmailService",
     "InvoiceService",
     "PromocodeService",
 ]

@@ -6,19 +6,43 @@ from core import broker
 from entrypoint.config import config
 from schemas.invoice import InvoiceResponse
 from schemas.order import OrderResponse
-from providers.email.smtp_provider import SmtpProvider
+from entrypoint.ioc.providers.smtp_provider import SmtpProvider
 
 bot = aiogram.Bot(config.bot.TOKEN, parse_mode=None)
 logger = logging.getLogger(__name__)
 
 TEMPLATE_ORDER_NOTIFY_MESSAGE: str = """
-Notify about NEW order {id}
+🔔 Уведомление о НОВОМ заказе {id}
 
-date: {updated_at}
-status: {status}
-user_id: {user}
-link to admin: {admin_link}
+Дата: {updated_at}
+Статус: {status}
+Пользователь: {user}
+Сумма: {amount}
+
+📦 Информация о доставке:
+{delivery_info}
+
+🔗 Ссылка на админку: {admin_link}
 """
+
+
+def format_delivery_info(order: OrderResponse) -> str:
+    """Форматирует информацию о доставке для уведомления."""
+    if not order.recipient_name:
+        return "Информация о доставке не указана"
+    
+    lines = [
+        f"Получатель: {order.recipient_name}",
+        f"Телефон: {order.recipient_phone or 'Не указан'}",
+        f"Адрес: {order.delivery_address or 'Не указан'}",
+        f"Город: {order.delivery_city or 'Не указан'}",
+    ]
+    if order.delivery_zip:
+        lines.append(f"Индекс: {order.delivery_zip}")
+    if order.delivery_notes:
+        lines.append(f"Комментарий: {order.delivery_notes}")
+    
+    return "\n".join(lines)
 
 
 @broker.task(task_name="admins-user-payed-order")
@@ -33,6 +57,8 @@ async def send_notify_admins(invoice: InvoiceResponse):
                     updated_at=updated_at,
                     status=str(invoice.status),
                     user=invoice.user_id,
+                    amount=amount,
+                    delivery_info=delivery_info,
                     admin_link=f"{config.frontend.URL}/admin/orders/{invoice.order_id}",
                 ),
             )

@@ -6,7 +6,7 @@ import stripe
 
 from entrypoint.config import config
 from models.invoices import Invoice
-from providers import IPaymentProvider
+from entrypoint.ioc.providers.payment import IPaymentProvider
 
 
 class StripeProvider(IPaymentProvider):

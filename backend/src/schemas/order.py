@@ -1,6 +1,6 @@
 import enum
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class OrderStatus(enum.StrEnum):
@@ -16,13 +16,29 @@ class CartItem(BaseModel):
     price: float
 
 
+class DeliveryAddress(BaseModel):
+    recipient_name: str = Field(..., min_length=1, max_length=255)
+    recipient_phone: str = Field(..., min_length=5, max_length=50)
+    delivery_address: str = Field(..., min_length=5, max_length=500)
+    delivery_city: str = Field(..., min_length=1, max_length=100)
+    delivery_zip: str | None = Field(None, max_length=20)
+    delivery_notes: str | None = Field(None, max_length=1000)
+
+
 class OrderCreateRequest(BaseModel):
     order_products: list[CartItem]
+    delivery_address: DeliveryAddress | None = None
 
 
 class OrderUpdateRequest(BaseModel):
+<<<<<<< HEAD
     id: int
     order_products: list[CartItem] | None = None
+=======
+    order_id: int
+    order_products: list[CartItem]
+    delivery_address: DeliveryAddress | None = None
+>>>>>>> daff0ad93aaee44492a5eaf3f67d825b1c21a77e
     promocode: str | None = None
 
 
@@ -31,6 +47,12 @@ class OrderUpdate(BaseModel):
     user_id: int
     status: OrderStatus | None = None
     order_products: list[CartItem] | None = None
+    recipient_name: str | None = None
+    recipient_phone: str | None = None
+    delivery_address: str | None = None
+    delivery_city: str | None = None
+    delivery_zip: str | None = None
+    delivery_notes: str | None = None
     promocode: str | None = None
     amount: float | None = None
 
@@ -38,6 +60,12 @@ class OrderUpdate(BaseModel):
 class OrderCreate(BaseModel):
     user_id: int
     order_products: list[CartItem]
+    recipient_name: str | None = None
+    recipient_phone: str | None = None
+    delivery_address: str | None = None
+    delivery_city: str | None = None
+    delivery_zip: str | None = None
+    delivery_notes: str | None = None
 
 
 class OrderResponse(BaseModel):
@@ -45,6 +73,12 @@ class OrderResponse(BaseModel):
     order_products: list[CartItem]
     amount: float
     status: OrderStatus
+    recipient_name: str | None = None
+    recipient_phone: str | None = None
+    delivery_address: str | None = None
+    delivery_city: str | None = None
+    delivery_zip: str | None = None
+    delivery_notes: str | None = None
 
 
 

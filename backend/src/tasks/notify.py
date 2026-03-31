@@ -58,7 +58,12 @@ async def send_notify_admins(invoice: InvoiceResponse):
                     updated_at=updated_at,
                     status=str(invoice.status),
                     user=invoice.user_id,
+<<<<<<< HEAD
                     amount=invoice.amount,
+=======
+                    amount=amount,
+                    delivery_info=delivery_info,
+>>>>>>> daff0ad93aaee44492a5eaf3f67d825b1c21a77e
                     admin_link=f"{config.frontend.URL}/admin/orders/{invoice.order_id}",
                 ),
             )

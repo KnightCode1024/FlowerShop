@@ -42,6 +42,14 @@ class Order(Base):
         Enum(OrderStatus), default=OrderStatus.IN_CART
     )
     amount: Mapped[float] = mapped_column(Float(), default=0.00)
+    
+    # Delivery address fields
+    recipient_name: Mapped[str] = mapped_column(String(255), nullable=True)
+    recipient_phone: Mapped[str] = mapped_column(String(50), nullable=True)
+    delivery_address: Mapped[str] = mapped_column(Text(), nullable=True)
+    delivery_city: Mapped[str] = mapped_column(String(100), nullable=True)
+    delivery_zip: Mapped[str] = mapped_column(String(20), nullable=True)
+    delivery_notes: Mapped[str] = mapped_column(Text(), nullable=True)
 
     # Delivery address fields
     recipient_name: Mapped[str] = mapped_column(String(255), nullable=True)

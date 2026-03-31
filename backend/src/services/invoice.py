@@ -5,10 +5,7 @@ from typing import Dict, Callable
 from uuid import UUID
 from starlette import status
 
-<<<<<<< HEAD
-=======
 import stripe
->>>>>>> daff0ad93aaee44492a5eaf3f67d825b1c21a77e
 from core.exceptions import InvoiceNotFoundError
 from core.permissions import require_roles
 from core.uow import UnitOfWork
@@ -18,15 +15,12 @@ from models.invoices import Invoice
 from models.order import OrderStatus
 from entrypoint.ioc.providers.payment import IPaymentProvider
 from repositories import (
-<<<<<<< HEAD
     IInvoiceRepository,
     IOrderRepository,
     IUserRepository,
-=======
-    IInvoiceRepository, 
+    IInvoiceRepository,
     IOrderRepository, 
     IUserRepository, 
->>>>>>> daff0ad93aaee44492a5eaf3f67d825b1c21a77e
     IProductRepository,
 )
 from schemas.invoice import (
@@ -40,12 +34,9 @@ from schemas.invoice import (
 from schemas.order import OrderUpdate
 from schemas.product import ProductUpdate
 from schemas.user import UserResponse
-<<<<<<< HEAD
-=======
 from starlette import status
->>>>>>> daff0ad93aaee44492a5eaf3f67d825b1c21a77e
-from tasks.notify import send_notify_admins, send_notify_user_to_email
 from entrypoint.config import config as app_config
+from tasks.notify import send_notify_user_to_email, send_notify_admins
 
 
 class InvoiceService:

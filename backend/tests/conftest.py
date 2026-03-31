@@ -16,7 +16,6 @@ from dishka import (
     make_async_container,
 )
 
-from entrypoint.ioc.engine import session_factory
 from models import (
     Base,
 )

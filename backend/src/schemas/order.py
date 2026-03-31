@@ -31,14 +31,9 @@ class OrderCreateRequest(BaseModel):
 
 
 class OrderUpdateRequest(BaseModel):
-<<<<<<< HEAD
     id: int
     order_products: list[CartItem] | None = None
-=======
-    order_id: int
-    order_products: list[CartItem]
     delivery_address: DeliveryAddress | None = None
->>>>>>> daff0ad93aaee44492a5eaf3f67d825b1c21a77e
     promocode: str | None = None
 
 

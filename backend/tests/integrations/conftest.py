@@ -22,7 +22,6 @@ from repositories import UserRepository, ProductRepository, CategoryRepository
 from schemas.category import CategoryCreate
 from schemas.product import ProductCreate
 from schemas.user import UserLogin, UserCreate
-from services import EmailService
 from utils.jwt_utils import hash_password
 from utils.strings import make_valid_password
 from run import make_app
@@ -143,10 +142,6 @@ async def created_product(product_repository, session, test_product1):
     await session.commit()
     return product
 
-
-@pytest.fixture
-async def email_service():
-    return EmailService(config)
 
 
 @pytest.fixture

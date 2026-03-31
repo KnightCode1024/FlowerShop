@@ -57,7 +57,7 @@ async def test_failed_order_already_activated_promo(created_user_client: AsyncCl
 
 
 @pytest.mark.asyncio
-async def test_failed_order_max_count_act_promo(created_user_client: AsyncClient, created_admin_client: AsyncClient, created_product, created_users: list):
+async def test_failed_order_max_count_act_promo(created_user_client: AsyncClient, created_admin_client: AsyncClient, created_product, created_users):
     user1_cl, user2_cl, user3_cl = created_users
     promocode_data = PromoCreateRequest(code="NEWYEAR",
                                         max_count_activators=2,

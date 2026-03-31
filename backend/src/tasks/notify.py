@@ -50,6 +50,7 @@ async def send_notify_admins(invoice: InvoiceResponse):
     for admin_id in config.bot.ADMINS_IDS:
         try:
             updated_at = str(invoice.updated_at) if invoice.updated_at else "N/A"
+
             await bot.send_message(
                 chat_id=admin_id,
                 text=TEMPLATE_ORDER_NOTIFY_MESSAGE.format(
@@ -57,8 +58,7 @@ async def send_notify_admins(invoice: InvoiceResponse):
                     updated_at=updated_at,
                     status=str(invoice.status),
                     user=invoice.user_id,
-                    amount=amount,
-                    delivery_info=delivery_info,
+                    amount=invoice.amount,
                     admin_link=f"{config.frontend.URL}/admin/orders/{invoice.order_id}",
                 ),
             )

@@ -1,8 +1,10 @@
 import uuid
+import stripe
+
 from typing import Dict, Callable
 from uuid import UUID
+from starlette import status
 
-import stripe
 from core.exceptions import InvoiceNotFoundError
 from core.permissions import require_roles
 from core.uow import UnitOfWork
@@ -12,9 +14,9 @@ from models.invoices import Invoice
 from models.order import OrderStatus
 from entrypoint.ioc.providers.payment import IPaymentProvider
 from repositories import (
-    IInvoiceRepository, 
-    IOrderRepository, 
-    IUserRepository, 
+    IInvoiceRepository,
+    IOrderRepository,
+    IUserRepository,
     IProductRepository,
 )
 from schemas.invoice import (
@@ -28,7 +30,6 @@ from schemas.invoice import (
 from schemas.order import OrderUpdate
 from schemas.product import ProductUpdate
 from schemas.user import UserResponse
-from starlette import status
 from tasks.notify import send_notify_admins, send_notify_user_to_email
 from entrypoint.config import config as app_config
 
@@ -37,7 +38,8 @@ class InvoiceService:
     def __init__(
             self,
             uow: UnitOfWork,
-            invoices_repository: InvoiceRepositoryI,
+            products_repository: IProductRepository,
+            invoices_repository: IInvoiceRepository,
             orders_repository: IOrderRepository,
             users_repository: IUserRepository,
             provider_factories: Dict[Methods, Callable],

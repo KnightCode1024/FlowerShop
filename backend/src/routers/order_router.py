@@ -2,93 +2,93 @@ from dishka import FromDishka
 from dishka.integrations.fastapi import DishkaRoute
 from fastapi import APIRouter
 
-from schemas.order import OrderCreateRequest, OrderUpdateRequest
+from schemas.order import OrderCreateRequest, OrderUpdateRequest, OrderResponse
 from schemas.user import UserResponse
 from services.order import OrderService
 
 router = APIRouter(prefix="/orders", tags=["Orders"], route_class=DishkaRoute)
 
 
-@router.post("/")
+@router.post("/", response_model=OrderResponse)
 async def add_order(
-    order_data: OrderCreateRequest,
-    current_user: FromDishka[UserResponse],
-    service: FromDishka[OrderService],
+        order_data: OrderCreateRequest,
+        current_user: FromDishka[UserResponse],
+        service: FromDishka[OrderService],
 ):
     return await service.create_order(current_user, order_data)
 
 
-@router.patch("/")
+@router.patch("/", response_model=OrderResponse)
 async def patch_order(
-    order_data: OrderUpdateRequest,
-    current_user: FromDishka[UserResponse],
-    service: FromDishka[OrderService],
+        order_data: OrderUpdateRequest,
+        current_user: FromDishka[UserResponse],
+        service: FromDishka[OrderService],
 ):
     return await service.update_order(current_user, order_data)
 
 
 @router.delete("/{id}")
 async def delete_order(
-    id: int,
-    service: FromDishka[OrderService],
-    current_user: FromDishka[UserResponse],
+        id: int,
+        service: FromDishka[OrderService],
+        current_user: FromDishka[UserResponse],
 ):
     return await service.delete_order(id, current_user)
 
 
 @router.get("/analytics")
 async def get_orders_analytics(
-    current_user: FromDishka[UserResponse],
-    service: FromDishka[OrderService],
+        current_user: FromDishka[UserResponse],
+        service: FromDishka[OrderService],
 ):
     return await service.get_analytics(current_user)
 
 
 @router.get("/all")
 async def get_all_orders(
-    service: FromDishka[OrderService],
-    current_user: FromDishka[UserResponse],
+        service: FromDishka[OrderService],
+        current_user: FromDishka[UserResponse],
 ):
     return await service.get_all_orders(current_user)
 
 
 @router.get("/cart")
 async def get_cart(
-    current_user: FromDishka[UserResponse],
-    service: FromDishka[OrderService],
+        current_user: FromDishka[UserResponse],
+        service: FromDishka[OrderService],
 ):
     return await service.get_cart(current_user)
 
 
 @router.get("/purchases")
 async def get_user_purchases(
-    current_user: FromDishka[UserResponse],
-    service: FromDishka[OrderService],
+        current_user: FromDishka[UserResponse],
+        service: FromDishka[OrderService],
 ):
     return await service.get_user_purchases(current_user)
 
 
 @router.put("/cart")
 async def update_cart(
-    order_data: OrderCreateRequest,
-    current_user: FromDishka[UserResponse],
-    service: FromDishka[OrderService],
+        order_data: OrderCreateRequest,
+        current_user: FromDishka[UserResponse],
+        service: FromDishka[OrderService],
 ):
     return await service.update_cart(current_user, order_data)
 
 
 @router.get("/")
 async def get_user_all_orders(
-    current_user: FromDishka[UserResponse],
-    service: FromDishka[OrderService],
+        current_user: FromDishka[UserResponse],
+        service: FromDishka[OrderService],
 ):
     return await service.get_all_user_orders(current_user)
 
 
 @router.get("/{id}")
 async def get_order(
-    id: int,
-    current_user: FromDishka[UserResponse],
-    service: FromDishka[OrderService],
+        id: int,
+        current_user: FromDishka[UserResponse],
+        service: FromDishka[OrderService],
 ):
     return await service.get_order_by_user(id, current_user)

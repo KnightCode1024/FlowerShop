@@ -19,26 +19,26 @@ class PromocodeService:
     @require_roles([RoleEnum.ADMIN, RoleEnum.EMPLOYEE])
     async def create_promo(self, user, data: PromoCreateRequest):
         promo_data = PromoCreate(**data.model_dump())
-
         # try:
         async with self.uow:
-            return await self.repository.add(promo_data)
+            promo = await self.repository.add(promo_data)
+        return promo
         # except ValueError as e:
         #     raise HTTPException(
         #         status_code=status.HTTP_409_CONFLICT,
         #         detail=str(e),
         #     )
 
-    @require_roles([RoleEnum.USER])
-    async def activate_promo(self, user, promo_code_data: PromoActivateRequest, user_id: int):
-        promo_data = PromoActivateCreate(
-            user_id=user_id, **promo_code_data.model_dump()
-        )
-
-        async with self.uow:
-            promo_operation = await self.repository.activate_user_promo(promo_data)
-
-        return promo_operation
+    # @require_roles([RoleEnum.USER])
+    # async def activate_promo(self, user, promo_code_data: PromoActivateRequest, user_id: int):
+    #     promo_data = PromoActivateCreate(
+    #         user_id=user_id, **promo_code_data.model_dump()
+    #     )
+    #
+    #     async with self.uow:
+    #         promo_operation = await self.repository.activate_user_promo(promo_data)
+    #
+    #     return promo_operation
 
     @require_roles([RoleEnum.ADMIN, RoleEnum.ADMIN])
     async def delete_promo(self, user, id: int):

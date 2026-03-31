@@ -69,6 +69,7 @@ class OrderRepository(IOrderRepository):
         self.session.add(obj)
 
         await self.session.flush()
+
         await self._update_products(obj, order_data.order_products)
 
         stmt = (
@@ -94,27 +95,30 @@ class OrderRepository(IOrderRepository):
 
         result = await self.session.execute(stmt)
         obj: Order | None = result.scalars().unique().one_or_none()
-
+        if not obj:
+            raise HTTPException(status_code=404, detail=f"Order {id} not found")
         return obj
 
     async def update(self, order_data: OrderUpdate) -> Order:
-        obj = await self.get(order_data.id, order_data.user_id)
+        order_obj = await self.get(order_data.id, order_data.user_id)
+
+        print(order_obj)
 
         if order_data.promocode:
-            await self.check_promo(obj, order_data)
+            await self.check_promo(order_obj, order_data)
 
         if order_data.order_products is not None:
-            await self._update_products(obj, order_data.order_products)
+            await self._update_products(order_obj, order_data.order_products)
 
         for name, value in order_data.model_dump(
                 exclude_none=True, exclude={"order_products"}
         ).items():
-            setattr(obj, name, value)
+            setattr(order_obj, name, value)
 
         stmt = (
             select(Order)
             .options(joinedload(Order.order_products))
-            .where(Order.id == obj.id)
+            .where(Order.id == order_obj.id)
         )
 
         result = await self.session.execute(stmt)
@@ -122,7 +126,7 @@ class OrderRepository(IOrderRepository):
 
         return result
 
-    async def check_promo(self, obj: Order, order_data: OrderUpdate):
+    async def check_promo(self, order: Order, order_data: OrderUpdate):
         stmt = (
             select(Promocode)
             .where(Promocode.code == order_data.promocode)
@@ -130,7 +134,8 @@ class OrderRepository(IOrderRepository):
 
         promo_obj = (await self.session.execute(stmt)).scalars().one_or_none()
 
-        if not obj:
+        if not promo_obj:
+            print(promo_obj)
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
                 detail="Promocode not found",
@@ -146,12 +151,13 @@ class OrderRepository(IOrderRepository):
         count_p_actions = (await self.session.execute(promocodes_actions_stmt)).scalars().one_or_none()
 
         if promo_obj.max_count_activators == count_p_actions:
+            print(promo_obj)
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="Promocode already invalid"
             )
 
-        obj2 = PromocodeAction(promo_id=obj.id, user_id=order_data.user_id)
+        obj2 = PromocodeAction(promo_id=promo_obj.id, user_id=order_data.user_id)
 
         self.session.add(obj2)
 
@@ -163,7 +169,7 @@ class OrderRepository(IOrderRepository):
                 detail="Promocode already activated",
             )
 
-        order_data.amount = get_percent(obj.amount, promo_obj.percent)
+        order_data.amount = get_percent(order.amount, promo_obj.percent)
 
     async def get_all(self) -> list[Order]:
         stmt = (

@@ -20,19 +20,21 @@ async def get_promos(current_user: FromDishka[UserResponse],
     return await service.get_promos(current_user)
 
 
-@router.post("/activate")
-async def activate_promo(
-        promo: PromoActivateRequest,
-        current_user: FromDishka[UserResponse],
-        service: FromDishka[PromocodeService],
-):
-    return await service.activate_promo(promo, current_user.id)
+# @router.post("/activate")
+# async def activate_promo(
+#         promo: PromoActivateRequest,
+#         current_user: FromDishka[UserResponse],
+#         service: FromDishka[PromocodeService],
+# ):
+#     return await service.activate_promo(promo, current_user.id)
 
 
 @router.post("/")
-async def create_promo(data: PromoCreateRequest,
-                       service: FromDishka[PromocodeService],
-                       current_user: FromDishka[UserResponse]):
+async def create_promo(
+        data: PromoCreateRequest,
+        service: FromDishka[PromocodeService],
+        current_user: FromDishka[UserResponse]
+):
     return await service.create_promo(current_user, data)
 
 

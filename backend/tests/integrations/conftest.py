@@ -1,4 +1,5 @@
 import random
+from contextlib import asynccontextmanager
 from typing import AsyncGenerator
 
 import pytest
@@ -97,6 +98,17 @@ async def client(app):
 
 
 @pytest.fixture
+def client_fabric(app):
+    @asynccontextmanager
+    async def _client():
+        transport = ASGITransport(app=app)
+        async with AsyncClient(transport=transport, base_url="http://test/api") as client:
+            yield client
+
+    return _client
+
+
+@pytest.fixture
 async def session(async_session_maker) -> AsyncGenerator[AsyncSession, None]:
     async with async_session_maker() as s:
         yield s
@@ -141,7 +153,6 @@ async def created_product(product_repository, session, test_product1):
     product = await product_repository.create(test_product1)
     await session.commit()
     return product
-
 
 
 @pytest.fixture
@@ -198,42 +209,71 @@ async def created_user_client(client: AsyncClient, user_repository: UserReposito
     return client
 
 
-@pytest.fixture
-async def create_users(client: AsyncClient, user_repository: UserRepository, session: AsyncSession):
-    async def _create():
+@pytest_asyncio.fixture
+async def authenticated_client_fabric(
+        app,
+        user_repository: UserRepository,
+        session: AsyncSession,
+):
+    clients: list[AsyncClient] = []
+
+    async def _create(
+            role: RoleEnum = RoleEnum.USER,
+            username: str = "User",
+            email_prefix: str = "User",
+    ) -> AsyncClient:
+        transport = ASGITransport(app=app)
+        client = AsyncClient(transport=transport, base_url="http://test/api")
+        clients.append(client)
+
         password = make_valid_password(12)
         hashed_password = hash_password(password)
 
         user_create_data = UserCreate(
-            email=f"User_{random.randint(1, 10000)}@test.com",
-            username="User",
+            email=f"{email_prefix}_{random.randint(1, 10000)}@test.com",
+            username=username,
             password=hashed_password,
-            role=RoleEnum.USER,
+            role=role,
             email_verified=True,
         )
 
-        user = await user_repository.create(user_create_data)
+        await user_repository.create(user_create_data)
         await session.commit()
 
-        login_data = UserLogin(email=user_create_data.email, password=password)
+        login_data = UserLogin(
+            email=user_create_data.email,
+            password=password,
+        )
         response = await client.post("/users/login", json=login_data.model_dump())
-        token = response.json()["access_token"]
+        assert response.status_code == 200, response.text
 
+        token = response.json()["access_token"]
         client.cookies.set("access_token", token)
         client.headers["Authorization"] = f"Bearer {token}"
 
         return client
 
-    return _create
+    yield _create
+
+    for client in clients:
+        await client.aclose()
 
 
-@pytest.fixture
-async def created_users(create_users):
-    return [
-        await create_users()
-        for i in range(3)
-    ]
+@pytest_asyncio.fixture
+async def created_users(authenticated_client_fabric):
+    user1 = await authenticated_client_fabric(role=RoleEnum.USER, username="User", email_prefix="User1")
+    user2 = await authenticated_client_fabric(role=RoleEnum.USER, username="User", email_prefix="User2")
+    user3 = await authenticated_client_fabric(role=RoleEnum.USER, username="User", email_prefix="User3")
 
+    return [user1, user2, user3]
+
+
+@pytest_asyncio.fixture
+async def created_employee_clients(authenticated_client_fabric):
+    employee1 = await authenticated_client_fabric(role=RoleEnum.EMPLOYEE, username="Employee", email_prefix="Employee1")
+    employee2 = await authenticated_client_fabric(role=RoleEnum.EMPLOYEE, username="Employee", email_prefix="Employee2")
+
+    return [employee1, employee2]
 
 
 @pytest.fixture

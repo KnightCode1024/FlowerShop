@@ -135,16 +135,14 @@ class OrderService:
         async with self.uow:
             order = await self.orders.add(order_data)
 
-        return order
+        return order.to_entity()
 
     # @require_roles([RoleEnum.USER])
     async def update_order(self, user: UserResponse, data: OrderUpdateRequest):
         order_data = OrderUpdate(user_id=user.id, **data.model_dump())
-        print(order_data)
         async with self.uow:
             order = await self.orders.update(order_data)
-
-        return order
+        return order.to_entity()
 
     @require_roles([RoleEnum.USER])
     async def get_all_user_orders(self, user: UserResponse):

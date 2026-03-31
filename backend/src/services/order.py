@@ -23,18 +23,18 @@ from schemas.user import UserResponse
 
 class OrderService:
     def __init__(
-        self,
-        uow: UnitOfWork,
-        order_repository: IOrderRepository,
-        product_repository: IProductRepository,
+            self,
+            uow: UnitOfWork,
+            order_repository: IOrderRepository,
+            product_repository: IProductRepository,
     ):
         self.uow = uow
         self.orders = order_repository
         self.products = product_repository
 
     async def _validate_and_prepare_order_products(
-        self,
-        order_items: list,
+            self,
+            order_items: list,
     ) -> list[OrderProduct]:
         """Validate order items and return OrderProduct objects."""
         if not order_items:
@@ -124,7 +124,7 @@ class OrderService:
                         ),
                     )
 
-    @require_roles([RoleEnum.USER])
+    # @require_roles([RoleEnum.USER])
     async def create_order(self, user: UserResponse, data: OrderCreateRequest):
         order_data = OrderCreate(
             user_id=user.id,
@@ -137,18 +137,10 @@ class OrderService:
 
         return order
 
-    @require_roles([RoleEnum.USER])
+    # @require_roles([RoleEnum.USER])
     async def update_order(self, user: UserResponse, data: OrderUpdateRequest):
-        update_dict = {
-            "id": data.order_id,
-            "user_id": user.id,
-            "order_products": data.order_products,
-        }
-        if data.delivery_address:
-            update_dict.update(data.delivery_address.model_dump())
-
-        order_data = OrderUpdate(**update_dict)
-
+        order_data = OrderUpdate(user_id=user.id, **data.model_dump())
+        print(order_data)
         async with self.uow:
             order = await self.orders.update(order_data)
 
@@ -174,7 +166,7 @@ class OrderService:
                 raise OrderNotFoundError(id)
             return order
 
-    @require_roles([RoleEnum.USER])
+    # @require_roles([RoleEnum.USER])
     async def get_cart(self, user: UserResponse):
         async with self.uow:
             order = await self.orders.get_cart(user.id)

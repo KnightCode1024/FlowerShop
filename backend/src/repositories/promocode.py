@@ -49,7 +49,6 @@ class PromocodeRepository(IPromocodeRepository):
         try:
             await self.session.flush()
         except IntegrityError:
-            await self.session.rollback()
             raise ValueError("Promocode already exists")
 
         return obj

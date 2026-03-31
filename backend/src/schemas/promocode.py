@@ -32,12 +32,12 @@ class PromoActivateCreate(BaseModel):
 
 class PromoCreate(BaseModel):
     code: str | None = None
-    max_count_activators: int
-    percent: float
+    max_count_activators: int | None = None
+    percent: float | None = None
 
 
 class PromoUpdate(BaseModel):
     id: int
     code: str | None = None
-    max_count_activators: int
-    percent: float
+    max_count_activators: int | None = None
+    percent: float | None = None

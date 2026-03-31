@@ -31,13 +31,8 @@ class OrderCreateRequest(BaseModel):
 
 
 class OrderUpdateRequest(BaseModel):
-<<<<<<< HEAD
     id: int
     order_products: list[CartItem] | None = None
-=======
-    order_id: int
-    order_products: list[CartItem]
->>>>>>> daff0ad93aaee44492a5eaf3f67d825b1c21a77e
     delivery_address: DeliveryAddress | None = None
     promocode: str | None = None
 
@@ -79,11 +74,6 @@ class OrderResponse(BaseModel):
     delivery_city: str | None = None
     delivery_zip: str | None = None
     delivery_notes: str | None = None
-<<<<<<< HEAD
-
-
-=======
->>>>>>> daff0ad93aaee44492a5eaf3f67d825b1c21a77e
 
 
 class OrderProductCreate(BaseModel):

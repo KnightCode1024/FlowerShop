@@ -20,14 +20,14 @@ class PromocodeService:
     async def create_promo(self, user, data: PromoCreateRequest):
         promo_data = PromoCreate(**data.model_dump())
 
-        try:
-            async with self.uow:
-                return await self.repository.add(promo_data)
-        except ValueError as e:
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail=str(e),
-            )
+        # try:
+        async with self.uow:
+            return await self.repository.add(promo_data)
+        # except ValueError as e:
+        #     raise HTTPException(
+        #         status_code=status.HTTP_409_CONFLICT,
+        #         detail=str(e),
+        #     )
 
     @require_roles([RoleEnum.USER])
     async def activate_promo(self, user, promo_code_data: PromoActivateRequest, user_id: int):

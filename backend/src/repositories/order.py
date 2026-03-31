@@ -2,6 +2,7 @@ import datetime
 import time
 from typing import Protocol
 
+from fastapi import HTTPException
 from sqlalchemy import desc, insert, outerjoin, select, update, func, delete
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession

@@ -186,6 +186,8 @@ async def created_user_client(client: AsyncClient, user_repository: UserReposito
     user = await user_repository.create(user_create_data)
     await session.commit()
 
+    assert user.email == user_create_data.email
+
     login_data = UserLogin(email=user_create_data.email, password=password)
     response = await client.post("/users/login", json=login_data.model_dump())
     token = response.json()["access_token"]

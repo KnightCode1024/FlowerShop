@@ -3,12 +3,13 @@ import uuid
 
 import pytest
 
-from schemas.invoice import InvoiceResponse, InvoiceStatus, Methods
-from tasks.notify import send_notify_admins
+from schemas.invoice import InvoiceStatus, Methods, InvoiceResponse
 
 
 @pytest.mark.asyncio
 async def test_send_notify_admins_in_bot():
+    from tasks.notify import send_notify_admins
+
     test_invoice_data = InvoiceResponse(
         uid=uuid.uuid4(),
         name="Test invoice",

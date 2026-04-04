@@ -1,7 +1,6 @@
 from dishka import Provider, Scope, provide
 
 from core.uow import UnitOfWork
-from entrypoint.config import Config
 from repositories import (
     ICategoryRepository,
     IInvoiceRepository,
@@ -53,9 +52,9 @@ class ServiceProvider(Provider):
             user_repository: IUserRepository,
     ) -> InvoiceService:
         return InvoiceService(uow,
+                              products_repository,
                               invoice_repository,
                               orders_repository,
-                              products_repository,
                               user_repository,
                               factories)
 

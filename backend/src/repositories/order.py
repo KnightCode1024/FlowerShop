@@ -40,7 +40,7 @@ class IOrderRepository(Protocol):
     async def get_analytics_orders(self) -> OrdersAnalytics:
         pass
 
-    async def get(self, id: int, user_id: int) -> Order:
+    async def get(self, id: int, user_id: int | None) -> Order:
         pass
 
     async def delete(self, id: int) -> None:

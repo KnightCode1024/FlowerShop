@@ -30,7 +30,7 @@ def format_delivery_info(order: OrderResponse) -> str:
     """Форматирует информацию о доставке для уведомления."""
     if not order.recipient_name:
         return "Информация о доставке не указана"
-    
+
     lines = [
         f"Получатель: {order.recipient_name}",
         f"Телефон: {order.recipient_phone or 'Не указан'}",
@@ -41,7 +41,7 @@ def format_delivery_info(order: OrderResponse) -> str:
         lines.append(f"Индекс: {order.delivery_zip}")
     if order.delivery_notes:
         lines.append(f"Комментарий: {order.delivery_notes}")
-    
+
     return "\n".join(lines)
 
 

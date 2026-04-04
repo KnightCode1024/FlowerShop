@@ -35,6 +35,7 @@ async def create_user_from_args(
         username=username,
         role=role,
         password=password,
+        email_verified=True
     )
     try:
         result = await user_service.create_user_for_console(user_data)
@@ -44,6 +45,8 @@ async def create_user_from_args(
         print(f"| ID:       {result.id:<27} |")
         print("----------------------------------------")
         print(f"| Email:    {result.email:<27} |")
+        print(f"---------------------------------------")
+        print(f"| Password: {password} |")
         print("----------------------------------------")
         print(f"| Username: {result.username:<27} |")
         print("----------------------------------------")

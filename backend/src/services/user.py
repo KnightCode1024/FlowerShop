@@ -109,19 +109,14 @@ class UserService:
     async def login_user(self, user_data: UserLogin) -> AccessToken:
         user = await self.user_repository.get_user_by_email(user_data.email)
 
-        try:
-            if not user or not validate_password(
-                user_data.password,
-                user.password,
-            ):
-                raise ValueError("Incorrect login or password")
-
-            if not user.email_verified:
-                raise ValueError("Email not verified")
-
-        except Exception as e:
-            logging.exception("Password or email not valid", exc_info=True)
+        if not user or not validate_password(
+            user_data.password,
+            user.password,
+        ):
             raise ValueError("Incorrect login or password")
+
+        if not user.email_verified:
+            raise ValueError("Email not verified")
 
         otp_secret = generate_otp_secret()
         otp_code = generate_otp_code(otp_secret)

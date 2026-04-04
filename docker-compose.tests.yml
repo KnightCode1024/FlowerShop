@@ -58,7 +58,7 @@ services:
       dockerfile: Dockerfile.test
     env_file:
       - .env.test
-    command: sh -c "pytest tests/integrations/test_orders.py -s"
+    command: sh -c "pytest tests/integrations"
     networks:
       - flower_shop_net
 

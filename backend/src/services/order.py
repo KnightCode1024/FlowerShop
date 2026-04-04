@@ -1,14 +1,10 @@
-import datetime
-
-import taskiq
-
 from core import broker
-from core.exceptions import (OrderInvalidStatusError, OrderNotFoundError,
+from core.exceptions import (OrderNotFoundError,
                              ProductInsufficientStockError)
 from core.permissions import require_roles
 from core.uow import UnitOfWork
 from models import RoleEnum
-from models.order import OrderProduct, OrderStatus
+from models.order import OrderProduct
 from repositories.order import IOrderRepository
 from repositories.product import IProductRepository
 from schemas.order import (
